@@ -4,6 +4,7 @@ import { crearAppConDatosDePrueba } from "./helpers.js";
 describe("API: crear eventos", () => {
   let app;
   let usuarios;
+  let comoUsuario;
 
   const enUnMes = () => {
     const fecha = new Date();
@@ -22,11 +23,11 @@ describe("API: crear eventos", () => {
   });
 
   beforeEach(async () => {
-    ({ app, usuarios } = await crearAppConDatosDePrueba());
+    ({ app, usuarios, comoUsuario } = await crearAppConDatosDePrueba());
   });
 
   it("POST /eventos crea el evento con el usuario identificado como organizador", async () => {
-    const res = await request(app).post("/eventos").set("X-Usuario-Id", String(usuarios.juan.id)).send(nuevoEvento());
+    const res = await request(app).post("/eventos").set(comoUsuario(usuarios.juan)).send(nuevoEvento());
 
     expect(res.status).toBe(201);
     expect(res.headers.location).toBe(`/eventos/${res.body.id}`);
@@ -51,7 +52,7 @@ describe("API: crear eventos", () => {
   it("POST /eventos con un tipo de entrada inválido responde 422 con el motivo", async () => {
     const evento = { ...nuevoEvento(), tiposEntrada: [{ nombre: "General", precio: 5000, cupo: -3 }] };
 
-    const res = await request(app).post("/eventos").set("X-Usuario-Id", "1").send(evento);
+    const res = await request(app).post("/eventos").set(comoUsuario(usuarios.lucia)).send(evento);
 
     expect(res.status).toBe(422);
     expect(res.body.message).toBe('El cupo de "General" debe ser un número entero mayor a 0');
@@ -61,8 +62,8 @@ describe("API: crear eventos", () => {
     const conCampoExtra = { ...nuevoEvento(), organizadorId: 2 };
     const tipoConCampoExtra = { ...nuevoEvento(), tiposEntrada: [{ nombre: "G", precio: 1, cupo: 1, vendidas: 5 }] };
 
-    const res = await request(app).post("/eventos").set("X-Usuario-Id", "1").send(conCampoExtra);
-    const resTipo = await request(app).post("/eventos").set("X-Usuario-Id", "1").send(tipoConCampoExtra);
+    const res = await request(app).post("/eventos").set(comoUsuario(usuarios.lucia)).send(conCampoExtra);
+    const resTipo = await request(app).post("/eventos").set(comoUsuario(usuarios.lucia)).send(tipoConCampoExtra);
 
     expect(res.status).toBe(400);
     expect(res.body.message).toBe("Campos no permitidos en la request: organizadorId");

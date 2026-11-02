@@ -4,15 +4,14 @@ import { crearAppConDatosDePrueba } from "./helpers.js";
 describe("API: compras de un evento (vista del organizador)", () => {
   let app;
   let usuarios;
+  let comoUsuario;
 
   // Noche de Rock Nacional (id 1) la organiza Lucía; tiene compras de Juan (confirmada) y Sofía (pendiente)
   const ROCK = 1;
 
   beforeEach(async () => {
-    ({ app, usuarios } = await crearAppConDatosDePrueba());
+    ({ app, usuarios, comoUsuario } = await crearAppConDatosDePrueba());
   });
-
-  const comoUsuario = (usuario) => ({ "X-Usuario-Id": String(usuario.id) });
 
   it("GET /eventos/:id/compras muestra estados y disponibilidad por tipo de entrada", async () => {
     const res = await request(app).get(`/eventos/${ROCK}/compras`).set(comoUsuario(usuarios.lucia));

@@ -4,15 +4,15 @@ import { crearAppConDatosDePrueba } from "./helpers.js";
 describe("API: cambios de estado de una compra", () => {
   let app;
   let usuarios;
+  let comoUsuario;
 
   // Hamlet (id 5) lo organiza Martín
   const HAMLET = 5;
 
   beforeEach(async () => {
-    ({ app, usuarios } = await crearAppConDatosDePrueba());
+    ({ app, usuarios, comoUsuario } = await crearAppConDatosDePrueba());
   });
 
-  const comoUsuario = (usuario) => ({ "X-Usuario-Id": String(usuario.id) });
   const comprarHamlet = async (cantidad = 2) =>
     (
       await request(app)

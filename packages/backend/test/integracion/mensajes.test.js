@@ -4,16 +4,15 @@ import { crearAppConDatosDePrueba } from "./helpers.js";
 describe("API: chat de una compra", () => {
   let app;
   let usuarios;
+  let comoUsuario;
   let compraRock;
 
   beforeEach(async () => {
-    ({ app, usuarios } = await crearAppConDatosDePrueba());
+    ({ app, usuarios, comoUsuario } = await crearAppConDatosDePrueba());
     // La compra de Juan para la Noche de Rock ya tiene una pregunta y una respuesta de Lucía
     const compras = (await request(app).get("/compras").set(comoUsuario(usuarios.juan))).body;
     compraRock = compras.find((c) => c.evento.nombre === "Noche de Rock Nacional");
   });
-
-  const comoUsuario = (usuario) => ({ "X-Usuario-Id": String(usuario.id) });
 
   it("GET /compras/:id/mensajes devuelve la conversación", async () => {
     const res = await request(app).get(`/compras/${compraRock.id}/mensajes`).set(comoUsuario(usuarios.juan));

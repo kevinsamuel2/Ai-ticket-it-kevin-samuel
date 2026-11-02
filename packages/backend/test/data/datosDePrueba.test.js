@@ -1,8 +1,5 @@
 import { cargarDatosDePrueba } from "../../data/datosDePrueba.js";
-import { UsuarioRepository } from "../../repository/Usuario.repository.js";
-import { CategoriaRepository } from "../../repository/Categoria.repository.js";
-import { EventoRepository } from "../../repository/Evento.repository.js";
-import { CompraRepository } from "../../repository/Compra.repository.js";
+import { crearRepositorios } from "../../config/repositorios.js";
 import { EstadoCompra } from "../../domain/EstadoCompra.js";
 import { Resenia } from "../../domain/Resenia.js";
 
@@ -13,12 +10,7 @@ describe("Datos de prueba y repositorios", () => {
   let usuarios;
 
   beforeAll(async () => {
-    repos = {
-      usuarioRepository: new UsuarioRepository(),
-      categoriaRepository: new CategoriaRepository(),
-      eventoRepository: new EventoRepository(),
-      compraRepository: new CompraRepository(),
-    };
+    repos = crearRepositorios();
     ({ usuarios } = await cargarDatosDePrueba(repos, ahora));
   });
 
@@ -27,6 +19,14 @@ describe("Datos de prueba y repositorios", () => {
     expect(await repos.categoriaRepository.buscarTodos()).toHaveLength(6);
     expect(await repos.eventoRepository.buscarTodos()).toHaveLength(10);
     expect((await repos.compraRepository.buscarTodos()).length).toBeGreaterThan(0);
+  });
+
+  it("cada usuario tiene una cuenta para iniciar sesión", async () => {
+    const cuenta = await repos.cuentaRepository.buscarPorEmail("juan@aiticketit.com");
+
+    expect(await repos.cuentaRepository.buscarTodos()).toHaveLength(4);
+    expect(cuenta.usuario).toBe(usuarios.juan);
+    expect(cuenta.contraseniaEsCorrecta("ticket123")).toBe(true);
   });
 
   it("hay eventos futuros para comprar y eventos pasados", async () => {

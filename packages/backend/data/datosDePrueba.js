@@ -2,12 +2,15 @@ import { Usuario } from "../domain/Usuario.js";
 import { Categoria } from "../domain/Categoria.js";
 import { Evento } from "../domain/Evento.js";
 import { Compra } from "../domain/Compra.js";
+import { Cuenta } from "../domain/Cuenta.js";
+
+export const CONTRASENIA_DE_PRUEBA = "ticket123";
 
 // Datos iniciales para usar la app sin tener que cargar todo a mano. Como la persistencia es en memoria,
 // se cargan cada vez que levanta el servidor. Las fechas son relativas a "ahora" para que siempre haya
 // eventos próximos (para comprar) y eventos pasados (con entradas utilizadas y reseñas).
 export async function cargarDatosDePrueba(
-  { usuarioRepository, categoriaRepository, eventoRepository, compraRepository },
+  { usuarioRepository, categoriaRepository, eventoRepository, compraRepository, cuentaRepository },
   ahora = new Date(),
 ) {
   const enDias = (dias, hora = 21, minutos = 0) => {
@@ -18,14 +21,18 @@ export async function cargarDatosDePrueba(
   };
   const imagen = (nombre) => `https://picsum.photos/seed/${nombre}/800/450`;
 
-  // --- Usuarios ---
+  // --- Usuarios y sus cuentas (todas con la contraseña CONTRASENIA_DE_PRUEBA) ---
   const [lucia, martin, juan, sofia] = await Promise.all(
     [
-      { nombre: "Lucía", apellido: "Fernández" },
-      { nombre: "Martín", apellido: "Sosa" },
-      { nombre: "Juan", apellido: "Gómez" },
-      { nombre: "Sofía", apellido: "Ramírez" },
-    ].map((datos) => usuarioRepository.guardar(new Usuario(datos))),
+      { nombre: "Lucía", apellido: "Fernández", email: "lucia@aiticketit.com" },
+      { nombre: "Martín", apellido: "Sosa", email: "martin@aiticketit.com" },
+      { nombre: "Juan", apellido: "Gómez", email: "juan@aiticketit.com" },
+      { nombre: "Sofía", apellido: "Ramírez", email: "sofia@aiticketit.com" },
+    ].map(async ({ nombre, apellido, email }) => {
+      const usuario = await usuarioRepository.guardar(new Usuario({ nombre, apellido }));
+      await cuentaRepository.guardar(new Cuenta({ email, contrasenia: CONTRASENIA_DE_PRUEBA, usuario }));
+      return usuario;
+    }),
   );
 
   // --- Categorías ---

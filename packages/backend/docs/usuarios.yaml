@@ -1,17 +1,18 @@
 paths:
   /health:
     get:
-      tags: [Salud]
+      tags:
+        - Salud
       summary: Estado del servicio
       responses:
         "200":
           description: El servicio está funcionando.
-
   /usuarios:
     get:
-      tags: [Usuarios]
+      tags:
+        - Usuarios
       summary: Listar usuarios
-      description: Usuarios disponibles para identificarse en la app (no hay contraseñas).
+      description: Usuarios de la plataforma.
       responses:
         "200":
           description: Todos los usuarios.
@@ -21,10 +22,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Usuario"
-
-  /usuarios/{usuarioId}:
+  "/usuarios/{usuarioId}":
     get:
-      tags: [Usuarios]
+      tags:
+        - Usuarios
       summary: Obtener un usuario
       parameters:
         - $ref: "#/components/parameters/UsuarioIdPath"
@@ -37,12 +38,14 @@ paths:
                 $ref: "#/components/schemas/Usuario"
         "404":
           $ref: "#/components/responses/NoEncontrado"
-
-  /usuarios/{usuarioId}/eventos:
+  "/usuarios/{usuarioId}/eventos":
     get:
-      tags: [Usuarios, Eventos]
+      tags:
+        - Usuarios
+        - Eventos
       summary: Eventos de un organizador
-      description: Todos los eventos que publicó el usuario (próximos y pasados), ordenados por fecha.
+      description: Todos los eventos que publicó el usuario (próximos y pasados),
+        ordenados por fecha.
       parameters:
         - $ref: "#/components/parameters/UsuarioIdPath"
       responses:
@@ -56,12 +59,13 @@ paths:
                   $ref: "#/components/schemas/EventoResumen"
         "404":
           $ref: "#/components/responses/NoEncontrado"
-
-  /usuarios/{usuarioId}/resenias:
+  "/usuarios/{usuarioId}/resenias":
     get:
-      tags: [Usuarios]
+      tags:
+        - Usuarios
       summary: Reputación de un organizador
-      description: Puntaje promedio y reseñas de todos los eventos del organizador, de la más nueva a la más vieja.
+      description: Puntaje promedio y reseñas de todos los eventos del organizador, de
+        la más nueva a la más vieja.
       parameters:
         - $ref: "#/components/parameters/UsuarioIdPath"
       responses:
@@ -80,10 +84,10 @@ paths:
                       $ref: "#/components/schemas/Resenia"
         "404":
           $ref: "#/components/responses/NoEncontrado"
-
   /categorias:
     get:
-      tags: [Categorías]
+      tags:
+        - Categorías
       summary: Listar categorías
       responses:
         "200":

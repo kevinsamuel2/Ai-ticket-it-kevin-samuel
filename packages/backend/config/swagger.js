@@ -14,12 +14,13 @@ const opciones = {
       title: "AI Ticket It - API REST",
       version: "1.0.0",
       description:
-        "API de la plataforma de publicación de eventos y venta de entradas. Para operar como un usuario, " +
-        "mandá su id en el header `X-Usuario-Id` (los usuarios de prueba son 1 a 4).",
+        "API de la plataforma de publicación de eventos y venta de entradas. Las operaciones protegidas requieren iniciar sesión " +
+        "(POST /sesiones) y usar el botón Authorize con el token recibido.",
     },
     servers: [{ url: "/", description: "Servidor actual" }],
     tags: [
       { name: "Salud", description: "Estado del servicio" },
+      { name: "Sesiones", description: "Inicio y cierre de sesión" },
       { name: "Usuarios", description: "Usuarios de la plataforma y reputación de organizadores" },
       { name: "Categorías", description: "Categorías para explorar eventos" },
       { name: "Eventos", description: "Búsqueda, detalle y publicación de eventos" },

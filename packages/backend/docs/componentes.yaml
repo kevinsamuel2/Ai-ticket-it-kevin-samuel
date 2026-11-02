@@ -1,20 +1,11 @@
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Token que devuelve POST /sesiones. Se manda como "Authorization Bearer <token>".
+
   parameters:
-    UsuarioId:
-      name: X-Usuario-Id
-      in: header
-      required: true
-      description: Id del usuario que hace la operación (los usuarios de prueba son 1 a 4).
-      schema:
-        type: integer
-        example: 3
-    UsuarioIdOpcional:
-      name: X-Usuario-Id
-      in: header
-      required: false
-      description: Id del usuario que hace la operación. Si se manda un id inexistente responde 401.
-      schema:
-        type: integer
     EventoIdPath:
       name: eventoId
       in: path
@@ -52,7 +43,7 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
     NoIdentificado:
-      description: Falta el header X-Usuario-Id o el usuario no existe.
+      description: No se inició sesión, o el token es inválido o ya se cerró la sesión.
       content:
         application/json:
           schema:

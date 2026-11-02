@@ -1,26 +1,71 @@
 paths:
   /eventos:
     get:
-      tags: [Eventos]
+      tags:
+        - Eventos
       summary: Buscar y explorar eventos
-      description: >-
-        Búsqueda textual (en nombre, descripción y categoría, sin distinguir mayúsculas ni tildes), filtro por
-        categoría y rango de precio, orden y paginado. Por defecto lista solo los eventos que todavía no se realizaron.
+      description: Búsqueda textual (en nombre, descripción y categoría, sin
+        distinguir mayúsculas ni tildes), filtro por categoría y rango de
+        precio, orden y paginado. Por defecto lista solo los eventos que todavía
+        no se realizaron.
       parameters:
-        - { name: texto, in: query, schema: { type: string }, example: rock }
-        - { name: categoria, in: query, schema: { type: string }, example: Recitales }
-        - { name: precioMinimo, in: query, schema: { type: number, minimum: 0 } }
-        - { name: precioMaximo, in: query, schema: { type: number, minimum: 0 } }
+        - name: texto
+          in: query
+          schema:
+            type: string
+          example: rock
+        - name: categoria
+          in: query
+          schema:
+            type: string
+          example: Recitales
+        - name: precioMinimo
+          in: query
+          schema:
+            type: number
+            minimum: 0
+        - name: precioMaximo
+          in: query
+          schema:
+            type: number
+            minimum: 0
         - name: orden
           in: query
-          description: >-
-            `precio` usa la entrada más barata del evento; `puntaje` usa el promedio de reseñas del organizador
-            (por defecto de mayor a menor, los organizadores sin reseñas quedan al final).
-          schema: { type: string, enum: [fecha, precio, puntaje], default: fecha }
-        - { name: direccion, in: query, schema: { type: string, enum: [asc, desc] } }
-        - { name: incluirPasados, in: query, schema: { type: boolean, default: false } }
-        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
-        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 10 } }
+          description: "`precio` usa la entrada más barata del evento; `puntaje` usa el
+            promedio de reseñas del organizador (por defecto de mayor a menor,
+            los organizadores sin reseñas quedan al final)."
+          schema:
+            type: string
+            enum:
+              - fecha
+              - precio
+              - puntaje
+            default: fecha
+        - name: direccion
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: incluirPasados
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
       responses:
         "200":
           description: Página de resultados.
@@ -33,34 +78,54 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/EventoResumen"
-                  page: { type: integer }
-                  limit: { type: integer }
-                  total: { type: integer }
-                  totalPages: { type: integer }
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+                  total:
+                    type: integer
+                  totalPages:
+                    type: integer
         "400":
           $ref: "#/components/responses/ErrorValidacion"
     post:
-      tags: [Eventos]
+      tags:
+        - Eventos
       summary: Publicar un evento
-      description: El usuario identificado queda como organizador. La fecha tiene que ser futura.
-      parameters:
-        - $ref: "#/components/parameters/UsuarioId"
+      description: El usuario identificado queda como organizador. La fecha tiene que
+        ser futura.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [nombre, descripcion, categoriaId, fecha, tiposEntrada]
+              required:
+                - nombre
+                - descripcion
+                - categoriaId
+                - fecha
+                - tiposEntrada
               properties:
-                nombre: { type: string, example: Ciclo de cine de terror }
-                descripcion: { type: string, example: Proyección de clásicos del género }
-                categoriaId: { type: integer, example: 6 }
-                fecha: { type: string, format: date-time, example: "2026-12-20T21:00:00.000Z" }
+                nombre:
+                  type: string
+                  example: Ciclo de cine de terror
+                descripcion:
+                  type: string
+                  example: Proyección de clásicos del género
+                categoriaId:
+                  type: integer
+                  example: 6
+                fecha:
+                  type: string
+                  format: date-time
+                  example: 2026-12-20T21:00:00.000Z
                 multimedia:
                   type: array
-                  items: { type: string }
-                  example: ["https://picsum.photos/seed/cine/800/450"]
+                  items:
+                    type: string
+                  example:
+                    - https://picsum.photos/seed/cine/800/450
                 tiposEntrada:
                   type: array
                   minItems: 1
@@ -81,12 +146,15 @@ paths:
           description: La categoría no existe.
         "422":
           $ref: "#/components/responses/ReglaDeNegocio"
-
-  /eventos/{eventoId}:
+      security:
+        - bearerAuth: []
+  "/eventos/{eventoId}":
     get:
-      tags: [Eventos]
+      tags:
+        - Eventos
       summary: Detalle de un evento
-      description: Incluye los tipos de entrada con su disponibilidad y las reseñas de eventos anteriores del organizador.
+      description: Incluye los tipos de entrada con su disponibilidad y las reseñas de
+        eventos anteriores del organizador.
       parameters:
         - $ref: "#/components/parameters/EventoIdPath"
       responses:
@@ -98,15 +166,16 @@ paths:
                 $ref: "#/components/schemas/EventoDetalle"
         "404":
           $ref: "#/components/responses/NoEncontrado"
-
-  /eventos/{eventoId}/compras:
+  "/eventos/{eventoId}/compras":
     get:
-      tags: [Eventos, Compras]
+      tags:
+        - Eventos
+        - Compras
       summary: Compras de un evento (solo el organizador)
-      description: Compras del evento con su estado, cantidad por estado y entradas disponibles de cada tipo.
+      description: Compras del evento con su estado, cantidad por estado y entradas
+        disponibles de cada tipo.
       parameters:
         - $ref: "#/components/parameters/EventoIdPath"
-        - $ref: "#/components/parameters/UsuarioId"
         - $ref: "#/components/parameters/EstadoCompraQuery"
       responses:
         "200":
@@ -119,10 +188,15 @@ paths:
                   evento:
                     type: object
                     properties:
-                      id: { type: integer }
-                      nombre: { type: string }
-                      fecha: { type: string, format: date-time }
-                      yaSeRealizo: { type: boolean }
+                      id:
+                        type: integer
+                      nombre:
+                        type: string
+                      fecha:
+                        type: string
+                        format: date-time
+                      yaSeRealizo:
+                        type: boolean
                   disponibilidad:
                     type: array
                     items:
@@ -131,19 +205,31 @@ paths:
                         tipoEntrada:
                           type: object
                           properties:
-                            id: { type: integer }
-                            nombre: { type: string }
-                            precio: { type: number }
-                        cupo: { type: integer }
+                            id:
+                              type: integer
+                            nombre:
+                              type: string
+                            precio:
+                              type: number
+                        cupo:
+                          type: integer
                         vendidas:
                           type: integer
                           description: Incluye las compras pendientes de pago (cupo reservado).
-                        disponibles: { type: integer }
-                        agotado: { type: boolean }
+                        disponibles:
+                          type: integer
+                        agotado:
+                          type: boolean
                   cantidadPorEstado:
                     type: object
-                    additionalProperties: { type: integer }
-                    example: { PENDIENTE: 1, CONFIRMADA: 1, UTILIZADA: 0, CANCELADA: 0, REEMBOLSADA: 0 }
+                    additionalProperties:
+                      type: integer
+                    example:
+                      PENDIENTE: 1
+                      CONFIRMADA: 1
+                      UTILIZADA: 0
+                      CANCELADA: 0
+                      REEMBOLSADA: 0
                   compras:
                     type: array
                     items:
@@ -154,3 +240,5 @@ paths:
           $ref: "#/components/responses/SinPermiso"
         "404":
           $ref: "#/components/responses/NoEncontrado"
+      security:
+        - bearerAuth: []

@@ -4,6 +4,7 @@ import { crearAppConDatosDePrueba } from "./helpers.js";
 describe("API: comprar entradas y consultar compras", () => {
   let app;
   let usuarios;
+  let comoUsuario;
   let repositorios;
 
   // Jazz en el Bosque (id 3) tiene una "Mesa preferencial" (tipo 2) con solo 3 lugares
@@ -11,10 +12,8 @@ describe("API: comprar entradas y consultar compras", () => {
   const MESA = 2;
 
   beforeEach(async () => {
-    ({ app, usuarios, repositorios } = await crearAppConDatosDePrueba());
+    ({ app, usuarios, repositorios, comoUsuario } = await crearAppConDatosDePrueba());
   });
-
-  const comoUsuario = (usuario) => ({ "X-Usuario-Id": String(usuario.id) });
 
   it("POST /compras crea una compra pendiente y descuenta el cupo del evento", async () => {
     const res = await request(app)

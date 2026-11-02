@@ -1,19 +1,21 @@
-import { armarApp } from "../../config/armarApp.js";
-import { cargarDatosDePrueba } from "../../data/datosDePrueba.js";
-import { UsuarioRepository } from "../../repository/Usuario.repository.js";
-import { CategoriaRepository } from "../../repository/Categoria.repository.js";
-import { EventoRepository } from "../../repository/Evento.repository.js";
-import { CompraRepository } from "../../repository/Compra.repository.js";
+import { armarApp, armarServices } from "../../config/armarApp.js";
+import { crearRepositorios } from "../../config/repositorios.js";
+import { cargarDatosDePrueba, CONTRASENIA_DE_PRUEBA } from "../../data/datosDePrueba.js";
 
 // Cada test de integración arranca con repositorios nuevos cargados con los datos de prueba,
-// así un test no se ve afectado por lo que modificó otro
+// así un test no se ve afectado por lo que modificó otro. Además inicia sesión con cada usuario
+// de prueba: comoUsuario(usuario) devuelve el header Authorization para hacer requests en su nombre.
 export async function crearAppConDatosDePrueba(ahora = new Date()) {
-  const repositorios = {
-    usuarioRepository: new UsuarioRepository(),
-    categoriaRepository: new CategoriaRepository(),
-    eventoRepository: new EventoRepository(),
-    compraRepository: new CompraRepository(),
-  };
+  const repositorios = crearRepositorios();
   const { usuarios } = await cargarDatosDePrueba(repositorios, ahora);
-  return { app: armarApp(repositorios), repositorios, usuarios };
+  const services = armarServices(repositorios);
+
+  const tokens = new Map();
+  for (const [nombre, usuario] of Object.entries(usuarios)) {
+    const { token } = await services.authService.iniciarSesion(`${nombre}@aiticketit.com`, CONTRASENIA_DE_PRUEBA);
+    tokens.set(usuario.id, token);
+  }
+  const comoUsuario = (usuario) => ({ Authorization: `Bearer ${tokens.get(usuario.id)}` });
+
+  return { app: armarApp(repositorios, services), repositorios, usuarios, comoUsuario };
 }

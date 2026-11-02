@@ -1,11 +1,11 @@
 paths:
   /compras:
     get:
-      tags: [Compras]
+      tags:
+        - Compras
       summary: Mis compras
       description: Compras del usuario identificado, de la más reciente a la más antigua.
       parameters:
-        - $ref: "#/components/parameters/UsuarioId"
         - $ref: "#/components/parameters/EstadoCompraQuery"
       responses:
         "200":
@@ -20,25 +20,36 @@ paths:
           $ref: "#/components/responses/ErrorValidacion"
         "401":
           $ref: "#/components/responses/NoIdentificado"
+      security:
+        - bearerAuth: []
     post:
-      tags: [Compras]
+      tags:
+        - Compras
       summary: Comprar entradas
-      description: >-
-        Reserva el cupo del tipo de entrada y crea la compra en estado PENDIENTE. Si no se paga dentro del plazo
-        (MINUTOS_PARA_PAGAR), un cron job la cancela y libera el cupo.
-      parameters:
-        - $ref: "#/components/parameters/UsuarioId"
+      description: Reserva el cupo del tipo de entrada y crea la compra en estado
+        PENDIENTE. Si no se paga dentro del plazo (MINUTOS_PARA_PAGAR), un cron
+        job la cancela y libera el cupo.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [eventoId, tipoEntradaId, cantidad]
+              required:
+                - eventoId
+                - tipoEntradaId
+                - cantidad
               properties:
-                eventoId: { type: integer, example: 3 }
-                tipoEntradaId: { type: integer, example: 2 }
-                cantidad: { type: integer, minimum: 1, example: 2 }
+                eventoId:
+                  type: integer
+                  example: 3
+                tipoEntradaId:
+                  type: integer
+                  example: 2
+                cantidad:
+                  type: integer
+                  minimum: 1
+                  example: 2
       responses:
         "201":
           description: Compra creada.
@@ -60,15 +71,17 @@ paths:
                 $ref: "#/components/schemas/Error"
         "422":
           $ref: "#/components/responses/ReglaDeNegocio"
-
-  /compras/{compraId}:
+      security:
+        - bearerAuth: []
+  "/compras/{compraId}":
     get:
-      tags: [Compras]
+      tags:
+        - Compras
       summary: Detalle de una compra
-      description: Solo la ven el comprador y el organizador del evento. Incluye las acciones disponibles para quien consulta.
+      description: Solo la ven el comprador y el organizador del evento. Incluye las
+        acciones disponibles para quien consulta.
       parameters:
         - $ref: "#/components/parameters/CompraIdPath"
-        - $ref: "#/components/parameters/UsuarioId"
       responses:
         "200":
           description: Detalle de la compra.
@@ -82,35 +95,47 @@ paths:
           $ref: "#/components/responses/SinPermiso"
         "404":
           $ref: "#/components/responses/NoEncontrado"
-
-  /compras/{compraId}/cambios-de-estado:
+      security:
+        - bearerAuth: []
+  "/compras/{compraId}/cambios-de-estado":
     post:
-      tags: [Compras]
+      tags:
+        - Compras
       summary: Cambiar el estado de una compra
-      description: |
-        Crea un cambio de estado (CambioEstadoCompra). Quién puede pedir cada estado:
+      description: >
+        Crea un cambio de estado (CambioEstadoCompra). Quién puede pedir cada
+        estado:
+
 
         | Estado pedido | Quién | Resultado |
+
         |---|---|---|
+
         | CONFIRMADA | comprador (pago) | CONFIRMADA |
+
         | CANCELADA | comprador | CANCELADA si no estaba paga, REEMBOLSADA si ya estaba paga. Libera el cupo |
+
         | UTILIZADA | organizador (uso en la puerta) | UTILIZADA |
+
 
         No se puede cancelar una compra utilizada ni la de un evento que ya se realizó.
       parameters:
         - $ref: "#/components/parameters/CompraIdPath"
-        - $ref: "#/components/parameters/UsuarioId"
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [estado]
+              required:
+                - estado
               properties:
                 estado:
                   type: string
-                  enum: [CONFIRMADA, CANCELADA, UTILIZADA]
+                  enum:
+                    - CONFIRMADA
+                    - CANCELADA
+                    - UTILIZADA
       responses:
         "201":
           description: Estado actualizado.
@@ -128,25 +153,35 @@ paths:
           $ref: "#/components/responses/NoEncontrado"
         "409":
           $ref: "#/components/responses/Conflicto"
-
-  /compras/{compraId}/resenia:
+      security:
+        - bearerAuth: []
+  "/compras/{compraId}/resenia":
     post:
-      tags: [Compras]
+      tags:
+        - Compras
       summary: Reseñar el evento de una compra
-      description: Solo el comprador, una vez utilizada la entrada y una sola vez por compra.
+      description: Solo el comprador, una vez utilizada la entrada y una sola vez por
+        compra.
       parameters:
         - $ref: "#/components/parameters/CompraIdPath"
-        - $ref: "#/components/parameters/UsuarioId"
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [detalle, puntuacion]
+              required:
+                - detalle
+                - puntuacion
               properties:
-                detalle: { type: string, example: Increíble show }
-                puntuacion: { type: number, minimum: 1, maximum: 5, example: 5 }
+                detalle:
+                  type: string
+                  example: Increíble show
+                puntuacion:
+                  type: number
+                  minimum: 1
+                  maximum: 5
+                  example: 5
       responses:
         "201":
           description: Reseña creada.
@@ -162,14 +197,15 @@ paths:
           description: La entrada no se utilizó o la compra ya tiene reseña.
         "422":
           $ref: "#/components/responses/ReglaDeNegocio"
-
-  /compras/{compraId}/mensajes:
+      security:
+        - bearerAuth: []
+  "/compras/{compraId}/mensajes":
     get:
-      tags: [Chat]
+      tags:
+        - Chat
       summary: Mensajes de una compra
       parameters:
         - $ref: "#/components/parameters/CompraIdPath"
-        - $ref: "#/components/parameters/UsuarioId"
       responses:
         "200":
           description: Conversación entre comprador y organizador.
@@ -181,22 +217,29 @@ paths:
                   $ref: "#/components/schemas/Mensaje"
         "403":
           $ref: "#/components/responses/SinPermiso"
+      security:
+        - bearerAuth: []
     post:
-      tags: [Chat]
+      tags:
+        - Chat
       summary: Enviar un mensaje
-      description: El comprador y el organizador pueden escribir en cualquier momento, sin importar el estado de la compra.
+      description: El comprador y el organizador pueden escribir en cualquier momento,
+        sin importar el estado de la compra.
       parameters:
         - $ref: "#/components/parameters/CompraIdPath"
-        - $ref: "#/components/parameters/UsuarioId"
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [mensaje]
+              required:
+                - mensaje
               properties:
-                mensaje: { type: string, maxLength: 1000, example: "¿Se puede entrar con mochila?" }
+                mensaje:
+                  type: string
+                  maxLength: 1000
+                  example: ¿Se puede entrar con mochila?
       responses:
         "201":
           description: Mensaje enviado.
@@ -210,3 +253,5 @@ paths:
           $ref: "#/components/responses/SinPermiso"
         "422":
           $ref: "#/components/responses/ReglaDeNegocio"
+      security:
+        - bearerAuth: []

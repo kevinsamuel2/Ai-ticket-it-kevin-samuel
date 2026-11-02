@@ -4,12 +4,12 @@ import { crearAppConDatosDePrueba } from "./helpers.js";
 describe("API: reseñas y reputación de organizadores", () => {
   let app;
   let usuarios;
+  let comoUsuario;
 
   beforeEach(async () => {
-    ({ app, usuarios } = await crearAppConDatosDePrueba());
+    ({ app, usuarios, comoUsuario } = await crearAppConDatosDePrueba());
   });
 
-  const comoUsuario = (usuario) => ({ "X-Usuario-Id": String(usuario.id) });
   const compraDeJuan = async (nombreEvento) =>
     (await request(app).get("/compras").set(comoUsuario(usuarios.juan))).body.find(
       (c) => c.evento.nombre === nombreEvento,

@@ -1,0 +1,55 @@
+paths:
+  /sesiones:
+    post:
+      tags: [Sesiones]
+      summary: Iniciar sesión
+      description: >-
+        Devuelve un token para mandar en el header `Authorization: Bearer <token>` de las operaciones protegidas.
+        Usuarios de prueba: lucia@aiticketit.com, martin@aiticketit.com, juan@aiticketit.com y
+        sofia@aiticketit.com, todos con la contraseña `ticket123`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, contrasenia]
+              properties:
+                email: { type: string, example: juan@aiticketit.com }
+                contrasenia: { type: string, example: ticket123 }
+      responses:
+        "201":
+          description: Sesión iniciada.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string, example: 0f8c2c1e-6a3b-4f7e-9b1d-2a7c5e9d4b10 }
+                  usuario:
+                    allOf:
+                      - $ref: "#/components/schemas/Usuario"
+                      - type: object
+                        properties:
+                          email: { type: string, example: juan@aiticketit.com }
+        "400":
+          $ref: "#/components/responses/ErrorValidacion"
+        "401":
+          description: Email o contraseña incorrectos.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /sesiones/actual:
+    delete:
+      tags: [Sesiones]
+      summary: Cerrar sesión
+      description: Invalida el token de la sesión actual.
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Sesión cerrada.
+        "401":
+          $ref: "#/components/responses/NoIdentificado"

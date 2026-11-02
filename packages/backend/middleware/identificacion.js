@@ -1,28 +1,29 @@
 import { UnauthorizedError } from "../errors/UnauthorizedError.js";
 
-export const HEADER_USUARIO = "x-usuario-id";
-
-// Identificación simple de usuarios: la app manda el id del usuario elegido en el header X-Usuario-Id.
-// No hay contraseñas porque el TP no pide autenticación; lo importante es que el backend sepa quién hace
-// cada operación para aplicar los permisos (ej: solo el organizador ve las ventas de su evento).
-export function crearMiddlewareIdentificacion(usuarioRepository) {
+// Identificación del usuario: la app manda el token que recibió al iniciar sesión en el header
+// "Authorization: Bearer <token>". Si viene, se deja el usuario en req.usuario para que los
+// services apliquen los permisos (ej: solo el organizador ve las ventas de su evento).
+export function crearMiddlewareIdentificacion(authService) {
   return async function identificarUsuario(req, res, next) {
     req.usuario = null;
-    const usuarioId = req.get(HEADER_USUARIO);
-    if (usuarioId !== undefined) {
-      req.usuario = await usuarioRepository.buscarPorId(usuarioId);
-      if (!req.usuario) {
-        throw new UnauthorizedError(`No existe un usuario con id ${usuarioId}`);
+    req.token = null;
+    const autorizacion = req.get("Authorization");
+    if (autorizacion !== undefined) {
+      const [tipo, token] = autorizacion.split(" ");
+      if (tipo !== "Bearer" || !token) {
+        throw new UnauthorizedError('El header Authorization debe tener el formato "Bearer <token>"');
       }
+      req.usuario = await authService.usuarioDeLaSesion(token);
+      req.token = token;
     }
     next();
   };
 }
 
-// Para las rutas que no se pueden usar sin identificarse
+// Para las rutas que no se pueden usar sin iniciar sesión
 export function requerirUsuario(req, res, next) {
   if (!req.usuario) {
-    throw new UnauthorizedError();
+    throw new UnauthorizedError("Tenés que iniciar sesión para realizar esta operación");
   }
   next();
 }
