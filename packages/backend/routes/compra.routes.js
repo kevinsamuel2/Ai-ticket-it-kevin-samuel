@@ -11,3 +11,10 @@ export function crearCompraRouter(compraController) {
   router.post("/:compraId/cambios-de-estado", (req, res) => compraController.cambiarEstado(req, res));
   return router;
 }
+
+// Se monta en /eventos/:eventoId/compras (mergeParams para leer el :eventoId del path padre)
+export function crearComprasDeEventoRouter(compraController) {
+  const router = Router({ mergeParams: true });
+  router.get("/", requerirUsuario, (req, res) => compraController.listarComprasDeEvento(req, res));
+  return router;
+}

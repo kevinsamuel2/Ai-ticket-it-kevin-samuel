@@ -109,6 +109,39 @@ export class CompraService {
       .map((compra) => this.toDTO(compra, ahora));
   }
 
+  // Vista del organizador: compras de su evento por estado y cuántas entradas quedan de cada tipo
+  async listarComprasDeEvento(organizador, eventoId, { estado } = {}, ahora = new Date()) {
+    const evento = await this.eventoRepository.buscarPorId(eventoId);
+    if (!evento) {
+      throw new NotFoundError(`El evento con id ${eventoId} no existe`);
+    }
+    if (!evento.estaOrganizadoPor(organizador)) {
+      throw new ForbiddenError("Solo el organizador del evento puede ver sus compras");
+    }
+
+    const compras = await this.compraRepository.buscarPorEvento(evento);
+    const cantidadPorEstado = Object.fromEntries(
+      Object.keys(EstadoCompra).map((nombre) => [nombre, compras.filter((c) => c.estado.nombre === nombre).length]),
+    );
+
+    return {
+      evento: { id: evento.id, nombre: evento.nombre, fecha: evento.fecha, yaSeRealizo: evento.yaSeRealizo(ahora) },
+      disponibilidad: evento.tiposEntrada.map((tipo) => ({
+        tipoEntrada: { id: tipo.id, nombre: tipo.nombre, precio: tipo.precio },
+        cupo: tipo.cupo,
+        // Incluye las compras pendientes de pago: el cupo queda reservado hasta que se paguen o venzan
+        vendidas: tipo.vendidas,
+        disponibles: tipo.disponibles(),
+        agotado: tipo.estaAgotado(),
+      })),
+      cantidadPorEstado,
+      compras: compras
+        .filter((compra) => !estado || compra.estado === estado)
+        .toSorted((a, b) => b.fechaCompra - a.fechaCompra)
+        .map((compra) => this.toDTO(compra, ahora)),
+    };
+  }
+
   async obtenerCompra(usuario, compraId, ahora = new Date()) {
     return this.toDetalleDTO(await this.buscarCompraVisiblePara(usuario, compraId), usuario, ahora);
   }

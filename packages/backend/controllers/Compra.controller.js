@@ -24,6 +24,12 @@ export class CompraController {
     res.status(200).json(await this.compraService.listarComprasDe(req.usuario, { estado }));
   }
 
+  // GET /eventos/:eventoId/compras?estado= — solo para el organizador del evento
+  async listarComprasDeEvento(req, res) {
+    const estado = req.query.estado === undefined ? undefined : estadoCompraDesdeNombre(req.query.estado);
+    res.status(200).json(await this.compraService.listarComprasDeEvento(req.usuario, req.params.eventoId, { estado }));
+  }
+
   async obtenerCompra(req, res) {
     res.status(200).json(await this.compraService.obtenerCompra(req.usuario, req.params.compraId));
   }

@@ -14,7 +14,7 @@ import { CompraController } from "../controllers/Compra.controller.js";
 import { crearUsuarioRouter } from "../routes/usuario.routes.js";
 import { crearCategoriaRouter } from "../routes/categoria.routes.js";
 import { crearEventoRouter, crearEventosDeOrganizadorRouter } from "../routes/evento.routes.js";
-import { crearCompraRouter } from "../routes/compra.routes.js";
+import { crearCompraRouter, crearComprasDeEventoRouter } from "../routes/compra.routes.js";
 
 // Arma la aplicación completa a partir de los repositorios: inyecta cada dependencia en la capa de arriba
 // (repositorios -> services -> controllers -> routes). Lo usan index.js y los tests de integración.
@@ -42,6 +42,7 @@ export function armarApp({ usuarioRepository, categoriaRepository, eventoReposit
       "/usuarios/:usuarioId/eventos": crearEventosDeOrganizadorRouter(eventoController),
       "/usuarios": crearUsuarioRouter(usuarioController),
       "/categorias": crearCategoriaRouter(categoriaController),
+      "/eventos/:eventoId/compras": crearComprasDeEventoRouter(compraController),
       "/eventos": crearEventoRouter(eventoController),
       "/compras": crearCompraRouter(compraController),
     },
