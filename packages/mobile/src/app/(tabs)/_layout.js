@@ -1,6 +1,5 @@
-import { Redirect, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useUsuario } from "../../context/UsuarioContext";
 import { colores } from "../../theme";
 
 function iconoDeTab(nombre) {
@@ -10,13 +9,6 @@ function iconoDeTab(nombre) {
 }
 
 export default function TabsLayout() {
-  const { usuario } = useUsuario();
-
-  // Sin sesión iniciada no se puede usar la app
-  if (!usuario) {
-    return <Redirect href="/login" />;
-  }
-
   return (
     <Tabs
       screenOptions={{
@@ -29,6 +21,7 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen name="index" options={{ title: "Explorar", tabBarIcon: iconoDeTab("compass-outline") }} />
+      <Tabs.Screen name="compras" options={{ title: "Mis compras", tabBarIcon: iconoDeTab("ticket-outline") }} />
       <Tabs.Screen name="perfil" options={{ title: "Perfil", tabBarIcon: iconoDeTab("person-circle-outline") }} />
     </Tabs>
   );
