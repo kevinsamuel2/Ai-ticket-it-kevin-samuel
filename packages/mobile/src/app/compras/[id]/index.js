@@ -9,6 +9,8 @@ import { mensajeDeError } from "../../../services/api";
 import { Cargando, MensajeError } from "../../../components/EstadosDeCarga";
 import { Boton } from "../../../components/Boton";
 import { EstadoBadge } from "../../../components/EstadoBadge";
+import { FormularioResenia } from "../../../components/FormularioResenia";
+import { Estrellas } from "../../../components/ReseniaItem";
 import { colores, espaciado, estilosDeEstado, radio, texto } from "../../../theme";
 import { confirmar } from "../../../utils/confirmar";
 import { formatearFecha, formatearFechaCompleta, formatearPrecio, textoDiasRestantes } from "../../../utils/formato";
@@ -123,6 +125,17 @@ export default function DetalleCompra() {
         )}
       </View>
 
+      {acciones.puedeReseniar && <FormularioResenia compraId={compra.id} onReseniado={recargar} />}
+      {compra.resenia && (
+        <View style={styles.seccion}>
+          <Text style={texto.subtitulo}>{esComprador ? "Tu reseña" : "Reseña del comprador"}</Text>
+          <View style={styles.resenia}>
+            <Estrellas puntuacion={compra.resenia.puntuacion} tamanio={18} />
+            <Text style={texto.cuerpo}>{compra.resenia.detalle}</Text>
+          </View>
+        </View>
+      )}
+
       <View style={styles.seccion}>
         <Text style={texto.subtitulo}>Historial</Text>
         {compra.historialEstados.map((cambio, indice) => (
@@ -178,6 +191,14 @@ const styles = StyleSheet.create({
   error: { color: colores.peligro, textAlign: "center" },
   acciones: { gap: espaciado.m },
   seccion: { gap: espaciado.s },
+  resenia: {
+    gap: espaciado.xs,
+    padding: espaciado.m,
+    borderRadius: radio.m,
+    backgroundColor: colores.superficie,
+    borderWidth: 1,
+    borderColor: colores.borde,
+  },
   cambio: { flexDirection: "row", gap: espaciado.m, alignItems: "flex-start" },
   punto: { width: 12, height: 12, borderRadius: 6, marginTop: 4 },
   flex: { flex: 1 },
