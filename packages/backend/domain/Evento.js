@@ -94,7 +94,11 @@ export class Evento {
 
   // Búsqueda textual sin distinguir mayúsculas ni tildes, sobre nombre, descripción y categoría
   coincideCon(texto) {
-    const normalizar = (valor) => valor.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+    const normalizar = (valor) =>
+      valor
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "")
+        .toLowerCase();
     const buscado = normalizar(texto.trim());
     return [this.nombre, this.descripcion, this.categoria.nombre].some((campo) => normalizar(campo).includes(buscado));
   }
