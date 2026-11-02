@@ -60,6 +60,7 @@ export class CompraService {
       tipoEntrada: { id: tipoEntrada.id, nombre: tipoEntrada.nombre, precio: tipoEntrada.precio },
       comprador: { id: compra.comprador.id, nombreCompleto: compra.comprador.nombreCompleto() },
       organizador: { id: evento.organizador.id, nombreCompleto: evento.organizador.nombreCompleto() },
+      cantidadMensajes: compra.mensajes.length,
     };
   }
 
@@ -162,6 +163,35 @@ export class CompraService {
     // Cancelar devuelve el cupo al tipo de entrada
     await this.eventoRepository.guardar(compra.evento);
     return this.toDetalleDTO(compra, usuario, ahora);
+  }
+
+  // --- Chat de la compra ---
+
+  // `esMio` le dice a la app de qué lado mostrar cada mensaje sin tener que comparar ids
+  mensajeToDTO(compra, mensaje, usuario) {
+    return {
+      autor: {
+        id: mensaje.usuario.id,
+        nombreCompleto: mensaje.usuario.nombreCompleto(),
+        rol: ROLES.comprador(compra, mensaje.usuario) ? "comprador" : "organizador",
+      },
+      mensaje: mensaje.mensaje,
+      enviado: mensaje.enviado,
+      esMio: mensaje.usuario.esElMismoQue(usuario),
+    };
+  }
+
+  async listarMensajes(usuario, compraId) {
+    const compra = await this.buscarCompraVisiblePara(usuario, compraId);
+    return compra.mensajes.map((mensaje) => this.mensajeToDTO(compra, mensaje, usuario));
+  }
+
+  // Comprador y organizador pueden escribir en cualquier momento, sin importar el estado de la compra
+  async enviarMensaje(usuario, compraId, texto, ahora = new Date()) {
+    const compra = await this.buscarCompraVisiblePara(usuario, compraId);
+    const mensaje = compra.enviarMensaje(usuario, texto, ahora);
+    await this.compraRepository.guardar(compra);
+    return this.mensajeToDTO(compra, mensaje, usuario);
   }
 
   // Una compra solo la pueden ver su comprador y el organizador del evento

@@ -34,6 +34,18 @@ export class CompraController {
     res.status(200).json(await this.compraService.obtenerCompra(req.usuario, req.params.compraId));
   }
 
+  // GET /compras/:compraId/mensajes
+  async listarMensajes(req, res) {
+    res.status(200).json(await this.compraService.listarMensajes(req.usuario, req.params.compraId));
+  }
+
+  // POST /compras/:compraId/mensajes { mensaje }
+  async enviarMensaje(req, res) {
+    validarCamposPermitidos(req.body, ["mensaje"]);
+    validarCamposRequeridos(req.body, ["mensaje"]);
+    res.status(201).json(await this.compraService.enviarMensaje(req.usuario, req.params.compraId, req.body.mensaje));
+  }
+
   // POST /compras/:compraId/cambios-de-estado { estado } — crea un CambioEstadoCompra (recurso del diagrama)
   // en vez de exponer verbos en la URL como /pagar o /cancelar
   async cambiarEstado(req, res) {
