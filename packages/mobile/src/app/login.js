@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useUsuario } from "../context/UsuarioContext";
 import { mensajeDeError } from "../services/api";
@@ -11,7 +10,6 @@ import { hayErrores, validarLogin } from "../utils/validaciones";
 import { colores, espaciado, radio } from "../theme";
 
 export default function Login() {
-  const router = useRouter();
   const { iniciarSesion } = useUsuario();
   const [formulario, setFormulario] = useState({ email: "", contrasenia: "" });
   const [errores, setErrores] = useState({});
@@ -32,7 +30,6 @@ export default function Login() {
     setEnviando(true);
     try {
       await iniciarSesion(formulario.email.trim(), formulario.contrasenia);
-      router.replace("/");
     } catch (error) {
       setErrorDelServidor(mensajeDeError(error));
     } finally {

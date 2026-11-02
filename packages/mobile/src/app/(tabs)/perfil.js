@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
 import { useUsuario } from "../../context/UsuarioContext";
 import { Avatar } from "../../components/Avatar";
 import { Boton } from "../../components/Boton";
@@ -8,14 +7,12 @@ import { API_URL } from "../../config";
 import { colores, espaciado, radio, texto } from "../../theme";
 
 export default function Perfil() {
-  const router = useRouter();
   const { usuario, cerrarSesion } = useUsuario();
   const [saliendo, setSaliendo] = useState(false);
 
   const salir = async () => {
     setSaliendo(true);
     await cerrarSesion();
-    router.replace("/login");
   };
 
   return (
