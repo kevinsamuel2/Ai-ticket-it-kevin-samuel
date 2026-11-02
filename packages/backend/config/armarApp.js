@@ -11,7 +11,7 @@ import { EventoController } from "../controllers/Evento.controller.js";
 
 import { crearUsuarioRouter } from "../routes/usuario.routes.js";
 import { crearCategoriaRouter } from "../routes/categoria.routes.js";
-import { crearEventoRouter } from "../routes/evento.routes.js";
+import { crearEventoRouter, crearEventosDeOrganizadorRouter } from "../routes/evento.routes.js";
 
 // Arma la aplicación completa a partir de los repositorios: inyecta cada dependencia en la capa de arriba
 // (repositorios -> services -> controllers -> routes). Lo usan index.js y los tests de integración.
@@ -19,7 +19,12 @@ export function armarApp({ usuarioRepository, categoriaRepository, eventoReposit
   // Services
   const usuarioService = new UsuarioService(usuarioRepository);
   const categoriaService = new CategoriaService(categoriaRepository);
-  const eventoService = new EventoService(eventoRepository, compraRepository);
+  const eventoService = new EventoService({
+    eventoRepository,
+    compraRepository,
+    categoriaRepository,
+    usuarioRepository,
+  });
 
   // Controllers
   const usuarioController = new UsuarioController(usuarioService);
@@ -29,6 +34,7 @@ export function armarApp({ usuarioRepository, categoriaRepository, eventoReposit
   return crearApp({
     middlewares: [crearMiddlewareIdentificacion(usuarioRepository)],
     rutas: {
+      "/usuarios/:usuarioId/eventos": crearEventosDeOrganizadorRouter(eventoController),
       "/usuarios": crearUsuarioRouter(usuarioController),
       "/categorias": crearCategoriaRouter(categoriaController),
       "/eventos": crearEventoRouter(eventoController),

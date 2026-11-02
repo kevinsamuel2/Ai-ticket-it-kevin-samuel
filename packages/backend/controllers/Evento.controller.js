@@ -1,7 +1,16 @@
 import { ORDENES_VALIDOS } from "../services/Evento.service.js";
-import { parsearEnteroPositivo, parsearNumeroNoNegativo, parsearOpcion, parsearBooleano } from "./validaciones.js";
+import { ValidationError } from "../errors/ValidationError.js";
+import {
+  validarCamposPermitidos,
+  parsearEnteroPositivo,
+  parsearNumeroNoNegativo,
+  parsearOpcion,
+  parsearBooleano,
+} from "./validaciones.js";
 
 const LIMITE_MAXIMO_POR_PAGINA = 50;
+const CAMPOS_EVENTO = ["nombre", "descripcion", "categoriaId", "fecha", "multimedia", "tiposEntrada"];
+const CAMPOS_TIPO_ENTRADA = ["nombre", "descripcion", "precio", "cupo"];
 
 export class EventoController {
   constructor(eventoService) {
@@ -27,5 +36,24 @@ export class EventoController {
 
   async obtenerEvento(req, res) {
     res.status(200).json(await this.eventoService.obtenerEvento(req.params.eventoId));
+  }
+
+  // POST /eventos — el organizador es el usuario identificado
+  async crearEvento(req, res) {
+    validarCamposPermitidos(req.body, CAMPOS_EVENTO);
+    const { tiposEntrada } = req.body;
+    if (Array.isArray(tiposEntrada)) {
+      tiposEntrada.forEach((tipo) => validarCamposPermitidos(tipo, CAMPOS_TIPO_ENTRADA));
+    } else if (tiposEntrada !== undefined) {
+      throw new ValidationError("tiposEntrada debe ser una lista");
+    }
+
+    const evento = await this.eventoService.crearEvento(req.usuario, req.body);
+    res.status(201).location(`/eventos/${evento.id}`).json(evento);
+  }
+
+  // GET /usuarios/:usuarioId/eventos
+  async listarEventosDeOrganizador(req, res) {
+    res.status(200).json(await this.eventoService.listarEventosDeOrganizador(req.params.usuarioId));
   }
 }

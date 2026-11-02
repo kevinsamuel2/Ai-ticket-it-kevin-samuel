@@ -62,7 +62,7 @@ describe("EventoService", () => {
     compraRepository = {
       buscarReseniasDeOrganizador: jest.fn(async (organizador) => reseniasPorOrganizador.get(organizador)),
     };
-    service = new EventoService(eventoRepository, compraRepository);
+    service = new EventoService({ eventoRepository, compraRepository });
   });
 
   const nombres = (resultado) => resultado.items.map((e) => e.nombre);

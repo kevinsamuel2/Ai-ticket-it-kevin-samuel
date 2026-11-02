@@ -1,6 +1,7 @@
 import { NotFoundError } from "../errors/NotFoundError.js";
 import { ValidationError } from "../errors/ValidationError.js";
 import { Resenia } from "../domain/Resenia.js";
+import { Evento } from "../domain/Evento.js";
 
 // Cómo se obtiene el valor por el que se ordena cada criterio, y su dirección por defecto
 const CRITERIOS_DE_ORDEN = {
@@ -12,9 +13,12 @@ const CRITERIOS_DE_ORDEN = {
 export const ORDENES_VALIDOS = Object.keys(CRITERIOS_DE_ORDEN);
 
 export class EventoService {
-  constructor(eventoRepository, compraRepository) {
+  // Recibe las dependencias con nombre para evitar una lista larga de parámetros posicionales
+  constructor({ eventoRepository, compraRepository, categoriaRepository, usuarioRepository }) {
     this.eventoRepository = eventoRepository;
     this.compraRepository = compraRepository;
+    this.categoriaRepository = categoriaRepository;
+    this.usuarioRepository = usuarioRepository;
   }
 
   // --- DTOs ---
@@ -124,6 +128,39 @@ export class EventoService {
       tiposEntrada: evento.tiposEntrada.map((tipo) => this.tipoEntradaToDTO(tipo)),
       reseniasOrganizador: resenias.toSorted((a, b) => b.fecha - a.fecha).map((resenia) => this.reseniaToDTO(resenia)),
     };
+  }
+
+  // El usuario identificado publica un evento y queda como su organizador
+  async crearEvento(
+    organizador,
+    { nombre, descripcion, categoriaId, fecha, multimedia, tiposEntrada },
+    ahora = new Date(),
+  ) {
+    if (categoriaId === undefined) {
+      throw new ValidationError("Falta la categoría del evento (categoriaId)");
+    }
+    const categoria = await this.categoriaRepository.buscarPorId(categoriaId);
+    if (!categoria) {
+      throw new NotFoundError(`La categoría con id ${categoriaId} no existe`);
+    }
+
+    const evento = new Evento({ nombre, descripcion, categoria, fecha, multimedia, tiposEntrada, organizador });
+    evento.validarQueLaFechaSeaFutura(ahora);
+
+    const guardado = await this.eventoRepository.guardar(evento);
+    return this.obtenerEvento(guardado.id, ahora);
+  }
+
+  // Todos los eventos de un organizador (próximos y pasados), del más cercano al más lejano
+  async listarEventosDeOrganizador(organizadorId, ahora = new Date()) {
+    const organizador = await this.usuarioRepository.buscarPorId(organizadorId);
+    if (!organizador) {
+      throw new NotFoundError(`El usuario con id ${organizadorId} no existe`);
+    }
+    const eventos = await this.eventoRepository.buscarPorOrganizador(organizador);
+    const reputacion = this._reputacion(await this.compraRepository.buscarReseniasDeOrganizador(organizador));
+
+    return eventos.toSorted((a, b) => a.fecha - b.fecha).map((evento) => this.toResumenDTO(evento, reputacion, ahora));
   }
 
   async buscarEventoExistente(eventoId) {
