@@ -1,0 +1,127 @@
+import { useCallback, useState } from "react";
+import { FlatList, StyleSheet, TextInput, View } from "react-native";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useCarga } from "../../hooks/useCarga";
+import { useValorDiferido } from "../../hooks/useValorDiferido";
+import { buscarEventos, listarCategorias } from "../../services/eventos.service";
+import { EventoCard } from "../../components/EventoCard";
+import { Chips } from "../../components/Chips";
+import { Cargando, MensajeError, SinResultados } from "../../components/EstadosDeCarga";
+import { colores, espaciado, radio } from "../../theme";
+
+// Opciones de orden que pide el enunciado: precio, fecha del evento y puntaje del organizador
+const ORDENES = [
+  { valor: "fecha", etiqueta: "Más próximos", orden: "fecha", direccion: "asc" },
+  { valor: "precio-asc", etiqueta: "Menor precio", orden: "precio", direccion: "asc" },
+  { valor: "precio-desc", etiqueta: "Mayor precio", orden: "precio", direccion: "desc" },
+  { valor: "puntaje", etiqueta: "Mejor puntaje", orden: "puntaje", direccion: "desc" },
+];
+
+export default function Explorar() {
+  const router = useRouter();
+  const [texto, setTexto] = useState("");
+  const [categoria, setCategoria] = useState(null);
+  const [orden, setOrden] = useState("fecha");
+  const textoABuscar = useValorDiferido(texto.trim());
+
+  const { datos: categorias } = useCarga(useCallback(() => listarCategorias(), []));
+
+  const { orden: criterio, direccion } = ORDENES.find((opcion) => opcion.valor === orden);
+  const {
+    datos: resultado,
+    cargando,
+    error,
+    recargar,
+  } = useCarga(
+    useCallback(
+      () => buscarEventos({ texto: textoABuscar, categoria, orden: criterio, direccion }),
+      [textoABuscar, categoria, criterio, direccion],
+    ),
+  );
+
+  const opcionesDeCategoria = [
+    { valor: null, etiqueta: "Todas" },
+    ...(categorias ?? []).map((c) => ({ valor: c.nombre, etiqueta: c.nombre })),
+  ];
+
+  const renderizarResultados = () => {
+    if (error) return <MensajeError mensaje={error} onReintentar={recargar} />;
+    if (!resultado) return <Cargando mensaje="Buscando eventos..." />;
+    return (
+      <FlatList
+        data={resultado.items}
+        keyExtractor={(evento) => String(evento.id)}
+        contentContainerStyle={styles.lista}
+        refreshing={cargando}
+        onRefresh={recargar}
+        renderItem={({ item: evento }) => (
+          <EventoCard evento={evento} onPress={() => router.push(`/eventos/${evento.id}`)} />
+        )}
+        ListEmptyComponent={
+          <SinResultados mensaje={texto ? `No encontramos eventos para "${texto}"` : "No hay eventos próximos"} />
+        }
+      />
+    );
+  };
+
+  return (
+    <View style={styles.contenedor}>
+      <View style={styles.filtros}>
+        <View style={styles.buscador}>
+          <Ionicons name="search" size={18} color={colores.textoSecundario} />
+          <TextInput
+            value={texto}
+            onChangeText={setTexto}
+            placeholder="Buscar eventos, artistas, lugares..."
+            placeholderTextColor={colores.textoSecundario}
+            accessibilityLabel="Buscar eventos"
+            returnKeyType="search"
+            style={styles.input}
+          />
+          {texto.length > 0 && (
+            <Ionicons
+              name="close-circle"
+              size={18}
+              color={colores.textoSecundario}
+              onPress={() => setTexto("")}
+              accessibilityRole="button"
+              accessibilityLabel="Borrar búsqueda"
+            />
+          )}
+        </View>
+        <Chips
+          etiquetaAccesible="Categorías"
+          opciones={opcionesDeCategoria}
+          seleccionada={categoria}
+          onSeleccionar={setCategoria}
+        />
+        <Chips etiquetaAccesible="Ordenar por" opciones={ORDENES} seleccionada={orden} onSeleccionar={setOrden} />
+      </View>
+      {renderizarResultados()}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  contenedor: { flex: 1 },
+  filtros: {
+    gap: espaciado.s,
+    paddingVertical: espaciado.m,
+    backgroundColor: colores.superficie,
+    borderBottomWidth: 1,
+    borderBottomColor: colores.borde,
+  },
+  buscador: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: espaciado.s,
+    marginHorizontal: espaciado.l,
+    paddingHorizontal: espaciado.m,
+    minHeight: 44,
+    borderRadius: radio.m,
+    backgroundColor: "#F4F4F5",
+  },
+  input: { flex: 1, fontSize: 15, color: colores.texto, paddingVertical: espaciado.s },
+  lista: { padding: espaciado.l, gap: espaciado.l, flexGrow: 1 },
+});

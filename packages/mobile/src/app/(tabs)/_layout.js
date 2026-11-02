@@ -28,6 +28,7 @@ export default function TabsLayout() {
         sceneStyle: { backgroundColor: colores.fondo },
       }}
     >
+      <Tabs.Screen name="index" options={{ title: "Explorar", tabBarIcon: iconoDeTab("compass-outline") }} />
       <Tabs.Screen name="perfil" options={{ title: "Perfil", tabBarIcon: iconoDeTab("person-circle-outline") }} />
     </Tabs>
   );
