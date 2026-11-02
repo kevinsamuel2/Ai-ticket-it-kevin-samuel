@@ -72,6 +72,16 @@ export class Compra {
     this.actualizarEstado(this.estado.estadoAlCancelar(), quien, ahora);
   }
 
+  // Una compra que no se pagó a tiempo la cancela el sistema (quien = null) para liberar el cupo reservado
+  estaVencida(minutosParaPagar, ahora = new Date()) {
+    const limite = new Date(this.fechaCompra.getTime() + minutosParaPagar * 60 * 1000);
+    return this.estado === EstadoCompra.PENDIENTE && limite <= ahora;
+  }
+
+  vencerPorFaltaDePago(ahora = new Date()) {
+    this.actualizarEstado(EstadoCompra.CANCELADA, null, ahora);
+  }
+
   // Solo tiene sentido contar los días para una compra confirmada
   diasParaElEvento(ahora = new Date()) {
     return this.estado === EstadoCompra.CONFIRMADA ? this.evento.diasRestantes(ahora) : null;

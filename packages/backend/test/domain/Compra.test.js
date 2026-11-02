@@ -165,6 +165,34 @@ describe("Dominio: Compra", () => {
     });
   });
 
+  describe("Vencimiento por falta de pago", () => {
+    const minutosDespues = (minutos) => new Date(ahora.getTime() + minutos * 60 * 1000);
+
+    it("una compra pendiente vence cuando pasa el plazo para pagar", () => {
+      const compra = comprar();
+
+      expect(compra.estaVencida(30, minutosDespues(29))).toBe(false);
+      expect(compra.estaVencida(30, minutosDespues(30))).toBe(true);
+    });
+
+    it("una compra pagada nunca vence", () => {
+      const compra = comprar();
+      compra.confirmarPago(comprador, ahora);
+
+      expect(compra.estaVencida(30, minutosDespues(600))).toBe(false);
+    });
+
+    it("al vencer queda CANCELADA por el sistema y devuelve el cupo", () => {
+      const compra = comprar(3);
+
+      compra.vencerPorFaltaDePago(minutosDespues(30));
+
+      expect(compra.estado).toBe(EstadoCompra.CANCELADA);
+      expect(compra.historialEstados.at(-1).quien).toBeNull();
+      expect(platea.disponibles()).toBe(4);
+    });
+  });
+
   describe("diasParaElEvento", () => {
     it("devuelve los días que faltan solo si la compra está confirmada", () => {
       const compra = comprar();

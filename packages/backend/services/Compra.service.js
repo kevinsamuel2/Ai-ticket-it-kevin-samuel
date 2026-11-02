@@ -72,7 +72,8 @@ export class CompraService {
       ...this.toDTO(compra, ahora),
       historialEstados: compra.historialEstados.map((cambio) => ({
         estado: cambio.estado.nombre,
-        quien: cambio.quien.nombreCompleto(),
+        // Sin usuario: lo hizo el sistema (vencimiento automático por falta de pago)
+        quien: cambio.quien?.nombreCompleto() ?? "Sistema",
         fechaHora: cambio.fechaHora,
       })),
       resenia: compra.resenia && {
@@ -179,6 +180,21 @@ export class CompraService {
     compra.reseniar({ detalle, puntuacion }, ahora);
     await this.compraRepository.guardar(compra);
     return this.toDetalleDTO(compra, usuario, ahora);
+  }
+
+  // Lo ejecuta el cron job: cancela las compras pendientes que superaron el plazo para pagar y libera su cupo.
+  // Devuelve cuántas venció.
+  async vencerComprasPendientes(minutosParaPagar, ahora = new Date()) {
+    const limite = new Date(ahora.getTime() - minutosParaPagar * 60 * 1000);
+    const candidatas = await this.compraRepository.buscarPendientesAnterioresA(limite);
+    const vencidas = candidatas.filter((compra) => compra.estaVencida(minutosParaPagar, ahora));
+
+    for (const compra of vencidas) {
+      compra.vencerPorFaltaDePago(ahora);
+      await this.compraRepository.guardar(compra);
+      await this.eventoRepository.guardar(compra.evento);
+    }
+    return vencidas.length;
   }
 
   // --- Chat de la compra ---

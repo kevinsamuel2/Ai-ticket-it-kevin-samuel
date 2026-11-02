@@ -16,19 +16,20 @@ import { crearCategoriaRouter } from "../routes/categoria.routes.js";
 import { crearEventoRouter, crearOrganizadorRouter } from "../routes/evento.routes.js";
 import { crearCompraRouter, crearComprasDeEventoRouter } from "../routes/compra.routes.js";
 
+// Services a partir de los repositorios. Se arma aparte porque además de la API los usan los cron jobs.
+export function armarServices({ usuarioRepository, categoriaRepository, eventoRepository, compraRepository }) {
+  return {
+    usuarioService: new UsuarioService(usuarioRepository),
+    categoriaService: new CategoriaService(categoriaRepository),
+    eventoService: new EventoService({ eventoRepository, compraRepository, categoriaRepository, usuarioRepository }),
+    compraService: new CompraService({ compraRepository, eventoRepository }),
+  };
+}
+
 // Arma la aplicación completa a partir de los repositorios: inyecta cada dependencia en la capa de arriba
 // (repositorios -> services -> controllers -> routes). Lo usan index.js y los tests de integración.
-export function armarApp({ usuarioRepository, categoriaRepository, eventoRepository, compraRepository }) {
-  // Services
-  const usuarioService = new UsuarioService(usuarioRepository);
-  const categoriaService = new CategoriaService(categoriaRepository);
-  const eventoService = new EventoService({
-    eventoRepository,
-    compraRepository,
-    categoriaRepository,
-    usuarioRepository,
-  });
-  const compraService = new CompraService({ compraRepository, eventoRepository });
+export function armarApp(repositorios, services = armarServices(repositorios)) {
+  const { usuarioService, categoriaService, eventoService, compraService } = services;
 
   // Controllers
   const usuarioController = new UsuarioController(usuarioService);
@@ -37,7 +38,7 @@ export function armarApp({ usuarioRepository, categoriaRepository, eventoReposit
   const compraController = new CompraController(compraService);
 
   return crearApp({
-    middlewares: [crearMiddlewareIdentificacion(usuarioRepository)],
+    middlewares: [crearMiddlewareIdentificacion(repositorios.usuarioRepository)],
     rutas: {
       "/usuarios/:usuarioId": crearOrganizadorRouter(eventoController),
       "/usuarios": crearUsuarioRouter(usuarioController),
