@@ -11,7 +11,7 @@
     "dev:backend": "npm run dev --workspace=backend",
     "start:mobile": "npm start --workspace=mobile",
     "start:dev": "concurrently \"npm run dev:backend\" \"npm run start:mobile\"",
-    "test": "npm test --workspaces --if-present",
+    "test": "npm test --workspace=backend && npm test --workspace=mobile",
     "lint": "eslint .",
     "format": "prettier . --write"
   },
@@ -25,5 +25,8 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^16.3.0",
     "prettier": "3.6.2"
+  },
+  "engines": {
+    "node": ">=22.13.0"
   }
 }

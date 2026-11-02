@@ -1,0 +1,9 @@
+**/node_modules
+**/.expo
+**/coverage
+**/.env
+.git
+packages/backend/test
+# De la app mobile solo se necesita el package.json (para que npm ci coincida con el lock del monorepo)
+packages/mobile/*
+!packages/mobile/package.json
