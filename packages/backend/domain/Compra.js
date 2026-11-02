@@ -2,6 +2,8 @@ import { UnprocessableEntityError } from "../errors/UnprocessableEntityError.js"
 import { ConflictError } from "../errors/ConflictError.js";
 import { EstadoCompra } from "./EstadoCompra.js";
 import { CambioEstadoCompra } from "./CambioEstadoCompra.js";
+import { Mensaje } from "./Mensaje.js";
+import { Resenia } from "./Resenia.js";
 import { validarEnteroPositivo } from "./validaciones.js";
 
 export class Compra {
@@ -33,6 +35,8 @@ export class Compra {
     this.historialEstados = [
       new CambioEstadoCompra({ compra: this, estado: this.estado, quien: comprador, fechaHora: ahora }),
     ];
+    this.mensajes = [];
+    this.resenia = null;
   }
 
   // Del diagrama: valida la transición, registra quién la hizo y devuelve el cupo si la compra se da de baja
@@ -80,5 +84,28 @@ export class Compra {
   // Participantes de la compra: el comprador y el organizador del evento
   participa(usuario) {
     return this.esDe(usuario) || this.evento.estaOrganizadoPor(usuario);
+  }
+
+  // El chat está disponible en cualquier estado de la compra
+  enviarMensaje(usuario, texto, ahora = new Date()) {
+    const mensaje = new Mensaje({ usuario, mensaje: texto, enviado: ahora });
+    this.mensajes.push(mensaje);
+    return mensaje;
+  }
+
+  // Solo se puede reseñar una vez, y después de haber usado la entrada
+  puedeReseniarse() {
+    return this.estado === EstadoCompra.UTILIZADA && this.resenia === null;
+  }
+
+  reseniar({ detalle, puntuacion }, ahora = new Date()) {
+    if (this.estado !== EstadoCompra.UTILIZADA) {
+      throw new ConflictError("Solo se puede reseñar un evento después de haber utilizado la entrada");
+    }
+    if (this.resenia !== null) {
+      throw new ConflictError("Esta compra ya tiene una reseña");
+    }
+    this.resenia = new Resenia({ comprador: this.comprador, evento: this.evento, detalle, puntuacion, fecha: ahora });
+    return this.resenia;
   }
 }

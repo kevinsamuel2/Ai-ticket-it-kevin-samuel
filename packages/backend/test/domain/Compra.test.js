@@ -175,6 +175,65 @@ describe("Dominio: Compra", () => {
     });
   });
 
+  describe("Chat", () => {
+    it("comprador y organizador pueden intercambiar mensajes en cualquier estado", () => {
+      const compra = comprar();
+      compra.enviarMensaje(comprador, "¿Se puede entrar con cámara?", ahora);
+      compra.cancelar(comprador, antesDelEvento);
+
+      compra.enviarMensaje(organizador, "Sí, sin flash", antesDelEvento);
+
+      expect(compra.mensajes.map((m) => [m.usuario, m.mensaje])).toEqual([
+        [comprador, "¿Se puede entrar con cámara?"],
+        [organizador, "Sí, sin flash"],
+      ]);
+    });
+
+    it("un mensaje inválido no se agrega al chat", () => {
+      const compra = comprar();
+
+      expect(() => compra.enviarMensaje(comprador, "  ")).toThrow("El mensaje no puede estar vacío");
+      expect(compra.mensajes).toHaveLength(0);
+    });
+  });
+
+  describe("Reseña", () => {
+    const compraUtilizada = () => {
+      const compra = comprar();
+      compra.confirmarPago(comprador, ahora);
+      compra.marcarComoUtilizada(organizador, antesDelEvento);
+      return compra;
+    };
+
+    it("después de usar la entrada el comprador puede reseñar el evento", () => {
+      const compra = compraUtilizada();
+      expect(compra.puedeReseniarse()).toBe(true);
+
+      const resenia = compra.reseniar({ detalle: "Muy buena puesta", puntuacion: 4 }, despuesDelEvento);
+
+      expect(resenia).toMatchObject({ comprador, evento, detalle: "Muy buena puesta", puntuacion: 4 });
+      expect(compra.resenia).toBe(resenia);
+      expect(compra.puedeReseniarse()).toBe(false);
+    });
+
+    it("no se puede reseñar si la entrada no se utilizó", () => {
+      const compra = comprar();
+      compra.confirmarPago(comprador, ahora);
+
+      expect(compra.puedeReseniarse()).toBe(false);
+      expect(() => compra.reseniar({ detalle: "Bien", puntuacion: 3 })).toThrow(
+        "Solo se puede reseñar un evento después de haber utilizado la entrada",
+      );
+    });
+
+    it("no se puede reseñar dos veces la misma compra", () => {
+      const compra = compraUtilizada();
+      compra.reseniar({ detalle: "Bien", puntuacion: 3 });
+
+      expect(() => compra.reseniar({ detalle: "Otra", puntuacion: 5 })).toThrow("Esta compra ya tiene una reseña");
+    });
+  });
+
   describe("Participantes", () => {
     it("el comprador y el organizador participan de la compra, otro usuario no", () => {
       const compra = comprar();
