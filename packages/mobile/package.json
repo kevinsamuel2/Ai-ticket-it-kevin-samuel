@@ -10,6 +10,8 @@
     "expo-linking": "~58.0.15",
     "expo-router": "~58.0.29",
     "expo-status-bar": "~58.0.4",
+    "jest": "~30.5.2",
+    "jest-expo": "~58.0.13",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.1",
@@ -21,8 +23,19 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "jest"
   },
   "private": true,
-  "description": "App mobile de AI Ticket It (React Native + Expo)"
+  "description": "App mobile de AI Ticket It (React Native + Expo)",
+  "devDependencies": {
+    "@testing-library/react-native": "^14.1.0"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
+    ],
+    "testTimeout": 20000
+  }
 }
