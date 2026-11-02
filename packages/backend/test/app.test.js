@@ -38,8 +38,10 @@ describe("App", () => {
 
     it("traduce un AppError a su status HTTP", async () => {
       const app = crearApp({
-        "/no-encontrado": routerQueFalla(new NotFoundError("El evento no existe")),
-        "/conflicto": routerQueFalla(new ConflictError("La compra ya fue utilizada")),
+        rutas: {
+          "/no-encontrado": routerQueFalla(new NotFoundError("El evento no existe")),
+          "/conflicto": routerQueFalla(new ConflictError("La compra ya fue utilizada")),
+        },
       });
 
       const resNotFound = await request(app).get("/no-encontrado");
@@ -53,7 +55,7 @@ describe("App", () => {
 
     it("responde 500 sin exponer el detalle ante un error inesperado", async () => {
       const spy = jest.spyOn(console, "error").mockImplementation(() => {});
-      const app = crearApp({ "/roto": routerQueFalla(new Error("detalle interno")) });
+      const app = crearApp({ rutas: { "/roto": routerQueFalla(new Error("detalle interno")) } });
 
       const res = await request(app).get("/roto");
 

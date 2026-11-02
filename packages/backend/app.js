@@ -3,8 +3,9 @@ import cors from "cors";
 import { errorHandler, rutaNoEncontrada } from "./middleware/errorHandler.js";
 
 // Arma la app de Express sin levantar el servidor, así los tests de integración (supertest)
-// pueden usarla directamente. `rutas` es un objeto { "/path": router }.
-export function crearApp(rutas = {}) {
+// pueden usarla directamente. `rutas` es un objeto { "/path": router } y `middlewares`
+// se ejecutan antes de todas las rutas (ej: identificación del usuario).
+export function crearApp({ rutas = {}, middlewares = [] } = {}) {
   const app = express();
   app.use(express.json());
   app.use(
@@ -17,6 +18,9 @@ export function crearApp(rutas = {}) {
     res.status(200).json({ status: "ok", uptime: process.uptime() });
   });
 
+  for (const middleware of middlewares) {
+    app.use(middleware);
+  }
   for (const [path, router] of Object.entries(rutas)) {
     app.use(path, router);
   }

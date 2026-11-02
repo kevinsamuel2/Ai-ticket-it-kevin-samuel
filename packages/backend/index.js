@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { crearApp } from "./app.js";
+import { armarApp } from "./config/armarApp.js";
 import { cargarDatosDePrueba } from "./data/datosDePrueba.js";
 
 import { UsuarioRepository } from "./repository/Usuario.repository.js";
@@ -16,7 +16,7 @@ const repositorios = {
 };
 await cargarDatosDePrueba(repositorios);
 
-const app = crearApp();
+const app = armarApp(repositorios);
 
 // 0.0.0.0 para que el celular (Expo Go) pueda llegar al backend por la IP de la red local
 const PORT = process.env.SERVER_PORT || process.env.PORT || 3001;
