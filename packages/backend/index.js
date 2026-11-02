@@ -1,5 +1,20 @@
 import "dotenv/config";
 import { crearApp } from "./app.js";
+import { cargarDatosDePrueba } from "./data/datosDePrueba.js";
+
+import { UsuarioRepository } from "./repository/Usuario.repository.js";
+import { CategoriaRepository } from "./repository/Categoria.repository.js";
+import { EventoRepository } from "./repository/Evento.repository.js";
+import { CompraRepository } from "./repository/Compra.repository.js";
+
+// Repositorios (persistencia en memoria)
+const repositorios = {
+  usuarioRepository: new UsuarioRepository(),
+  categoriaRepository: new CategoriaRepository(),
+  eventoRepository: new EventoRepository(),
+  compraRepository: new CompraRepository(),
+};
+await cargarDatosDePrueba(repositorios);
 
 const app = crearApp();
 
