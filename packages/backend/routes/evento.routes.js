@@ -9,9 +9,10 @@ export function crearEventoRouter(eventoController) {
   return router;
 }
 
-// Se monta en /usuarios/:usuarioId/eventos (mergeParams para leer el :usuarioId del path padre)
-export function crearEventosDeOrganizadorRouter(eventoController) {
+// Se monta en /usuarios/:usuarioId (mergeParams para leer el :usuarioId del path padre)
+export function crearOrganizadorRouter(eventoController) {
   const router = Router({ mergeParams: true });
-  router.get("/", (req, res) => eventoController.listarEventosDeOrganizador(req, res));
+  router.get("/eventos", (req, res) => eventoController.listarEventosDeOrganizador(req, res));
+  router.get("/resenias", (req, res) => eventoController.obtenerReputacionDeOrganizador(req, res));
   return router;
 }

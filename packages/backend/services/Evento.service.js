@@ -153,14 +153,29 @@ export class EventoService {
 
   // Todos los eventos de un organizador (próximos y pasados), del más cercano al más lejano
   async listarEventosDeOrganizador(organizadorId, ahora = new Date()) {
-    const organizador = await this.usuarioRepository.buscarPorId(organizadorId);
-    if (!organizador) {
-      throw new NotFoundError(`El usuario con id ${organizadorId} no existe`);
-    }
+    const organizador = await this._buscarOrganizador(organizadorId);
     const eventos = await this.eventoRepository.buscarPorOrganizador(organizador);
     const reputacion = this._reputacion(await this.compraRepository.buscarReseniasDeOrganizador(organizador));
 
     return eventos.toSorted((a, b) => a.fecha - b.fecha).map((evento) => this.toResumenDTO(evento, reputacion, ahora));
+  }
+
+  // Reputación de un organizador: su puntaje promedio y las reseñas de sus eventos, de la más nueva a la más vieja
+  async obtenerReputacionDeOrganizador(organizadorId) {
+    const organizador = await this._buscarOrganizador(organizadorId);
+    const resenias = await this.compraRepository.buscarReseniasDeOrganizador(organizador);
+    return {
+      organizador: this.organizadorToDTO(organizador, this._reputacion(resenias)),
+      resenias: resenias.toSorted((a, b) => b.fecha - a.fecha).map((resenia) => this.reseniaToDTO(resenia)),
+    };
+  }
+
+  async _buscarOrganizador(organizadorId) {
+    const organizador = await this.usuarioRepository.buscarPorId(organizadorId);
+    if (!organizador) {
+      throw new NotFoundError(`El usuario con id ${organizadorId} no existe`);
+    }
+    return organizador;
   }
 
   async buscarEventoExistente(eventoId) {

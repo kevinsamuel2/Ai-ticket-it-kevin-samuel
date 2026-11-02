@@ -9,6 +9,7 @@ export function crearCompraRouter(compraController) {
   router.post("/", (req, res) => compraController.comprar(req, res));
   router.get("/:compraId", (req, res) => compraController.obtenerCompra(req, res));
   router.post("/:compraId/cambios-de-estado", (req, res) => compraController.cambiarEstado(req, res));
+  router.post("/:compraId/resenia", (req, res) => compraController.reseniar(req, res));
   router.get("/:compraId/mensajes", (req, res) => compraController.listarMensajes(req, res));
   router.post("/:compraId/mensajes", (req, res) => compraController.enviarMensaje(req, res));
   return router;

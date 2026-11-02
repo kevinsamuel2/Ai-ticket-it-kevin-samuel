@@ -34,6 +34,13 @@ export class CompraController {
     res.status(200).json(await this.compraService.obtenerCompra(req.usuario, req.params.compraId));
   }
 
+  // POST /compras/:compraId/resenia { detalle, puntuacion } — una sola reseña por compra
+  async reseniar(req, res) {
+    validarCamposPermitidos(req.body, ["detalle", "puntuacion"]);
+    validarCamposRequeridos(req.body, ["detalle", "puntuacion"]);
+    res.status(201).json(await this.compraService.reseniar(req.usuario, req.params.compraId, req.body));
+  }
+
   // GET /compras/:compraId/mensajes
   async listarMensajes(req, res) {
     res.status(200).json(await this.compraService.listarMensajes(req.usuario, req.params.compraId));

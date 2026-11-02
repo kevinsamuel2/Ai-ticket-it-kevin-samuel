@@ -56,4 +56,9 @@ export class EventoController {
   async listarEventosDeOrganizador(req, res) {
     res.status(200).json(await this.eventoService.listarEventosDeOrganizador(req.params.usuarioId));
   }
+
+  // GET /usuarios/:usuarioId/resenias
+  async obtenerReputacionDeOrganizador(req, res) {
+    res.status(200).json(await this.eventoService.obtenerReputacionDeOrganizador(req.params.usuarioId));
+  }
 }

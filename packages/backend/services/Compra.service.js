@@ -75,6 +75,11 @@ export class CompraService {
         quien: cambio.quien.nombreCompleto(),
         fechaHora: cambio.fechaHora,
       })),
+      resenia: compra.resenia && {
+        detalle: compra.resenia.detalle,
+        puntuacion: compra.resenia.puntuacion,
+        fecha: compra.resenia.fecha,
+      },
       acciones: {
         puedePagar: esComprador && compra.estado.puedePasarA(EstadoCompra.CONFIRMADA),
         puedeCancelar: esComprador && compra.puedeCancelarse(ahora),
@@ -162,6 +167,17 @@ export class CompraService {
     await this.compraRepository.guardar(compra);
     // Cancelar devuelve el cupo al tipo de entrada
     await this.eventoRepository.guardar(compra.evento);
+    return this.toDetalleDTO(compra, usuario, ahora);
+  }
+
+  // Una vez utilizada la entrada, el comprador puntúa el evento; la reseña suma a la reputación del organizador
+  async reseniar(usuario, compraId, { detalle, puntuacion }, ahora = new Date()) {
+    const compra = await this.buscarCompraVisiblePara(usuario, compraId);
+    if (!ROLES.comprador(compra, usuario)) {
+      throw new ForbiddenError("Solo el comprador puede reseñar el evento");
+    }
+    compra.reseniar({ detalle, puntuacion }, ahora);
+    await this.compraRepository.guardar(compra);
     return this.toDetalleDTO(compra, usuario, ahora);
   }
 
