@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { errorHandler, rutaNoEncontrada } from "./middleware/errorHandler.js";
+import { montarSwagger } from "./config/swagger.js";
 
 // Arma la app de Express sin levantar el servidor, así los tests de integración (supertest)
 // pueden usarla directamente. `rutas` es un objeto { "/path": router } y `middlewares`
@@ -17,6 +18,9 @@ export function crearApp({ rutas = {}, middlewares = [] } = {}) {
   app.get("/health", (req, res) => {
     res.status(200).json({ status: "ok", uptime: process.uptime() });
   });
+
+  // Documentación de la API en /api-docs
+  montarSwagger(app);
 
   for (const middleware of middlewares) {
     app.use(middleware);

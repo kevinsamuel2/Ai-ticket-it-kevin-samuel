@@ -1,0 +1,96 @@
+paths:
+  /health:
+    get:
+      tags: [Salud]
+      summary: Estado del servicio
+      responses:
+        "200":
+          description: El servicio está funcionando.
+
+  /usuarios:
+    get:
+      tags: [Usuarios]
+      summary: Listar usuarios
+      description: Usuarios disponibles para identificarse en la app (no hay contraseñas).
+      responses:
+        "200":
+          description: Todos los usuarios.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Usuario"
+
+  /usuarios/{usuarioId}:
+    get:
+      tags: [Usuarios]
+      summary: Obtener un usuario
+      parameters:
+        - $ref: "#/components/parameters/UsuarioIdPath"
+      responses:
+        "200":
+          description: El usuario.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+
+  /usuarios/{usuarioId}/eventos:
+    get:
+      tags: [Usuarios, Eventos]
+      summary: Eventos de un organizador
+      description: Todos los eventos que publicó el usuario (próximos y pasados), ordenados por fecha.
+      parameters:
+        - $ref: "#/components/parameters/UsuarioIdPath"
+      responses:
+        "200":
+          description: Eventos del organizador.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventoResumen"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+
+  /usuarios/{usuarioId}/resenias:
+    get:
+      tags: [Usuarios]
+      summary: Reputación de un organizador
+      description: Puntaje promedio y reseñas de todos los eventos del organizador, de la más nueva a la más vieja.
+      parameters:
+        - $ref: "#/components/parameters/UsuarioIdPath"
+      responses:
+        "200":
+          description: Reputación del organizador.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  organizador:
+                    $ref: "#/components/schemas/Organizador"
+                  resenias:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Resenia"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+
+  /categorias:
+    get:
+      tags: [Categorías]
+      summary: Listar categorías
+      responses:
+        "200":
+          description: Todas las categorías.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Categoria"

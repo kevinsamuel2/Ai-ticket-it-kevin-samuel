@@ -1,0 +1,282 @@
+components:
+  parameters:
+    UsuarioId:
+      name: X-Usuario-Id
+      in: header
+      required: true
+      description: Id del usuario que hace la operación (los usuarios de prueba son 1 a 4).
+      schema:
+        type: integer
+        example: 3
+    UsuarioIdOpcional:
+      name: X-Usuario-Id
+      in: header
+      required: false
+      description: Id del usuario que hace la operación. Si se manda un id inexistente responde 401.
+      schema:
+        type: integer
+    EventoIdPath:
+      name: eventoId
+      in: path
+      required: true
+      schema:
+        type: integer
+        example: 1
+    CompraIdPath:
+      name: compraId
+      in: path
+      required: true
+      schema:
+        type: integer
+        example: 1
+    UsuarioIdPath:
+      name: usuarioId
+      in: path
+      required: true
+      schema:
+        type: integer
+        example: 1
+    EstadoCompraQuery:
+      name: estado
+      in: query
+      required: false
+      description: Filtra por estado (sin distinguir mayúsculas).
+      schema:
+        $ref: "#/components/schemas/EstadoCompra"
+
+  responses:
+    ErrorValidacion:
+      description: Request mal formada (campos faltantes o no permitidos, parámetros inválidos).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NoIdentificado:
+      description: Falta el header X-Usuario-Id o el usuario no existe.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    SinPermiso:
+      description: El usuario no tiene permiso sobre el recurso.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NoEncontrado:
+      description: El recurso no existe.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Conflicto:
+      description: La operación no se puede hacer por el estado actual del recurso.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ReglaDeNegocio:
+      description: Los datos violan una regla de negocio del dominio.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [fail, error]
+        message:
+          type: string
+          example: 'No hay cupo suficiente para "Platea": se pidieron 3 y quedan 2'
+
+    EstadoCompra:
+      type: string
+      enum: [PENDIENTE, CONFIRMADA, UTILIZADA, CANCELADA, REEMBOLSADA]
+
+    Usuario:
+      type: object
+      properties:
+        id: { type: integer, example: 3 }
+        nombre: { type: string, example: Juan }
+        apellido: { type: string, example: Gómez }
+        nombreCompleto: { type: string, example: Juan Gómez }
+
+    Categoria:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        nombre: { type: string, example: Recitales }
+        descripcion: { type: string, example: Música en vivo }
+
+    Organizador:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        nombreCompleto: { type: string, example: Lucía Fernández }
+        puntaje:
+          type: number
+          nullable: true
+          description: Promedio de las reseñas de sus eventos (null si no tiene reseñas).
+          example: 4.5
+        cantidadResenias: { type: integer, example: 2 }
+
+    TipoEntrada:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        nombre: { type: string, example: General }
+        descripcion: { type: string, example: Campo general de pie }
+        precio: { type: number, example: 25000 }
+        cupo: { type: integer, example: 200 }
+        disponibles: { type: integer, example: 198 }
+        agotado: { type: boolean, example: false }
+
+    NuevoTipoEntrada:
+      type: object
+      required: [nombre, precio, cupo]
+      properties:
+        nombre: { type: string, example: Platea }
+        descripcion: { type: string, example: Sector central }
+        precio: { type: number, minimum: 0, example: 22000 }
+        cupo: { type: integer, minimum: 1, example: 120 }
+
+    EventoResumen:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        nombre: { type: string, example: Noche de Rock Nacional }
+        categoria: { type: string, example: Recitales }
+        fecha: { type: string, format: date-time }
+        imagen: { type: string, nullable: true, example: "https://picsum.photos/seed/rock/800/450" }
+        precioMinimo: { type: number, example: 25000 }
+        agotado: { type: boolean }
+        yaSeRealizo: { type: boolean }
+        organizador:
+          $ref: "#/components/schemas/Organizador"
+
+    Resenia:
+      type: object
+      properties:
+        evento:
+          type: object
+          properties:
+            id: { type: integer }
+            nombre: { type: string, example: Tributo a Soda Stereo }
+        comprador: { type: string, example: Sofía Ramírez }
+        detalle: { type: string, example: Muy buen show }
+        puntuacion: { type: number, example: 4 }
+        fecha: { type: string, format: date-time }
+
+    EventoDetalle:
+      allOf:
+        - $ref: "#/components/schemas/EventoResumen"
+        - type: object
+          properties:
+            descripcion: { type: string }
+            multimedia:
+              type: array
+              items: { type: string }
+            tiposEntrada:
+              type: array
+              items:
+                $ref: "#/components/schemas/TipoEntrada"
+            reseniasOrganizador:
+              type: array
+              description: Reseñas de los eventos anteriores del organizador, de la más nueva a la más vieja.
+              items:
+                $ref: "#/components/schemas/Resenia"
+
+    CompraResumen:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        estado:
+          $ref: "#/components/schemas/EstadoCompra"
+        fechaCompra: { type: string, format: date-time }
+        cantidad: { type: integer, example: 2 }
+        total: { type: number, example: 50000 }
+        diasParaElEvento:
+          type: integer
+          nullable: true
+          description: Días que faltan para el evento. Solo tiene valor si la compra está CONFIRMADA.
+          example: 12
+        evento:
+          type: object
+          properties:
+            id: { type: integer }
+            nombre: { type: string }
+            fecha: { type: string, format: date-time }
+            categoria: { type: string }
+            imagen: { type: string, nullable: true }
+            yaSeRealizo: { type: boolean }
+        tipoEntrada:
+          type: object
+          properties:
+            id: { type: integer }
+            nombre: { type: string }
+            precio: { type: number }
+        comprador:
+          type: object
+          properties:
+            id: { type: integer }
+            nombreCompleto: { type: string }
+        organizador:
+          type: object
+          properties:
+            id: { type: integer }
+            nombreCompleto: { type: string }
+        cantidadMensajes: { type: integer, example: 2 }
+
+    CompraDetalle:
+      allOf:
+        - $ref: "#/components/schemas/CompraResumen"
+        - type: object
+          properties:
+            historialEstados:
+              type: array
+              items:
+                type: object
+                properties:
+                  estado:
+                    $ref: "#/components/schemas/EstadoCompra"
+                  quien:
+                    type: string
+                    description: Quién hizo el cambio ("Sistema" si fue el vencimiento automático).
+                    example: Juan Gómez
+                  fechaHora: { type: string, format: date-time }
+            resenia:
+              type: object
+              nullable: true
+              properties:
+                detalle: { type: string }
+                puntuacion: { type: number }
+                fecha: { type: string, format: date-time }
+            acciones:
+              type: object
+              description: Qué puede hacer el usuario que consulta, según su rol y el estado de la compra.
+              properties:
+                puedePagar: { type: boolean }
+                puedeCancelar: { type: boolean }
+                puedeMarcarComoUtilizada: { type: boolean }
+                puedeReseniar: { type: boolean }
+
+    Mensaje:
+      type: object
+      properties:
+        autor:
+          type: object
+          properties:
+            id: { type: integer }
+            nombreCompleto: { type: string }
+            rol:
+              type: string
+              enum: [comprador, organizador]
+        mensaje: { type: string, example: "¿Hasta qué hora se puede ingresar?" }
+        enviado: { type: string, format: date-time }
+        esMio:
+          type: boolean
+          description: Si el mensaje lo escribió el usuario que consulta.
