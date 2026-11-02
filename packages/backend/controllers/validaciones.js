@@ -14,6 +14,13 @@ export function validarCamposPermitidos(body, camposPermitidos) {
   }
 }
 
+export function validarCamposRequeridos(body, camposRequeridos) {
+  const faltantes = camposRequeridos.filter((campo) => body[campo] === undefined || body[campo] === null);
+  if (faltantes.length > 0) {
+    throw new ValidationError(`Faltan campos obligatorios: ${faltantes.join(", ")}`);
+  }
+}
+
 export function parsearEnteroPositivo(valor, nombreParametro, valorPorDefecto) {
   if (valor === undefined) return valorPorDefecto;
   const numero = Number(valor);
