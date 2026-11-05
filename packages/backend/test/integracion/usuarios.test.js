@@ -4,13 +4,15 @@ import { CONTRASENIA_DE_PRUEBA } from "../../data/datosDePrueba.js";
 
 describe("API: usuarios y categorías", () => {
   let app;
+  let usuarios;
+  let comoUsuario;
 
   beforeEach(async () => {
-    ({ app } = await crearAppConDatosDePrueba());
+    ({ app, usuarios, comoUsuario } = await crearAppConDatosDePrueba());
   });
 
-  it("GET /usuarios lista los usuarios", async () => {
-    const res = await request(app).get("/usuarios");
+  it("GET /usuarios lista los usuarios a quien inició sesión", async () => {
+    const res = await request(app).get("/usuarios").set(comoUsuario(usuarios.juan));
 
     expect(res.status).toBe(200);
     expect(res.body.map((u) => u.nombreCompleto)).toEqual([
@@ -22,13 +24,23 @@ describe("API: usuarios y categorías", () => {
   });
 
   it("GET /usuarios/:id devuelve un usuario o 404", async () => {
-    const encontrado = await request(app).get("/usuarios/3");
-    const inexistente = await request(app).get("/usuarios/99");
+    const encontrado = await request(app).get("/usuarios/3").set(comoUsuario(usuarios.juan));
+    const inexistente = await request(app).get("/usuarios/99").set(comoUsuario(usuarios.juan));
 
     expect(encontrado.status).toBe(200);
     expect(encontrado.body).toEqual({ id: 3, nombre: "Juan", apellido: "Gómez", nombreCompleto: "Juan Gómez" });
     expect(inexistente.status).toBe(404);
     expect(inexistente.body.message).toBe("El usuario con id 99 no existe");
+  });
+
+  it("GET /usuarios sin iniciar sesión responde 401 (no expone los datos de los usuarios)", async () => {
+    expect((await request(app).get("/usuarios")).status).toBe(401);
+    expect((await request(app).get("/usuarios/3")).status).toBe(401);
+  });
+
+  it("la reputación y los eventos de un organizador siguen siendo públicos", async () => {
+    expect((await request(app).get("/usuarios/1/resenias")).status).toBe(200);
+    expect((await request(app).get("/usuarios/1/eventos")).status).toBe(200);
   });
 
   it("GET /categorias lista las categorías", async () => {
@@ -96,13 +108,22 @@ describe("API: sesiones (login)", () => {
     expect(res.body.message).toBe("Tenés que iniciar sesión para realizar esta operación");
   });
 
-  it("un token inválido o mal formado responde 401", async () => {
-    const inventado = await request(app).get("/categorias").set("Authorization", "Bearer token-inventado");
-    const malFormado = await request(app).get("/categorias").set("Authorization", "token-sin-bearer");
+  it("un token inválido o mal formado responde 401 en las rutas protegidas", async () => {
+    const inventado = await request(app).get("/compras").set("Authorization", "Bearer token-inventado");
+    const malFormado = await request(app).get("/compras").set("Authorization", "token-sin-bearer");
 
     expect(inventado.status).toBe(401);
     expect(inventado.body.message).toBe("La sesión no es válida o expiró. Volvé a iniciar sesión");
     expect(malFormado.status).toBe(401);
+    expect(malFormado.body.message).toBe('El header Authorization debe tener el formato "Bearer <token>"');
+  });
+
+  it("un token vencido no impide usar las rutas públicas", async () => {
+    const eventos = await request(app).get("/eventos").set("Authorization", "Bearer token-vencido");
+    const categorias = await request(app).get("/categorias").set("Authorization", "Bearer token-vencido");
+
+    expect(eventos.status).toBe(200);
+    expect(categorias.status).toBe(200);
   });
 
   it("DELETE /sesiones/actual cierra la sesión y el token deja de servir", async () => {

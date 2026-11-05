@@ -22,6 +22,10 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Usuario"
+        "401":
+          $ref: "#/components/responses/NoIdentificado"
+      security:
+        - bearerAuth: []
   "/usuarios/{usuarioId}":
     get:
       tags:
@@ -36,8 +40,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Usuario"
+        "401":
+          $ref: "#/components/responses/NoIdentificado"
         "404":
           $ref: "#/components/responses/NoEncontrado"
+      security:
+        - bearerAuth: []
   "/usuarios/{usuarioId}/eventos":
     get:
       tags:
