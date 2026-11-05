@@ -31,7 +31,7 @@ export default function DetalleEvento() {
 
   const esOrganizador = evento.organizador.id === usuario.id;
   const tipoElegido = evento.tiposEntrada.find((tipo) => tipo.id === tipoElegidoId);
-  const sePuedeComprar = !evento.yaSeRealizo && !evento.agotado;
+  const sePuedeComprar = !esOrganizador && !evento.yaSeRealizo && !evento.agotado;
 
   const elegirTipo = (tipo) => {
     setTipoElegidoId(tipo.id);
@@ -80,12 +80,15 @@ export default function DetalleEvento() {
       </View>
 
       {esOrganizador && (
-        <Boton
-          titulo="Ver ventas de este evento"
-          icono="stats-chart"
-          variante="secundario"
-          onPress={() => router.push(`/eventos/${evento.id}/ventas`)}
-        />
+        <View style={styles.avisoOrganizador}>
+          <Text style={texto.cuerpo}>Sos el organizador de este evento, así que no podés comprar entradas.</Text>
+          <Boton
+            titulo="Ver ventas de este evento"
+            icono="stats-chart"
+            variante="secundario"
+            onPress={() => router.push(`/eventos/${evento.id}/ventas`)}
+          />
+        </View>
       )}
 
       <View style={styles.seccion}>
@@ -156,6 +159,7 @@ const styles = StyleSheet.create({
   contenedor: { paddingBottom: espaciado.xl * 2, gap: espaciado.l },
   imagen: { width: "100%", aspectRatio: 16 / 9, backgroundColor: colores.primarioSuave },
   seccion: { paddingHorizontal: espaciado.l, gap: espaciado.s },
+  avisoOrganizador: { marginHorizontal: espaciado.l, gap: espaciado.m },
   fila: { flexDirection: "row", alignItems: "center", gap: espaciado.s },
   filaEntre: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   flex: { flex: 1 },

@@ -54,6 +54,16 @@ describe("API: comprar entradas y consultar compras", () => {
     expect(cantidadInvalida.status).toBe(422);
   });
 
+  it("POST /compras del organizador para su propio evento responde 422", async () => {
+    const res = await request(app)
+      .post("/compras")
+      .set(comoUsuario(usuarios.lucia))
+      .send({ eventoId: JAZZ, tipoEntradaId: 1, cantidad: 1 });
+
+    expect(res.status).toBe(422);
+    expect(res.body.message).toBe("No podés comprar entradas de un evento que organizás vos");
+  });
+
   it("POST /compras para un evento pasado responde 409", async () => {
     const [tributo] = (await repositorios.eventoRepository.buscarTodos()).filter((e) => e.nombre.startsWith("Tributo"));
 

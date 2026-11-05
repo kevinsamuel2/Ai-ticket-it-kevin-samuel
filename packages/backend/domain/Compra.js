@@ -15,6 +15,10 @@ export class Compra {
     if (!evento || !tipoEntrada) {
       throw new UnprocessableEntityError("La compra debe tener un evento y un tipo de entrada");
     }
+    // Comprar su propio evento inflaría las ventas y abriría un chat del organizador consigo mismo
+    if (evento.estaOrganizadoPor(comprador)) {
+      throw new UnprocessableEntityError("No podés comprar entradas de un evento que organizás vos");
+    }
     if (!evento.tiposEntrada.includes(tipoEntrada)) {
       throw new UnprocessableEntityError(`El tipo de entrada "${tipoEntrada.nombre}" no pertenece al evento`);
     }

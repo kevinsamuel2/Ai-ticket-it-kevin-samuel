@@ -81,6 +81,13 @@ describe("Dominio: Compra", () => {
       );
     });
 
+    it("el organizador no puede comprar entradas de su propio evento", () => {
+      expect(() => new Compra({ comprador: organizador, evento, tipoEntrada: platea, cantidad: 1 }, ahora)).toThrow(
+        "No podés comprar entradas de un evento que organizás vos",
+      );
+      expect(platea.disponibles()).toBe(4);
+    });
+
     it("error si falta el comprador", () => {
       expect(() => new Compra({ evento, tipoEntrada: platea, cantidad: 1 }, ahora)).toThrow(
         "La compra debe tener un comprador",
