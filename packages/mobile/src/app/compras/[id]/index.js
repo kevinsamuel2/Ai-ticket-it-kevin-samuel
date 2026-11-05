@@ -13,7 +13,13 @@ import { FormularioResenia } from "../../../components/FormularioResenia";
 import { Estrellas } from "../../../components/ReseniaItem";
 import { colores, espaciado, estilosDeEstado, radio, texto } from "../../../theme";
 import { confirmar } from "../../../utils/confirmar";
-import { formatearFecha, formatearFechaCompleta, formatearPrecio, textoDiasRestantes } from "../../../utils/formato";
+import {
+  formatearDiaYHora,
+  formatearFecha,
+  formatearFechaCompleta,
+  formatearPrecio,
+  textoDiasRestantes,
+} from "../../../utils/formato";
 
 export default function DetalleCompra() {
   const { id } = useLocalSearchParams();
@@ -68,6 +74,15 @@ export default function DetalleCompra() {
             <View style={styles.diasRestantes}>
               <Ionicons name="hourglass-outline" size={18} color={colores.blanco} />
               <Text style={styles.diasRestantesTexto}>{textoDiasRestantes(compra.diasParaElEvento)}</Text>
+            </View>
+          )}
+          {compra.pagarAntesDe && (
+            <View style={styles.plazo} accessibilityRole="alert">
+              <Ionicons name="alarm-outline" size={18} color={colores.negro} />
+              <Text style={styles.plazoTexto}>
+                {esComprador ? "Pagá" : "El comprador tiene que pagar"} antes del{" "}
+                {formatearDiaYHora(compra.pagarAntesDe)} o la compra se cancela automáticamente.
+              </Text>
             </View>
           )}
           <Text style={texto.titulo} onPress={() => router.push(`/eventos/${compra.evento.id}`)}>
@@ -185,6 +200,17 @@ const styles = StyleSheet.create({
     backgroundColor: colores.negro,
   },
   diasRestantesTexto: { color: colores.blanco, fontWeight: "800", fontSize: 16 },
+  plazo: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: espaciado.s,
+    padding: espaciado.m,
+    borderRadius: radio.m,
+    borderWidth: 1.5,
+    borderColor: colores.negro,
+    backgroundColor: colores.superficie,
+  },
+  plazoTexto: { flex: 1, fontSize: 14, fontWeight: "600", color: colores.texto },
   separador: { height: 1, backgroundColor: colores.borde, marginVertical: espaciado.xs },
   fila: { flexDirection: "row", justifyContent: "space-between" },
   destacado: { fontWeight: "800", color: colores.primarioOscuro, fontSize: 17 },

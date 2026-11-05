@@ -20,20 +20,16 @@ import { crearEventoRouter, crearOrganizadorRouter } from "../routes/evento.rout
 import { crearCompraRouter, crearComprasDeEventoRouter } from "../routes/compra.routes.js";
 
 // Services a partir de los repositorios. Se arma aparte porque además de la API los usan los cron jobs.
-export function armarServices({
-  usuarioRepository,
-  categoriaRepository,
-  eventoRepository,
-  compraRepository,
-  cuentaRepository,
-  sesionRepository,
-}) {
+export function armarServices(
+  { usuarioRepository, categoriaRepository, eventoRepository, compraRepository, cuentaRepository, sesionRepository },
+  { minutosParaPagar } = {},
+) {
   return {
     authService: new AuthService({ cuentaRepository, sesionRepository }),
     usuarioService: new UsuarioService(usuarioRepository),
     categoriaService: new CategoriaService(categoriaRepository),
     eventoService: new EventoService({ eventoRepository, compraRepository, categoriaRepository, usuarioRepository }),
-    compraService: new CompraService({ compraRepository, eventoRepository }),
+    compraService: new CompraService({ compraRepository, eventoRepository, minutosParaPagar }),
   };
 }
 

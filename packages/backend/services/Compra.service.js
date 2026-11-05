@@ -31,10 +31,14 @@ const CAMBIOS_DE_ESTADO = {
 };
 export const ESTADOS_SOLICITABLES = Object.keys(CAMBIOS_DE_ESTADO);
 
+export const MINUTOS_PARA_PAGAR_POR_DEFECTO = 24 * 60;
+
 export class CompraService {
-  constructor({ compraRepository, eventoRepository }) {
+  // minutosParaPagar: plazo que tiene una compra PENDIENTE antes de que el cron job la cancele
+  constructor({ compraRepository, eventoRepository, minutosParaPagar = MINUTOS_PARA_PAGAR_POR_DEFECTO }) {
     this.compraRepository = compraRepository;
     this.eventoRepository = eventoRepository;
+    this.minutosParaPagar = minutosParaPagar;
   }
 
   // --- DTOs ---
@@ -49,6 +53,8 @@ export class CompraService {
       total: compra.total,
       // Solo viene con valor si la compra está confirmada
       diasParaElEvento: compra.diasParaElEvento(ahora),
+      // Solo viene con valor si la compra está pendiente: pasado ese momento se cancela sola
+      pagarAntesDe: compra.estado === EstadoCompra.PENDIENTE ? compra.venceEl(this.minutosParaPagar) : null,
       evento: {
         id: evento.id,
         nombre: evento.nombre,
@@ -184,10 +190,10 @@ export class CompraService {
 
   // Lo ejecuta el cron job: cancela las compras pendientes que superaron el plazo para pagar y libera su cupo.
   // Devuelve cuántas venció.
-  async vencerComprasPendientes(minutosParaPagar, ahora = new Date()) {
-    const limite = new Date(ahora.getTime() - minutosParaPagar * 60 * 1000);
+  async vencerComprasPendientes(ahora = new Date()) {
+    const limite = new Date(ahora.getTime() - this.minutosParaPagar * 60 * 1000);
     const candidatas = await this.compraRepository.buscarPendientesAnterioresA(limite);
-    const vencidas = candidatas.filter((compra) => compra.estaVencida(minutosParaPagar, ahora));
+    const vencidas = candidatas.filter((compra) => compra.estaVencida(this.minutosParaPagar, ahora));
 
     for (const compra of vencidas) {
       compra.vencerPorFaltaDePago(ahora);

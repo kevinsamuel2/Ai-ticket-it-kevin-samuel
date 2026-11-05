@@ -2,7 +2,7 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { EstadoBadge } from "./EstadoBadge";
 import { colores, espaciado, radio, texto } from "../theme";
-import { formatearFecha, formatearPrecio, textoDiasRestantes } from "../utils/formato";
+import { formatearDiaYHora, formatearFecha, formatearPrecio, textoDiasRestantes } from "../utils/formato";
 
 // Resumen de una compra: estado, días para el evento (si está confirmada), entradas y total
 export function CompraCard({ compra, onPress, mostrarComprador = false }) {
@@ -21,6 +21,11 @@ export function CompraCard({ compra, onPress, mostrarComprador = false }) {
           <EstadoBadge estado={compra.estado} />
           {compra.diasParaElEvento !== null && (
             <Text style={styles.dias}>{textoDiasRestantes(compra.diasParaElEvento)}</Text>
+          )}
+          {compra.pagarAntesDe && (
+            <Text style={styles.plazo}>
+              {mostrarComprador ? "Vence el" : "Pagá antes del"} {formatearDiaYHora(compra.pagarAntesDe)}
+            </Text>
           )}
         </View>
         <Text style={texto.subtitulo} numberOfLines={1}>
@@ -62,6 +67,7 @@ const styles = StyleSheet.create({
   cuerpo: { flex: 1, padding: espaciado.m, gap: 3 },
   encabezado: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: espaciado.s },
   dias: { fontSize: 13, fontWeight: "800", color: colores.primarioOscuro },
+  plazo: { fontSize: 12, fontWeight: "700", color: colores.texto },
   pie: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 2 },
   derecha: { flexDirection: "row", alignItems: "center", gap: espaciado.m },
   mensajes: { flexDirection: "row", alignItems: "center", gap: 3 },

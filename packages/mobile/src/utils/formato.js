@@ -34,3 +34,9 @@ export function textoDiasRestantes(dias) {
 export function formatearPuntaje(puntaje) {
   return puntaje === null || puntaje === undefined ? "Sin reseñas" : puntaje.toFixed(1);
 }
+
+// "06/11 14:30": para plazos cercanos alcanza con día, mes y hora
+export function formatearDiaYHora(fechaIso) {
+  const fecha = new Date(fechaIso);
+  return `${dosDigitos(fecha.getDate())}/${dosDigitos(fecha.getMonth() + 1)} ${dosDigitos(fecha.getHours())}:${dosDigitos(fecha.getMinutes())}`;
+}

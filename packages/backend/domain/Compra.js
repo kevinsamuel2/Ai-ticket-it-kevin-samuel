@@ -87,9 +87,13 @@ export class Compra {
   }
 
   // Una compra que no se pagó a tiempo la cancela el sistema (quien = null) para liberar el cupo reservado
+  // Momento límite para pagar una compra pendiente
+  venceEl(minutosParaPagar) {
+    return new Date(this.fechaCompra.getTime() + minutosParaPagar * 60 * 1000);
+  }
+
   estaVencida(minutosParaPagar, ahora = new Date()) {
-    const limite = new Date(this.fechaCompra.getTime() + minutosParaPagar * 60 * 1000);
-    return this.estado === EstadoCompra.PENDIENTE && limite <= ahora;
+    return this.estado === EstadoCompra.PENDIENTE && this.venceEl(minutosParaPagar) <= ahora;
   }
 
   vencerPorFaltaDePago(ahora = new Date()) {

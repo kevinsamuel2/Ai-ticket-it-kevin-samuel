@@ -31,7 +31,7 @@ describe("Cron job: vencimiento de compras pendientes", () => {
     });
     compraRepository = new CompraRepository();
     eventoRepository = { guardar: jest.fn(async (e) => e) };
-    service = new CompraService({ compraRepository, eventoRepository });
+    service = new CompraService({ compraRepository, eventoRepository, minutosParaPagar: MINUTOS_PARA_PAGAR });
   });
 
   const comprarHace = async (minutos, cantidad = 2) =>
@@ -46,7 +46,7 @@ describe("Cron job: vencimiento de compras pendientes", () => {
     pagada.confirmarPago(comprador, haceMinutos(110));
     expect(evento.buscarTipoEntrada(1).disponibles()).toBe(4);
 
-    const cantidad = await ejecutarVencimientoDeCompras(service, MINUTOS_PARA_PAGAR, ahora);
+    const cantidad = await ejecutarVencimientoDeCompras(service, ahora);
 
     expect(cantidad).toBe(1);
     expect(vencida.estado).toBe(EstadoCompra.CANCELADA);
@@ -58,24 +58,39 @@ describe("Cron job: vencimiento de compras pendientes", () => {
 
   it("el historial muestra que la canceló el sistema", async () => {
     const vencida = await comprarHace(90);
-    await ejecutarVencimientoDeCompras(service, MINUTOS_PARA_PAGAR, ahora);
+    await ejecutarVencimientoDeCompras(service, ahora);
 
     const detalle = await service.obtenerCompra(comprador, vencida.id, ahora);
 
     expect(detalle.historialEstados.at(-1)).toEqual({ estado: "CANCELADA", quien: "Sistema", fechaHora: ahora });
   });
 
+  it("las compras pendientes informan hasta cuándo se pueden pagar", async () => {
+    const pendiente = await comprarHace(10);
+
+    const detalle = await service.obtenerCompra(comprador, pendiente.id, ahora);
+    pendiente.confirmarPago(comprador, ahora);
+    const pagada = await service.obtenerCompra(comprador, pendiente.id, ahora);
+
+    expect(detalle.pagarAntesDe).toEqual(new Date(haceMinutos(10).getTime() + MINUTOS_PARA_PAGAR * 60 * 1000));
+    expect(pagada.pagarAntesDe).toBeNull();
+  });
+
+  it("por defecto el plazo para pagar es de 24 horas", () => {
+    expect(new CompraService({ compraRepository, eventoRepository }).minutosParaPagar).toBe(24 * 60);
+  });
+
   it("si no hay nada para vencer no cambia nada", async () => {
     await comprarHace(5);
 
-    await expect(ejecutarVencimientoDeCompras(service, MINUTOS_PARA_PAGAR, ahora)).resolves.toBe(0);
+    await expect(ejecutarVencimientoDeCompras(service, ahora)).resolves.toBe(0);
   });
 
   it("si la ejecución falla, registra el error y no lo propaga (no tira abajo el servidor)", async () => {
     const spy = jest.spyOn(console, "error").mockImplementation(() => {});
     const serviceQueFalla = { vencerComprasPendientes: jest.fn().mockRejectedValue(new Error("se cayó algo")) };
 
-    await expect(ejecutarVencimientoDeCompras(serviceQueFalla, MINUTOS_PARA_PAGAR, ahora)).resolves.toBe(0);
+    await expect(ejecutarVencimientoDeCompras(serviceQueFalla, ahora)).resolves.toBe(0);
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
   });

@@ -195,6 +195,13 @@ components:
           nullable: true
           description: Días que faltan para el evento. Solo tiene valor si la compra está CONFIRMADA.
           example: 12
+        pagarAntesDe:
+          type: string
+          format: date-time
+          nullable: true
+          description: >-
+            Límite para pagar. Solo tiene valor si la compra está PENDIENTE: pasado ese momento el cron job la cancela
+            y libera el cupo (MINUTOS_PARA_PAGAR, por defecto 24 horas).
         evento:
           type: object
           properties:
