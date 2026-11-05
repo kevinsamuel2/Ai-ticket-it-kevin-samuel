@@ -115,8 +115,9 @@ export class EventoService {
     };
   }
 
-  // Detalle de un evento, con las reseñas de los eventos anteriores de su organizador
-  async obtenerEvento(eventoId, ahora = new Date()) {
+  // Detalle de un evento, con las reseñas de los eventos anteriores de su organizador.
+  // Si hay un usuario identificado, indica además si el evento está entre sus favoritos.
+  async obtenerEvento(eventoId, ahora = new Date(), usuario = null) {
     const evento = await this.buscarEventoExistente(eventoId);
     const resenias = await this.compraRepository.buscarReseniasDeOrganizador(evento.organizador);
     const reputacion = this._reputacion(resenias);
@@ -127,7 +128,26 @@ export class EventoService {
       multimedia: evento.multimedia,
       tiposEntrada: evento.tiposEntrada.map((tipo) => this.tipoEntradaToDTO(tipo)),
       reseniasOrganizador: resenias.toSorted((a, b) => b.fecha - a.fecha).map((resenia) => this.reseniaToDTO(resenia)),
+      esFavorito: usuario?.esFavorito(evento) ?? false,
     };
+  }
+
+  // --- Favoritos (Usuario.favoritos del diagrama) ---
+
+  async listarFavoritos(usuario, ahora = new Date()) {
+    const reputaciones = await this._reputacionesDe(usuario.favoritos.map((evento) => evento.organizador));
+    return usuario.favoritos.map((evento) => this.toResumenDTO(evento, reputaciones.get(evento.organizador), ahora));
+  }
+
+  // Agregar o quitar dos veces el mismo favorito no tiene efecto: por eso se exponen con PUT y DELETE (idempotentes)
+  async agregarFavorito(usuario, eventoId) {
+    usuario.agregarFavorito(await this.buscarEventoExistente(eventoId));
+    await this.usuarioRepository.guardar(usuario);
+  }
+
+  async quitarFavorito(usuario, eventoId) {
+    usuario.quitarFavorito(await this.buscarEventoExistente(eventoId));
+    await this.usuarioRepository.guardar(usuario);
   }
 
   // El usuario identificado publica un evento y queda como su organizador

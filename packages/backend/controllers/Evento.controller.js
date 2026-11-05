@@ -35,7 +35,7 @@ export class EventoController {
   }
 
   async obtenerEvento(req, res) {
-    res.status(200).json(await this.eventoService.obtenerEvento(req.params.eventoId));
+    res.status(200).json(await this.eventoService.obtenerEvento(req.params.eventoId, new Date(), req.usuario));
   }
 
   // POST /eventos — el organizador es el usuario identificado
@@ -50,6 +50,23 @@ export class EventoController {
 
     const evento = await this.eventoService.crearEvento(req.usuario, req.body);
     res.status(201).location(`/eventos/${evento.id}`).json(evento);
+  }
+
+  // GET /favoritos — los eventos favoritos del usuario identificado
+  async listarFavoritos(req, res) {
+    res.status(200).json(await this.eventoService.listarFavoritos(req.usuario));
+  }
+
+  // PUT /favoritos/:eventoId
+  async agregarFavorito(req, res) {
+    await this.eventoService.agregarFavorito(req.usuario, req.params.eventoId);
+    res.status(204).send();
+  }
+
+  // DELETE /favoritos/:eventoId
+  async quitarFavorito(req, res) {
+    await this.eventoService.quitarFavorito(req.usuario, req.params.eventoId);
+    res.status(204).send();
   }
 
   // GET /usuarios/:usuarioId/eventos

@@ -63,7 +63,7 @@ export async function cargarDatosDePrueba(
       { nombre: "Campo VIP", descripcion: "Sector delantero con barra exclusiva", precio: 60000, cupo: 30 },
     ],
   });
-  await crearEvento({
+  const festival = await crearEvento({
     nombre: "Festival Primavera Sonora",
     descripcion: "Dos días de música indie, electrónica y pop con más de 20 artistas en Costanera Sur.",
     categoria: categorias.Festivales,
@@ -75,7 +75,7 @@ export async function cargarDatosDePrueba(
       { nombre: "Abono 2 días", precio: 80000, cupo: 300 },
     ],
   });
-  await crearEvento({
+  const jazz = await crearEvento({
     nombre: "Jazz en el Bosque",
     descripcion: "Concierto de jazz al aire libre en los Bosques de Palermo. Traé tu manta.",
     categoria: categorias.Recitales,
@@ -161,6 +161,11 @@ export async function cargarDatosDePrueba(
     multimedia: [imagen("otonio")],
     tiposEntrada: [{ nombre: "General", precio: 10000, cupo: 60 }],
   });
+
+  // --- Favoritos ---
+  juan.agregarFavorito(festival);
+  juan.agregarFavorito(jazz);
+  sofia.agregarFavorito(hamlet);
 
   // --- Compras en distintos estados ---
   const UN_DIA = 24 * 60 * 60 * 1000;

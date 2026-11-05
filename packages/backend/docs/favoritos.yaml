@@ -1,0 +1,50 @@
+paths:
+  /favoritos:
+    get:
+      tags: [Favoritos]
+      summary: Mis eventos favoritos
+      description: Los eventos que el usuario identificado guardó como favoritos (Usuario.favoritos del diagrama).
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Eventos favoritos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventoResumen"
+        "401":
+          $ref: "#/components/responses/NoIdentificado"
+
+  /favoritos/{eventoId}:
+    put:
+      tags: [Favoritos]
+      summary: Guardar un evento como favorito
+      description: Es idempotente, guardar dos veces el mismo evento no lo duplica.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/EventoIdPath"
+      responses:
+        "204":
+          description: El evento quedó entre los favoritos.
+        "401":
+          $ref: "#/components/responses/NoIdentificado"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+    delete:
+      tags: [Favoritos]
+      summary: Quitar un evento de favoritos
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/EventoIdPath"
+      responses:
+        "204":
+          description: El evento ya no está entre los favoritos.
+        "401":
+          $ref: "#/components/responses/NoIdentificado"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"

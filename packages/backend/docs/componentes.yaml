@@ -175,6 +175,9 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/TipoEntrada"
+            esFavorito:
+              type: boolean
+              description: Si el evento está entre los favoritos del usuario identificado (false sin sesión).
             reseniasOrganizador:
               type: array
               description: Reseñas de los eventos anteriores del organizador, de la más nueva a la más vieja.

@@ -9,6 +9,16 @@ export function crearEventoRouter(eventoController) {
   return router;
 }
 
+// Favoritos del usuario identificado
+export function crearFavoritoRouter(eventoController) {
+  const router = Router();
+  router.use(requerirUsuario);
+  router.get("/", (req, res) => eventoController.listarFavoritos(req, res));
+  router.put("/:eventoId", (req, res) => eventoController.agregarFavorito(req, res));
+  router.delete("/:eventoId", (req, res) => eventoController.quitarFavorito(req, res));
+  return router;
+}
+
 // Se monta en /usuarios/:usuarioId (mergeParams para leer el :usuarioId del path padre)
 export function crearOrganizadorRouter(eventoController) {
   const router = Router({ mergeParams: true });

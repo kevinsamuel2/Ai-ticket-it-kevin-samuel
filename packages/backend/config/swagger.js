@@ -26,6 +26,7 @@ const opciones = {
       { name: "Eventos", description: "Búsqueda, detalle y publicación de eventos" },
       { name: "Compras", description: "Compra de entradas y seguimiento de su estado" },
       { name: "Chat", description: "Mensajes entre comprador y organizador dentro de una compra" },
+      { name: "Favoritos", description: "Eventos guardados por cada usuario" },
     ],
   },
   // swagger-jsdoc usa globs, que necesitan barras "/" aunque estemos en Windows
