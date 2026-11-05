@@ -29,8 +29,18 @@ export function armarFecha(fecha, hora) {
   return esLaMisma && minutos < 60 ? resultado : null;
 }
 
+// Las imágenes se cargan una por línea
+export const separarImagenes = (texto = "") =>
+  texto
+    .split("\n")
+    .map((linea) => linea.trim())
+    .filter(Boolean);
+
 // Devuelve { campo: mensaje } para los datos generales y { tiposEntrada: [{ campo: mensaje }] } por cada tipo
-export function validarEvento({ nombre, descripcion, categoria, fecha, hora, tiposEntrada }, ahora = new Date()) {
+export function validarEvento(
+  { nombre, descripcion, categoria, fecha, hora, imagenes = "", tiposEntrada },
+  ahora = new Date(),
+) {
   const errores = {};
   if (!nombre.trim()) errores.nombre = "Ingresá el nombre del evento";
   if (!descripcion.trim()) errores.descripcion = "Ingresá una descripción";
@@ -39,6 +49,10 @@ export function validarEvento({ nombre, descripcion, categoria, fecha, hora, tip
   const fechaDelEvento = armarFecha(fecha, hora);
   if (!fechaDelEvento) errores.fecha = "Ingresá una fecha (DD/MM/AAAA) y hora (HH:MM) válidas";
   else if (fechaDelEvento <= ahora) errores.fecha = "La fecha tiene que ser futura";
+
+  if (separarImagenes(imagenes).some((url) => !/^https?:\/\/\S+$/.test(url))) {
+    errores.imagenes = "Cada imagen tiene que ser una URL que empiece con http:// o https://";
+  }
 
   const erroresDeTipos = tiposEntrada.map((tipo) => {
     const erroresDelTipo = {};

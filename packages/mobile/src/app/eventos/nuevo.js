@@ -9,7 +9,7 @@ import { useAvisos } from "../../context/AvisosContext";
 import { Campo } from "../../components/Campo";
 import { Boton } from "../../components/Boton";
 import { Chips } from "../../components/Chips";
-import { armarFecha, hayErrores, validarEvento } from "../../utils/validaciones";
+import { armarFecha, hayErrores, separarImagenes, validarEvento } from "../../utils/validaciones";
 import { colores, espaciado, radio, texto } from "../../theme";
 
 const tipoVacio = () => ({ nombre: "", descripcion: "", precio: "", cupo: "" });
@@ -24,7 +24,7 @@ export default function NuevoEvento() {
     categoria: null,
     fecha: "",
     hora: "21:00",
-    imagen: "",
+    imagenes: "",
     tiposEntrada: [{ ...tipoVacio(), nombre: "General" }],
   });
   const [errores, setErrores] = useState({});
@@ -59,7 +59,7 @@ export default function NuevoEvento() {
         descripcion: formulario.descripcion.trim(),
         categoriaId: formulario.categoria,
         fecha: armarFecha(formulario.fecha, formulario.hora).toISOString(),
-        multimedia: formulario.imagen.trim() ? [formulario.imagen.trim()] : [],
+        multimedia: separarImagenes(formulario.imagenes),
         tiposEntrada: formulario.tiposEntrada.map((tipo) => ({
           nombre: tipo.nombre.trim(),
           descripcion: tipo.descripcion.trim(),
@@ -129,13 +129,15 @@ export default function NuevoEvento() {
         {errores.fecha && <Text style={styles.error}>{errores.fecha}</Text>}
 
         <Campo
-          etiqueta="Imagen (opcional)"
-          value={formulario.imagen}
-          onChangeText={cambiar("imagen")}
+          etiqueta="Imágenes (opcional)"
+          value={formulario.imagenes}
+          onChangeText={cambiar("imagenes")}
+          error={errores.imagenes}
           placeholder="https://..."
           autoCapitalize="none"
           keyboardType="url"
-          ayuda="URL de una imagen para mostrar el evento"
+          multiline
+          ayuda="Una URL por línea. La primera es la portada del evento."
         />
 
         <View style={styles.grupo}>

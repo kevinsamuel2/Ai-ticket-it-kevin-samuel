@@ -13,6 +13,19 @@ export async function buscarEventos({ texto, categoria, orden, direccion, page =
   return data;
 }
 
+export async function listarFavoritos() {
+  const { data } = await api.get("/favoritos");
+  return data;
+}
+
+export async function agregarFavorito(eventoId) {
+  await api.put(`/favoritos/${eventoId}`);
+}
+
+export async function quitarFavorito(eventoId) {
+  await api.delete(`/favoritos/${eventoId}`);
+}
+
 export async function obtenerEvento(eventoId) {
   const { data } = await api.get(`/eventos/${eventoId}`);
   return data;

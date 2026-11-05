@@ -6,7 +6,11 @@ jest.mock("expo-router", () => ({
   useFocusEffect: (callback) => require("react").useEffect(callback, [callback]),
 }));
 
-const pagina = (numero, totalPages) => ({ items: [`evento ${numero}a`, `evento ${numero}b`], page: numero, totalPages });
+const pagina = (numero, totalPages) => ({
+  items: [`evento ${numero}a`, `evento ${numero}b`],
+  page: numero,
+  totalPages,
+});
 
 describe("usePaginado", () => {
   it("carga la primera página y suma la siguiente con cargarMas", async () => {

@@ -1,4 +1,4 @@
-import { armarFecha, hayErrores, validarEvento, validarLogin } from "../../src/utils/validaciones";
+import { armarFecha, hayErrores, separarImagenes, validarEvento, validarLogin } from "../../src/utils/validaciones";
 
 describe("validaciones", () => {
   describe("validarLogin", () => {
@@ -52,6 +52,16 @@ describe("validaciones", () => {
       );
 
       expect(errores.tiposEntrada).toEqual([{ precio: "Precio inválido", cupo: "Cupo inválido" }]);
+    });
+
+    it("acepta varias imágenes, una por línea, y rechaza las que no son URLs", () => {
+      const conImagenes = { ...eventoValido, imagenes: " https://img/1.jpg \n\nhttp://img/2.png" };
+
+      expect(separarImagenes(conImagenes.imagenes)).toEqual(["https://img/1.jpg", "http://img/2.png"]);
+      expect(validarEvento(conImagenes, ahora)).toEqual({});
+      expect(validarEvento({ ...eventoValido, imagenes: "foto.jpg" }, ahora).imagenes).toBe(
+        "Cada imagen tiene que ser una URL que empiece con http:// o https://",
+      );
     });
 
     it("no permite dos tipos de entrada con el mismo nombre", () => {

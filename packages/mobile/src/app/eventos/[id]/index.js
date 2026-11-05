@@ -1,15 +1,16 @@
 import { useCallback, useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCarga } from "../../../hooks/useCarga";
 import { useUsuario } from "../../../context/UsuarioContext";
 import { useAvisos } from "../../../context/AvisosContext";
-import { obtenerEvento } from "../../../services/eventos.service";
+import { agregarFavorito, obtenerEvento, quitarFavorito } from "../../../services/eventos.service";
 import { comprar } from "../../../services/compras.service";
 import { mensajeDeError } from "../../../services/api";
 import { Cargando, MensajeError } from "../../../components/EstadosDeCarga";
 import { Boton } from "../../../components/Boton";
+import { Galeria } from "../../../components/Galeria";
 import { Puntaje } from "../../../components/Puntaje";
 import { ReseniaItem } from "../../../components/ReseniaItem";
 import { SelectorCantidad } from "../../../components/SelectorCantidad";
@@ -25,12 +26,27 @@ export default function DetalleEvento() {
   const [tipoElegidoId, setTipoElegidoId] = useState(null);
   const [cantidad, setCantidad] = useState(1);
   const [comprando, setComprando] = useState(false);
+  // Se actualiza al instante al tocar el corazón, sin esperar a recargar el evento
+  const [favoritoLocal, setFavoritoLocal] = useState(null);
   const { mostrarError, mostrarExito } = useAvisos();
 
   if (error) return <MensajeError mensaje={error} onReintentar={recargar} />;
   if (!evento) return <Cargando />;
 
   const esOrganizador = evento.organizador.id === usuario.id;
+  const esFavorito = favoritoLocal ?? evento.esFavorito;
+
+  const alternarFavorito = async () => {
+    const nuevoValor = !esFavorito;
+    setFavoritoLocal(nuevoValor);
+    try {
+      await (nuevoValor ? agregarFavorito(evento.id) : quitarFavorito(evento.id));
+      mostrarExito(nuevoValor ? "Guardado en tus favoritos" : "Quitado de tus favoritos");
+    } catch (e) {
+      setFavoritoLocal(!nuevoValor);
+      mostrarError(mensajeDeError(e));
+    }
+  };
   const tipoElegido = evento.tiposEntrada.find((tipo) => tipo.id === tipoElegidoId);
   const sePuedeComprar = !esOrganizador && !evento.yaSeRealizo && !evento.agotado;
 
@@ -58,10 +74,23 @@ export default function DetalleEvento() {
 
   return (
     <ScrollView contentContainerStyle={styles.contenedor}>
-      <Stack.Screen options={{ title: evento.categoria }} />
-      {evento.imagen && (
-        <Image source={{ uri: evento.imagen }} style={styles.imagen} accessibilityIgnoresInvertColors />
-      )}
+      <Stack.Screen
+        options={{
+          title: evento.categoria,
+          headerRight: () => (
+            <Pressable
+              onPress={alternarFavorito}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel={esFavorito ? "Quitar de favoritos" : "Guardar en favoritos"}
+              accessibilityState={{ selected: esFavorito }}
+            >
+              <Ionicons name={esFavorito ? "heart" : "heart-outline"} size={26} color={colores.primario} />
+            </Pressable>
+          ),
+        }}
+      />
+      <Galeria imagenes={evento.multimedia} nombre={evento.nombre} />
 
       <View style={styles.seccion}>
         <Text style={texto.titulo}>{evento.nombre}</Text>
@@ -154,7 +183,6 @@ export default function DetalleEvento() {
 
 const styles = StyleSheet.create({
   contenedor: { paddingBottom: espaciado.xl * 2, gap: espaciado.l },
-  imagen: { width: "100%", aspectRatio: 16 / 9, backgroundColor: colores.primarioSuave },
   seccion: { paddingHorizontal: espaciado.l, gap: espaciado.s },
   avisoOrganizador: { marginHorizontal: espaciado.l, gap: espaciado.m },
   fila: { flexDirection: "row", alignItems: "center", gap: espaciado.s },

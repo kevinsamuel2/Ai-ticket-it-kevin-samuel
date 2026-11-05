@@ -21,6 +21,7 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen name="index" options={{ title: "Explorar", tabBarIcon: iconoDeTab("compass-outline") }} />
+      <Tabs.Screen name="favoritos" options={{ title: "Favoritos", tabBarIcon: iconoDeTab("heart-outline") }} />
       <Tabs.Screen name="compras" options={{ title: "Mis compras", tabBarIcon: iconoDeTab("ticket-outline") }} />
       <Tabs.Screen name="mis-eventos" options={{ title: "Mis eventos", tabBarIcon: iconoDeTab("megaphone-outline") }} />
       <Tabs.Screen name="perfil" options={{ title: "Perfil", tabBarIcon: iconoDeTab("person-circle-outline") }} />
