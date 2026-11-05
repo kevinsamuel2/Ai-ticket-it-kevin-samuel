@@ -1,9 +1,10 @@
 import { useCallback, useState } from "react";
-import { FlatList, StyleSheet, TextInput, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, TextInput, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCarga } from "../../hooks/useCarga";
 import { useValorDiferido } from "../../hooks/useValorDiferido";
+import { usePaginado } from "../../hooks/usePaginado";
 import { buscarEventos, listarCategorias } from "../../services/eventos.service";
 import { EventoCard } from "../../components/EventoCard";
 import { Chips } from "../../components/Chips";
@@ -28,14 +29,17 @@ export default function Explorar() {
   const { datos: categorias } = useCarga(useCallback(() => listarCategorias(), []));
 
   const { orden: criterio, direccion } = ORDENES.find((opcion) => opcion.valor === orden);
+  // Los eventos se traen de a una página y se suman las siguientes al llegar al final de la lista
   const {
-    datos: resultado,
+    items: eventos,
     cargando,
+    cargandoMas,
     error,
     recargar,
-  } = useCarga(
+    cargarMas,
+  } = usePaginado(
     useCallback(
-      () => buscarEventos({ texto: textoABuscar, categoria, orden: criterio, direccion }),
+      (page) => buscarEventos({ texto: textoABuscar, categoria, orden: criterio, direccion, page }),
       [textoABuscar, categoria, criterio, direccion],
     ),
   );
@@ -47,14 +51,19 @@ export default function Explorar() {
 
   const renderizarResultados = () => {
     if (error) return <MensajeError mensaje={error} onReintentar={recargar} />;
-    if (!resultado) return <Cargando mensaje="Buscando eventos..." />;
+    if (!eventos) return <Cargando mensaje="Buscando eventos..." />;
     return (
       <FlatList
-        data={resultado.items}
+        data={eventos}
         keyExtractor={(evento) => String(evento.id)}
         contentContainerStyle={styles.lista}
         refreshing={cargando}
         onRefresh={recargar}
+        onEndReached={cargarMas}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          cargandoMas ? <ActivityIndicator color={colores.primario} accessibilityLabel="Cargando más eventos" /> : null
+        }
         renderItem={({ item: evento }) => (
           <EventoCard evento={evento} onPress={() => router.push(`/eventos/${evento.id}`)} />
         )}

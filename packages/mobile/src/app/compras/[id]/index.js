@@ -127,7 +127,13 @@ export default function DetalleCompra() {
           />
         )}
         <Boton
-          titulo={compra.cantidadMensajes > 0 ? `Chat (${compra.cantidadMensajes})` : "Chat con el organizador"}
+          titulo={
+            compra.cantidadMensajes > 0
+              ? `Chat (${compra.cantidadMensajes})`
+              : esComprador
+                ? "Chat con el organizador"
+                : "Chat con el comprador"
+          }
           icono="chatbubbles-outline"
           variante="secundario"
           onPress={() => router.push(`/compras/${compra.id}/chat`)}

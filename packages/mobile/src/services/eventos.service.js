@@ -1,9 +1,13 @@
 import { api } from "./api";
 
+export const EVENTOS_POR_PAGINA = 10;
+
 // Solo se mandan los filtros con valor, para no ensuciar la query string
-export async function buscarEventos({ texto, categoria, orden, direccion } = {}) {
+export async function buscarEventos({ texto, categoria, orden, direccion, page = 1 } = {}) {
   const params = Object.fromEntries(
-    Object.entries({ texto, categoria, orden, direccion, limit: 50 }).filter(([, valor]) => valor),
+    Object.entries({ texto, categoria, orden, direccion, page, limit: EVENTOS_POR_PAGINA }).filter(
+      ([, valor]) => valor,
+    ),
   );
   const { data } = await api.get("/eventos", { params });
   return data;
