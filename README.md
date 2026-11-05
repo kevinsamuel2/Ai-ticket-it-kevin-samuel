@@ -53,11 +53,11 @@ Queda escuchando en `http://localhost:3001`, con datos de prueba ya cargados (la
 
 Variables opcionales en `packages/backend/.env` (ver `.env.example`):
 
-| Variable             | Default | Descripción                                                 |
-| -------------------- | ------- | ----------------------------------------------------------- |
-| `SERVER_PORT`        | 3001    | Puerto del backend                                          |
-| `MINUTOS_PARA_PAGAR` | 60      | Plazo para pagar antes de que el cron job cancele la compra |
-| `ALLOWED_ORIGINS`    | todos   | Orígenes permitidos por CORS                                |
+| Variable             | Default | Descripción                                                        |
+| -------------------- | ------- | ------------------------------------------------------------------ |
+| `SERVER_PORT`        | 3001    | Puerto del backend                                                 |
+| `MINUTOS_PARA_PAGAR` | 1440    | Plazo para pagar (24 h) antes de que el cron job cancele la compra |
+| `ALLOWED_ORIGINS`    | todos   | Orígenes permitidos por CORS                                       |
 
 ### 2. App mobile
 
@@ -79,7 +79,7 @@ Todos con la contraseña **`ticket123`**:
 | `juan@aiticketit.com`   | Comprador: tiene compras en todos los estados y una entrada sin reseñar |
 | `sofia@aiticketit.com`  | Compradora                                                              |
 
-Cualquier usuario puede comprar y también publicar eventos.
+Cualquier usuario puede comprar y también publicar eventos (pero no comprar entradas de un evento propio). No hay registro de usuarios: la consigna no lo pide, así que se entra con estas cuentas de prueba.
 
 ## 🧪 Tests
 
@@ -122,5 +122,17 @@ Levanta el backend en `http://localhost:3001`. El CI de GitHub Actions corre el 
 - **REST**: el cambio de estado se modela como el recurso `CambioEstadoCompra` del diagrama (`POST /compras/:id/cambios-de-estado`) en lugar de verbos en la URL.
 - **Manejo de errores** centralizado: errores propios (`ValidationError` 400, `UnauthorizedError` 401, `ForbiddenError` 403, `NotFoundError` 404, `ConflictError` 409, `UnprocessableEntityError` 422) y un middleware que los traduce a respuestas HTTP.
 - **Sesiones**: login con email y contraseña (guardada con hash `scrypt`), token `Bearer` y permisos por rol (solo el organizador ve las ventas de su evento, solo el comprador paga o cancela, etc.).
-- **Procesamiento asincrónico**: un cron job (`node-cron`) vence las compras no pagadas a tiempo y libera el cupo.
-- **App**: Expo Router con rutas protegidas, Context API + custom hooks para la sesión y la carga de datos, una única instancia de axios, formularios con validaciones y componentes con props de accesibilidad.
+- **Procesamiento asincrónico**: un cron job (`node-cron`) vence las compras no pagadas a tiempo y libera el cupo. La app muestra hasta cuándo se puede pagar cada compra pendiente.
+- **Reglas de negocio extra**: la entrada se marca como utilizada recién el día del evento (si no, el comprador perdería la posibilidad de cancelar y podría reseñar un evento al que no fue) y el organizador no puede comprar entradas de su propio evento.
+- **App**: Expo Router con rutas protegidas, Context API + custom hooks para la sesión, la carga de datos y la paginación, una única instancia de axios, formularios con validaciones y componentes con props de accesibilidad.
+- **Feedback al usuario**: pantalla de carga al abrir la app (verifica que el backend responda y, si no, permite reintentar), indicadores de carga en cada pantalla y botón, y avisos visibles de error y de éxito en todas las acciones.
+
+## ➕ Extras (no los pide la consigna)
+
+| Extra                                 | Para qué                                                                                          |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Login con token y contraseña con hash | Saber quién hace cada operación y aplicar permisos por rol sin que se pueda falsificar el usuario |
+| Cron job de vencimiento               | Que una compra pendiente que nunca se paga no bloquee el cupo para siempre                        |
+| Paginación                            | Que la búsqueda siga funcionando bien con muchos eventos                                          |
+| Swagger                               | Documentar y probar la API desde el navegador                                                     |
+| Docker y CI (GitHub Actions)          | Levantar el backend en cualquier máquina y correr lint y tests en cada push                       |
