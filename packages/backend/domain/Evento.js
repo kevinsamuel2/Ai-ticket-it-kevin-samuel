@@ -56,6 +56,12 @@ export class Evento {
     return this.fecha <= ahora;
   }
 
+  // Desde las 00:00 del día del evento ya se pueden validar las entradas en la puerta
+  yaEsElDiaDelEvento(ahora = new Date()) {
+    const inicioDelDia = new Date(this.fecha.getFullYear(), this.fecha.getMonth(), this.fecha.getDate());
+    return ahora >= inicioDelDia;
+  }
+
   // Días calendario que faltan para el evento (0 si es hoy o ya pasó)
   diasRestantes(ahora = new Date()) {
     const inicioDeHoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());

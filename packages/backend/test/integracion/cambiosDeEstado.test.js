@@ -1,5 +1,24 @@
+import { jest } from "@jest/globals";
 import request from "supertest";
 import { crearAppConDatosDePrueba } from "./helpers.js";
+
+// Al simular el reloj solo se reemplaza Date: los timers reales siguen funcionando para supertest
+const TODO_MENOS_DATE = [
+  "hrtime",
+  "nextTick",
+  "performance",
+  "queueMicrotask",
+  "requestAnimationFrame",
+  "cancelAnimationFrame",
+  "requestIdleCallback",
+  "cancelIdleCallback",
+  "setImmediate",
+  "clearImmediate",
+  "setInterval",
+  "clearInterval",
+  "setTimeout",
+  "clearTimeout",
+];
 
 describe("API: cambios de estado de una compra", () => {
   let app;
@@ -12,6 +31,16 @@ describe("API: cambios de estado de una compra", () => {
   beforeEach(async () => {
     ({ app, usuarios, comoUsuario } = await crearAppConDatosDePrueba());
   });
+
+  afterEach(() => jest.useRealTimers());
+
+  // La entrada se valida recién el día del evento: se adelanta el reloj (solo Date) a la mañana del día de Hamlet
+  const llegarAlDiaDeHamlet = async () => {
+    const { fecha } = (await request(app).get(`/eventos/${HAMLET}`)).body;
+    const mananaDelEvento = new Date(fecha);
+    mananaDelEvento.setHours(10, 0, 0, 0);
+    jest.useFakeTimers({ now: mananaDelEvento, doNotFake: TODO_MENOS_DATE });
+  };
 
   const comprarHamlet = async (cantidad = 2) =>
     (
@@ -28,6 +57,7 @@ describe("API: cambios de estado de una compra", () => {
     const compra = await comprarHamlet();
 
     const pago = await cambiarEstado(compra.id, usuarios.sofia, "confirmada");
+    await llegarAlDiaDeHamlet();
     const uso = await cambiarEstado(compra.id, usuarios.martin, "UTILIZADA");
 
     expect(pago.status).toBe(201);
@@ -64,12 +94,28 @@ describe("API: cambios de estado de una compra", () => {
   it("no se puede cancelar una entrada ya utilizada (409)", async () => {
     const compra = await comprarHamlet();
     await cambiarEstado(compra.id, usuarios.sofia, "CONFIRMADA");
+    await llegarAlDiaDeHamlet();
     await cambiarEstado(compra.id, usuarios.martin, "UTILIZADA");
 
     const res = await cambiarEstado(compra.id, usuarios.sofia, "CANCELADA");
 
     expect(res.status).toBe(409);
     expect(res.body.message).toBe("No se puede cancelar una compra en estado UTILIZADA");
+  });
+
+  it("antes del día del evento no se puede marcar la entrada como utilizada y el comprador puede cancelar", async () => {
+    const compra = await comprarHamlet();
+    const pagada = await cambiarEstado(compra.id, usuarios.sofia, "CONFIRMADA");
+    const comoOrganizador = await request(app).get(`/compras/${compra.id}`).set(comoUsuario(usuarios.martin));
+
+    const uso = await cambiarEstado(compra.id, usuarios.martin, "UTILIZADA");
+    const cancelacion = await cambiarEstado(compra.id, usuarios.sofia, "CANCELADA");
+
+    expect(pagada.body.acciones.puedeCancelar).toBe(true);
+    expect(comoOrganizador.body.acciones.puedeMarcarComoUtilizada).toBe(false);
+    expect(uso.status).toBe(409);
+    expect(uso.body.message).toBe("La entrada se puede marcar como utilizada recién el día del evento");
+    expect(cancelacion.body.estado).toBe("REEMBOLSADA");
   });
 
   it("respeta los permisos de cada rol (403) y valida el estado pedido (400)", async () => {

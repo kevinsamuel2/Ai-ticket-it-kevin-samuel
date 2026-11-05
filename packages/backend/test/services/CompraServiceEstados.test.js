@@ -11,6 +11,7 @@ import { ConflictError } from "../../errors/ConflictError.js";
 describe("CompraService: cambios de estado", () => {
   const ahora = new Date(2026, 10, 1, 12, 0);
   const despuesDelEvento = new Date(2026, 10, 10, 12, 0);
+  const diaDelEvento = new Date(2026, 10, 6, 18, 0);
   const usuario = (id, nombre) => Object.assign(new Usuario({ nombre, apellido: "Test" }), { id });
   const organizador = usuario(1, "Lucía");
   const comprador = usuario(2, "Juan");
@@ -61,7 +62,7 @@ describe("CompraService: cambios de estado", () => {
   it("el organizador marca la entrada como utilizada", async () => {
     await service.cambiarEstado(comprador, 1, "CONFIRMADA", ahora);
 
-    const dto = await service.cambiarEstado(organizador, 1, "UTILIZADA", ahora);
+    const dto = await service.cambiarEstado(organizador, 1, "UTILIZADA", diaDelEvento);
 
     expect(dto.estado).toBe("UTILIZADA");
     expect(dto.historialEstados.at(-1)).toMatchObject({ estado: "UTILIZADA", quien: "Lucía Test" });
@@ -106,19 +107,30 @@ describe("CompraService: cambios de estado", () => {
       expect(Object.values(comoOrganizador.acciones).some(Boolean)).toBe(false);
     });
 
-    it("una compra confirmada: el organizador puede marcarla como utilizada", async () => {
+    it("una compra confirmada: el organizador puede marcarla como utilizada recién el día del evento", async () => {
       compra.confirmarPago(comprador, ahora);
 
-      const comoOrganizador = await service.obtenerCompra(organizador, 1, ahora);
+      const antesDelDia = await service.obtenerCompra(organizador, 1, ahora);
+      const elDia = await service.obtenerCompra(organizador, 1, diaDelEvento);
 
-      expect(comoOrganizador.acciones.puedeMarcarComoUtilizada).toBe(true);
+      expect(antesDelDia.acciones.puedeMarcarComoUtilizada).toBe(false);
+      expect(elDia.acciones.puedeMarcarComoUtilizada).toBe(true);
+    });
+
+    it("antes del día del evento el organizador no puede marcarla como utilizada (409)", async () => {
+      compra.confirmarPago(comprador, ahora);
+
+      await expect(service.cambiarEstado(organizador, 1, "UTILIZADA", ahora)).rejects.toThrow(
+        "La entrada se puede marcar como utilizada recién el día del evento",
+      );
+      expect(compraRepository.guardar).not.toHaveBeenCalled();
     });
 
     it("una compra utilizada: el comprador ya no puede cancelar pero sí reseñar", async () => {
       compra.confirmarPago(comprador, ahora);
-      compra.marcarComoUtilizada(organizador, ahora);
+      compra.marcarComoUtilizada(organizador, diaDelEvento);
 
-      const { acciones } = await service.obtenerCompra(comprador, 1, ahora);
+      const { acciones } = await service.obtenerCompra(comprador, 1, diaDelEvento);
 
       expect(acciones).toEqual({
         puedePagar: false,

@@ -9,6 +9,7 @@ import { ConflictError } from "../../errors/ConflictError.js";
 
 describe("CompraService: reseñas", () => {
   const ahora = new Date(2026, 10, 1, 12, 0);
+  const diaDelEvento = new Date(2026, 10, 6, 18, 0);
   const usuario = (id, nombre) => Object.assign(new Usuario({ nombre, apellido: "Test" }), { id });
   const organizador = usuario(1, "Lucía");
   const comprador = usuario(2, "Juan");
@@ -36,11 +37,11 @@ describe("CompraService: reseñas", () => {
   });
 
   it("el comprador reseña después de usar la entrada y la reseña queda en el detalle", async () => {
-    compra.marcarComoUtilizada(organizador, ahora);
+    compra.marcarComoUtilizada(organizador, diaDelEvento);
 
-    const dto = await service.reseniar(comprador, 1, { detalle: "Gran puesta", puntuacion: 4.5 }, ahora);
+    const dto = await service.reseniar(comprador, 1, { detalle: "Gran puesta", puntuacion: 4.5 }, diaDelEvento);
 
-    expect(dto.resenia).toEqual({ detalle: "Gran puesta", puntuacion: 4.5, fecha: ahora });
+    expect(dto.resenia).toEqual({ detalle: "Gran puesta", puntuacion: 4.5, fecha: diaDelEvento });
     expect(dto.acciones.puedeReseniar).toBe(false);
     expect(compraRepository.guardar).toHaveBeenCalledWith(compra);
   });
@@ -53,7 +54,7 @@ describe("CompraService: reseñas", () => {
   });
 
   it("el organizador no puede reseñar su propio evento", async () => {
-    compra.marcarComoUtilizada(organizador, ahora);
+    compra.marcarComoUtilizada(organizador, diaDelEvento);
 
     await expect(service.reseniar(organizador, 1, { detalle: "Excelente", puntuacion: 5 }, ahora)).rejects.toThrow(
       ForbiddenError,

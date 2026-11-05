@@ -84,7 +84,7 @@ export class CompraService {
       acciones: {
         puedePagar: esComprador && compra.estado.puedePasarA(EstadoCompra.CONFIRMADA),
         puedeCancelar: esComprador && compra.puedeCancelarse(ahora),
-        puedeMarcarComoUtilizada: esOrganizador && compra.estado.puedePasarA(EstadoCompra.UTILIZADA),
+        puedeMarcarComoUtilizada: esOrganizador && compra.puedeMarcarseComoUtilizada(ahora),
         puedeReseniar: esComprador && compra.puedeReseniarse(),
       },
     };

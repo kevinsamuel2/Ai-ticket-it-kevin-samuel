@@ -10,6 +10,7 @@ import { ConflictError } from "../../errors/ConflictError.js";
 describe("Dominio: Compra", () => {
   const ahora = new Date(2026, 11, 1, 12, 0);
   const antesDelEvento = new Date(2026, 11, 3, 12, 0);
+  const diaDelEvento = new Date(2026, 11, 5, 18, 0);
   const despuesDelEvento = new Date(2026, 11, 6, 12, 0);
 
   let organizador;
@@ -92,7 +93,7 @@ describe("Dominio: Compra", () => {
       const compra = comprar();
 
       compra.confirmarPago(comprador, ahora);
-      compra.marcarComoUtilizada(organizador, antesDelEvento);
+      compra.marcarComoUtilizada(organizador, diaDelEvento);
 
       expect(compra.estado).toBe(EstadoCompra.UTILIZADA);
       expect(compra.historialEstados.map((c) => c.estado)).toEqual([
@@ -100,7 +101,21 @@ describe("Dominio: Compra", () => {
         EstadoCompra.CONFIRMADA,
         EstadoCompra.UTILIZADA,
       ]);
-      expect(compra.historialEstados[2]).toMatchObject({ quien: organizador, fechaHora: antesDelEvento });
+      expect(compra.historialEstados[2]).toMatchObject({ quien: organizador, fechaHora: diaDelEvento });
+    });
+
+    it("la entrada se puede marcar como utilizada recién el día del evento", () => {
+      const compra = comprar();
+      compra.confirmarPago(comprador, ahora);
+
+      expect(compra.puedeMarcarseComoUtilizada(antesDelEvento)).toBe(false);
+      expect(() => compra.marcarComoUtilizada(organizador, antesDelEvento)).toThrow(
+        "La entrada se puede marcar como utilizada recién el día del evento",
+      );
+      expect(compra.estado).toBe(EstadoCompra.CONFIRMADA);
+      expect(compra.puedeCancelarse(antesDelEvento)).toBe(true);
+
+      expect(compra.puedeMarcarseComoUtilizada(new Date(2026, 11, 5, 0, 0))).toBe(true);
     });
 
     it("rechaza transiciones inválidas sin modificar la compra", () => {
@@ -135,7 +150,7 @@ describe("Dominio: Compra", () => {
     it("no se puede cancelar una compra utilizada", () => {
       const compra = comprar();
       compra.confirmarPago(comprador, ahora);
-      compra.marcarComoUtilizada(organizador, antesDelEvento);
+      compra.marcarComoUtilizada(organizador, diaDelEvento);
 
       expect(compra.puedeCancelarse(antesDelEvento)).toBe(false);
       expect(() => compra.cancelar(comprador, antesDelEvento)).toThrow(
@@ -229,7 +244,7 @@ describe("Dominio: Compra", () => {
     const compraUtilizada = () => {
       const compra = comprar();
       compra.confirmarPago(comprador, ahora);
-      compra.marcarComoUtilizada(organizador, antesDelEvento);
+      compra.marcarComoUtilizada(organizador, diaDelEvento);
       return compra;
     };
 

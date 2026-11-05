@@ -56,7 +56,17 @@ export class Compra {
     this.actualizarEstado(EstadoCompra.CONFIRMADA, quien, ahora);
   }
 
+  // La entrada se usa en la puerta: no se puede marcar como utilizada antes del día del evento
+  // (si no, el comprador perdería la posibilidad de cancelar y podría reseñar un evento al que no fue)
+  puedeMarcarseComoUtilizada(ahora = new Date()) {
+    return this.estado.puedePasarA(EstadoCompra.UTILIZADA) && this.evento.yaEsElDiaDelEvento(ahora);
+  }
+
   marcarComoUtilizada(quien, ahora = new Date()) {
+    // Primero se valida la transición (ej: una compra PENDIENTE no puede usarse) y después la fecha
+    if (this.estado.puedePasarA(EstadoCompra.UTILIZADA) && !this.evento.yaEsElDiaDelEvento(ahora)) {
+      throw new ConflictError("La entrada se puede marcar como utilizada recién el día del evento");
+    }
     this.actualizarEstado(EstadoCompra.UTILIZADA, quien, ahora);
   }
 
