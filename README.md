@@ -116,6 +116,7 @@ Levanta el backend en `http://localhost:3001`. El CI de GitHub Actions corre el 
 
 ## 🧱 Decisiones de diseño
 
+- **Diagrama de clases completo**: además de lo que piden los casos de uso, están implementados los favoritos de cada usuario (`Usuario.favoritos`, en `GET/PUT/DELETE /favoritos` y la tab Favoritos) y todas las imágenes del evento (`Evento.multimedia`, en una galería en el detalle).
 - **Arquitectura en capas** (dominio → repositorios → services → controllers → rutas), con inyección de dependencias armada en `config/armarApp.js`.
 - **Dominio rico**: las reglas de negocio viven en las entidades del diagrama (`TipoEntrada.hayCupoPara`, `Evento.tuPrecioEstaEntre`, `Compra.actualizarEstado`...), no en los services.
 - **Patrón State** para los estados de la compra: cada estado sabe a qué estados puede pasar y qué significa cancelar en él (una compra pendiente queda CANCELADA, una confirmada queda REEMBOLSADA). Sin `switch`.
