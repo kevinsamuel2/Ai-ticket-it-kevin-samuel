@@ -10,8 +10,6 @@
     "expo-linking": "~58.0.15",
     "expo-router": "~58.0.29",
     "expo-status-bar": "~58.0.4",
-    "jest": "~30.5.2",
-    "jest-expo": "~58.0.13",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.1",
@@ -29,7 +27,9 @@
   "private": true,
   "description": "App mobile de AI Ticket It (React Native + Expo)",
   "devDependencies": {
-    "@testing-library/react-native": "^14.1.0"
+    "@testing-library/react-native": "^14.1.0",
+    "jest": "~30.5.2",
+    "jest-expo": "~58.0.13"
   },
   "jest": {
     "preset": "jest-expo",

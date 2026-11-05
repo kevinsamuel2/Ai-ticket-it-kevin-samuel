@@ -6,7 +6,8 @@ services:
     ports:
       - "3001:3001"
     environment:
-      MINUTOS_PARA_PAGAR: 60
+      MINUTOS_PARA_PAGAR: 1440
+      TZ: America/Argentina/Buenos_Aires
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
       interval: 30s

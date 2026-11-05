@@ -13,6 +13,9 @@ RUN npm ci --workspace=backend --omit=dev --include-workspace-root=false
 
 COPY packages/backend packages/backend
 
+# Zona horaria de Argentina: "Faltan N días" y el día del evento se calculan con la hora local
+RUN apk add --no-cache tzdata
+ENV TZ=America/Argentina/Buenos_Aires
 ENV NODE_ENV=production
 ENV SERVER_PORT=3001
 EXPOSE 3001
