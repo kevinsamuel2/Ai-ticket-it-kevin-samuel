@@ -3,23 +3,23 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } fr
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useUsuario } from "../context/UsuarioContext";
+import { useAvisos } from "../context/AvisosContext";
 import { mensajeDeError } from "../services/api";
 import { Campo } from "../components/Campo";
 import { Boton } from "../components/Boton";
 import { hayErrores, validarLogin } from "../utils/validaciones";
-import { colores, espaciado, radio } from "../theme";
+import { colores, espaciado } from "../theme";
 
 export default function Login() {
   const { iniciarSesion } = useUsuario();
+  const { mostrarError } = useAvisos();
   const [formulario, setFormulario] = useState({ email: "", contrasenia: "" });
   const [errores, setErrores] = useState({});
-  const [errorDelServidor, setErrorDelServidor] = useState(null);
   const [enviando, setEnviando] = useState(false);
 
   const cambiar = (campo) => (valor) => {
     setFormulario((anterior) => ({ ...anterior, [campo]: valor }));
     setErrores((anteriores) => ({ ...anteriores, [campo]: undefined }));
-    setErrorDelServidor(null);
   };
 
   const ingresar = async () => {
@@ -31,7 +31,7 @@ export default function Login() {
     try {
       await iniciarSesion(formulario.email.trim(), formulario.contrasenia);
     } catch (error) {
-      setErrorDelServidor(mensajeDeError(error));
+      mostrarError(mensajeDeError(error));
     } finally {
       setEnviando(false);
     }
@@ -77,13 +77,6 @@ export default function Login() {
               onSubmitEditing={ingresar}
             />
 
-            {errorDelServidor && (
-              <View style={styles.errorServidor} accessibilityRole="alert">
-                <Ionicons name="alert-circle" size={18} color={colores.peligro} />
-                <Text style={styles.errorServidorTexto}>{errorDelServidor}</Text>
-              </View>
-            )}
-
             <Boton titulo="Ingresar" icono="log-in-outline" onPress={ingresar} cargando={enviando} />
           </View>
         </ScrollView>
@@ -110,13 +103,4 @@ const styles = StyleSheet.create({
   nombreVerde: { color: colores.primario },
   bajada: { fontSize: 15, color: "#A1A1AA" },
   formulario: { gap: espaciado.l },
-  errorServidor: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: espaciado.s,
-    padding: espaciado.m,
-    borderRadius: radio.m,
-    backgroundColor: "#FEE2E2",
-  },
-  errorServidorTexto: { flex: 1, color: colores.peligro, fontSize: 14 },
 });

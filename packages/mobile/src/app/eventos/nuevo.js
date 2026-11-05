@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useCarga } from "../../hooks/useCarga";
 import { crearEvento, listarCategorias } from "../../services/eventos.service";
 import { mensajeDeError } from "../../services/api";
+import { useAvisos } from "../../context/AvisosContext";
 import { Campo } from "../../components/Campo";
 import { Boton } from "../../components/Boton";
 import { Chips } from "../../components/Chips";
@@ -27,7 +28,7 @@ export default function NuevoEvento() {
     tiposEntrada: [{ ...tipoVacio(), nombre: "General" }],
   });
   const [errores, setErrores] = useState({});
-  const [errorDelServidor, setErrorDelServidor] = useState(null);
+  const { mostrarError, mostrarExito } = useAvisos();
   const [publicando, setPublicando] = useState(false);
 
   const cambiar = (campo) => (valor) => setFormulario((anterior) => ({ ...anterior, [campo]: valor }));
@@ -49,7 +50,6 @@ export default function NuevoEvento() {
   const publicar = async () => {
     const erroresDeValidacion = validarEvento(formulario);
     setErrores(erroresDeValidacion);
-    setErrorDelServidor(null);
     if (hayErrores(erroresDeValidacion)) return;
 
     setPublicando(true);
@@ -67,9 +67,10 @@ export default function NuevoEvento() {
           cupo: Number(tipo.cupo),
         })),
       });
+      mostrarExito(`¡Publicaste "${evento.nombre}"!`);
       router.replace(`/eventos/${evento.id}`);
     } catch (e) {
-      setErrorDelServidor(mensajeDeError(e));
+      mostrarError(mensajeDeError(e));
     } finally {
       setPublicando(false);
     }
@@ -196,11 +197,6 @@ export default function NuevoEvento() {
           <Boton titulo="Agregar tipo de entrada" icono="add" variante="secundario" onPress={agregarTipo} />
         </View>
 
-        {errorDelServidor && (
-          <Text style={styles.error} accessibilityRole="alert">
-            {errorDelServidor}
-          </Text>
-        )}
         <Boton titulo="Publicar evento" icono="megaphone-outline" onPress={publicar} cargando={publicando} />
       </ScrollView>
     </KeyboardAvoidingView>

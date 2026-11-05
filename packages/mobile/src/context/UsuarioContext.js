@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { alExpirarSesion, establecerToken } from "../services/api";
 import * as sesionesService from "../services/sesiones.service";
+import { useAvisos } from "./AvisosContext";
 
 // Estado global de la sesión. Con Context cualquier pantalla lee el usuario con useUsuario()
 // sin tener que pasarlo por props de componente en componente
@@ -8,6 +9,7 @@ const UsuarioContext = createContext(null);
 
 export function UsuarioProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
+  const { mostrarInfo } = useAvisos();
 
   const iniciarSesion = useCallback(async (email, contrasenia) => {
     const { token, usuario: usuarioLogueado } = await sesionesService.iniciarSesion(email, contrasenia);
@@ -23,15 +25,19 @@ export function UsuarioProvider({ children }) {
   const cerrarSesion = useCallback(async () => {
     try {
       await sesionesService.cerrarSesion();
-    } finally {
+    } catch {
       // Aunque falle el request (ej: sin conexión), en la app la sesión se cierra igual
-      olvidarSesion();
     }
+    olvidarSesion();
   }, [olvidarSesion]);
 
+  // Si el backend rechaza el token (ej: se reinició el servidor), se vuelve al login avisando por qué
   useEffect(() => {
-    alExpirarSesion(olvidarSesion);
-  }, [olvidarSesion]);
+    alExpirarSesion(() => {
+      olvidarSesion();
+      mostrarInfo("Tu sesión expiró. Volvé a iniciar sesión.");
+    });
+  }, [olvidarSesion, mostrarInfo]);
 
   const valor = useMemo(() => ({ usuario, iniciarSesion, cerrarSesion }), [usuario, iniciarSesion, cerrarSesion]);
 

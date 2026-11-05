@@ -4,6 +4,7 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCarga } from "../../../hooks/useCarga";
 import { useUsuario } from "../../../context/UsuarioContext";
+import { useAvisos } from "../../../context/AvisosContext";
 import { obtenerEvento } from "../../../services/eventos.service";
 import { comprar } from "../../../services/compras.service";
 import { mensajeDeError } from "../../../services/api";
@@ -24,7 +25,7 @@ export default function DetalleEvento() {
   const [tipoElegidoId, setTipoElegidoId] = useState(null);
   const [cantidad, setCantidad] = useState(1);
   const [comprando, setComprando] = useState(false);
-  const [errorDeCompra, setErrorDeCompra] = useState(null);
+  const { mostrarError, mostrarExito } = useAvisos();
 
   if (error) return <MensajeError mensaje={error} onReintentar={recargar} />;
   if (!evento) return <Cargando />;
@@ -36,18 +37,19 @@ export default function DetalleEvento() {
   const elegirTipo = (tipo) => {
     setTipoElegidoId(tipo.id);
     setCantidad(1);
-    setErrorDeCompra(null);
   };
 
   const confirmarCompra = async () => {
     setComprando(true);
-    setErrorDeCompra(null);
     try {
       const compra = await comprar({ eventoId: evento.id, tipoEntradaId: tipoElegido.id, cantidad });
+      mostrarExito(
+        `¡Reservaste ${cantidad} ${cantidad === 1 ? "entrada" : "entradas"}! Pagalas para confirmar la compra.`,
+      );
       router.replace(`/compras/${compra.id}`);
     } catch (e) {
       // Ej: otra persona compró las últimas entradas mientras se elegía la cantidad
-      setErrorDeCompra(mensajeDeError(e));
+      mostrarError(mensajeDeError(e));
       recargar();
     } finally {
       setComprando(false);
@@ -132,11 +134,6 @@ export default function DetalleEvento() {
               <Text style={texto.subtitulo}>Total</Text>
               <Text style={styles.total}>{formatearPrecio(tipoElegido.precio * cantidad)}</Text>
             </View>
-            {errorDeCompra && (
-              <Text style={styles.error} accessibilityRole="alert">
-                {errorDeCompra}
-              </Text>
-            )}
             <Boton titulo="Comprar" icono="cart" onPress={confirmarCompra} cargando={comprando} />
             <Text style={[texto.secundario, styles.centrado]}>La compra queda pendiente hasta que la pagues.</Text>
           </View>
@@ -202,6 +199,5 @@ const styles = StyleSheet.create({
     borderColor: colores.borde,
   },
   total: { fontSize: 22, fontWeight: "800", color: colores.primarioOscuro },
-  error: { color: colores.peligro, fontSize: 14 },
   centrado: { textAlign: "center" },
 });

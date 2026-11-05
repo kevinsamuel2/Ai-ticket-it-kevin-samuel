@@ -5,6 +5,7 @@ import { Campo } from "./Campo";
 import { Boton } from "./Boton";
 import { reseniar } from "../services/compras.service";
 import { mensajeDeError } from "../services/api";
+import { useAvisos } from "../context/AvisosContext";
 import { colores, espaciado, radio, texto } from "../theme";
 
 const ETIQUETAS = ["", "Malo", "Regular", "Bueno", "Muy bueno", "Excelente"];
@@ -15,6 +16,7 @@ export function FormularioResenia({ compraId, onReseniado }) {
   const [detalle, setDetalle] = useState("");
   const [errores, setErrores] = useState({});
   const [enviando, setEnviando] = useState(false);
+  const { mostrarError, mostrarExito } = useAvisos();
 
   const enviar = async () => {
     const erroresDeValidacion = {};
@@ -26,9 +28,10 @@ export function FormularioResenia({ compraId, onReseniado }) {
     setEnviando(true);
     try {
       await reseniar(compraId, { detalle: detalle.trim(), puntuacion });
+      mostrarExito("¡Gracias por tu reseña!");
       onReseniado();
     } catch (e) {
-      setErrores({ servidor: mensajeDeError(e) });
+      mostrarError(mensajeDeError(e));
     } finally {
       setEnviando(false);
     }
@@ -63,7 +66,6 @@ export function FormularioResenia({ compraId, onReseniado }) {
         maxLength={500}
         style={styles.comentario}
       />
-      {errores.servidor && <Text style={styles.error}>{errores.servidor}</Text>}
       <Boton titulo="Enviar reseña" icono="star" onPress={enviar} cargando={enviando} />
     </View>
   );

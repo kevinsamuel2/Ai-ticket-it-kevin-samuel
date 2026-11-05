@@ -4,6 +4,7 @@ import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCarga } from "../../../hooks/useCarga";
 import { useUsuario } from "../../../context/UsuarioContext";
+import { useAvisos } from "../../../context/AvisosContext";
 import { cambiarEstado, obtenerCompra } from "../../../services/compras.service";
 import { mensajeDeError } from "../../../services/api";
 import { Cargando, MensajeError } from "../../../components/EstadosDeCarga";
@@ -21,13 +22,21 @@ import {
   textoDiasRestantes,
 } from "../../../utils/formato";
 
+// Aviso que se muestra según el estado en que quedó la compra después de la acción
+const MENSAJES_DE_EXITO = {
+  CONFIRMADA: () => "¡Pago confirmado! Ya tenés tus entradas.",
+  UTILIZADA: () => "Entrada marcada como utilizada.",
+  CANCELADA: () => "Compra cancelada. Las entradas volvieron a estar disponibles.",
+  REEMBOLSADA: (compra) => `Compra cancelada. Te vamos a reembolsar ${formatearPrecio(compra.total)}.`,
+};
+
 export default function DetalleCompra() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { usuario } = useUsuario();
   const { datos: compra, error, recargar } = useCarga(useCallback(() => obtenerCompra(id), [id]));
   const [accionEnCurso, setAccionEnCurso] = useState(null);
-  const [errorDeAccion, setErrorDeAccion] = useState(null);
+  const { mostrarError, mostrarExito } = useAvisos();
 
   if (error) return <MensajeError mensaje={error} onReintentar={recargar} />;
   if (!compra) return <Cargando />;
@@ -37,12 +46,12 @@ export default function DetalleCompra() {
 
   const ejecutar = async (estado) => {
     setAccionEnCurso(estado);
-    setErrorDeAccion(null);
     try {
-      await cambiarEstado(compra.id, estado);
+      const actualizada = await cambiarEstado(compra.id, estado);
+      mostrarExito(MENSAJES_DE_EXITO[actualizada.estado](actualizada));
       await recargar();
     } catch (e) {
-      setErrorDeAccion(mensajeDeError(e));
+      mostrarError(mensajeDeError(e));
     } finally {
       setAccionEnCurso(null);
     }
@@ -99,12 +108,6 @@ export default function DetalleCompra() {
           />
         </View>
       </View>
-
-      {errorDeAccion && (
-        <Text style={styles.error} accessibilityRole="alert">
-          {errorDeAccion}
-        </Text>
-      )}
 
       <View style={styles.acciones}>
         {acciones.puedePagar && (
@@ -214,7 +217,6 @@ const styles = StyleSheet.create({
   separador: { height: 1, backgroundColor: colores.borde, marginVertical: espaciado.xs },
   fila: { flexDirection: "row", justifyContent: "space-between" },
   destacado: { fontWeight: "800", color: colores.primarioOscuro, fontSize: 17 },
-  error: { color: colores.peligro, textAlign: "center" },
   acciones: { gap: espaciado.m },
   seccion: { gap: espaciado.s },
   resenia: {

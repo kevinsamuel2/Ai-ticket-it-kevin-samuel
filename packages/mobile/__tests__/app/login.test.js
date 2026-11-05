@@ -1,13 +1,13 @@
 import { render, screen, userEvent } from "@testing-library/react-native";
 import Login from "../../src/app/login";
-import { UsuarioProvider } from "../../src/context/UsuarioContext";
+import { Proveedores } from "../../test-utils/Proveedores";
 import { iniciarSesion } from "../../src/services/sesiones.service";
 
 jest.mock("../../src/services/sesiones.service", () => ({ iniciarSesion: jest.fn(), cerrarSesion: jest.fn() }));
 
 jest.useFakeTimers();
 
-const renderizarLogin = () => render(<Login />, { wrapper: UsuarioProvider });
+const renderizarLogin = () => render(<Login />, { wrapper: Proveedores });
 
 describe("Pantalla de login", () => {
   beforeEach(() => iniciarSesion.mockReset());

@@ -1,6 +1,7 @@
 import { render, screen, userEvent } from "@testing-library/react-native";
 import { FormularioResenia } from "../../src/components/FormularioResenia";
 import { reseniar } from "../../src/services/compras.service";
+import { Proveedores } from "../../test-utils/Proveedores";
 
 // Mock del service: el componente se prueba sin llamar al backend
 jest.mock("../../src/services/compras.service", () => ({ reseniar: jest.fn() }));
@@ -12,7 +13,7 @@ describe("FormularioResenia", () => {
 
   it("pide puntuación y comentario antes de enviar", async () => {
     const user = userEvent.setup();
-    await render(<FormularioResenia compraId={5} onReseniado={jest.fn()} />);
+    await render(<FormularioResenia compraId={5} onReseniado={jest.fn()} />, { wrapper: Proveedores });
 
     await user.press(screen.getByRole("button", { name: "Enviar reseña" }));
 
@@ -25,7 +26,7 @@ describe("FormularioResenia", () => {
     const user = userEvent.setup();
     const onReseniado = jest.fn();
     reseniar.mockResolvedValue({});
-    await render(<FormularioResenia compraId={5} onReseniado={onReseniado} />);
+    await render(<FormularioResenia compraId={5} onReseniado={onReseniado} />, { wrapper: Proveedores });
 
     await user.press(screen.getByRole("radio", { name: "4 estrellas, Muy bueno" }));
     await user.type(screen.getByLabelText("Comentario"), "Muy buena obra");
@@ -33,12 +34,13 @@ describe("FormularioResenia", () => {
 
     expect(reseniar).toHaveBeenCalledWith(5, { detalle: "Muy buena obra", puntuacion: 4 });
     expect(onReseniado).toHaveBeenCalled();
+    expect(await screen.findByText("¡Gracias por tu reseña!")).toBeOnTheScreen();
   });
 
   it("muestra el error del servidor", async () => {
     const user = userEvent.setup();
     reseniar.mockRejectedValue({ response: { data: { message: "Esta compra ya tiene una reseña" } } });
-    await render(<FormularioResenia compraId={5} onReseniado={jest.fn()} />);
+    await render(<FormularioResenia compraId={5} onReseniado={jest.fn()} />, { wrapper: Proveedores });
 
     await user.press(screen.getByRole("radio", { name: "5 estrellas, Excelente" }));
     await user.type(screen.getByLabelText("Comentario"), "Otra");

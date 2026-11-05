@@ -1,14 +1,33 @@
+import { StyleSheet, View } from "react-native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { AvisosProvider } from "../context/AvisosContext";
 import { UsuarioProvider, useUsuario } from "../context/UsuarioContext";
+import { useConexionConServidor } from "../hooks/useConexionConServidor";
+import { PantallaDeCarga } from "../components/PantallaDeCarga";
 import { colores } from "../theme";
 
 export default function RootLayout() {
+  const conexion = useConexionConServidor();
+  const mostrarCarga = conexion.verificando || conexion.error;
+
   return (
-    <UsuarioProvider>
-      <StatusBar style="light" />
-      <Navegacion />
-    </UsuarioProvider>
+    <AvisosProvider>
+      <UsuarioProvider>
+        <StatusBar style="light" />
+        <Navegacion />
+        {/* La pantalla de carga va encima de la navegación: Expo Router necesita que el Stack esté montado */}
+        {mostrarCarga && (
+          <View style={StyleSheet.absoluteFill}>
+            <PantallaDeCarga
+              mensaje="Conectando con el servidor..."
+              error={conexion.error}
+              onReintentar={conexion.reintentar}
+            />
+          </View>
+        )}
+      </UsuarioProvider>
+    </AvisosProvider>
   );
 }
 

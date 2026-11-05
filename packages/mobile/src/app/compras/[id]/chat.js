@@ -4,6 +4,7 @@ import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { enviarMensaje, listarMensajes } from "../../../services/compras.service";
 import { mensajeDeError } from "../../../services/api";
+import { useAvisos } from "../../../context/AvisosContext";
 import { Cargando, MensajeError, SinResultados } from "../../../components/EstadosDeCarga";
 import { colores, espaciado, radio, texto } from "../../../theme";
 import { formatearFechaCompleta } from "../../../utils/formato";
@@ -17,6 +18,7 @@ export default function Chat() {
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
   const lista = useRef(null);
+  const { mostrarError } = useAvisos();
 
   const actualizar = useCallback(async () => {
     try {
@@ -50,7 +52,7 @@ export default function Chat() {
       setMensajes((anteriores) => [...(anteriores ?? []), enviado]);
       setTexto("");
     } catch (e) {
-      setError(mensajeDeError(e));
+      mostrarError(`No se pudo enviar el mensaje: ${mensajeDeError(e)}`);
     } finally {
       setEnviando(false);
     }
