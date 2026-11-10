@@ -12,23 +12,23 @@ describe("API: usuarios y categorías", () => {
   });
 
   it("GET /usuarios lista los usuarios a quien inició sesión", async () => {
-    const res = await request(app).get("/usuarios").set(comoUsuario(usuarios.juan));
+    const res = await request(app).get("/usuarios").set(comoUsuario(usuarios.nahuel));
 
     expect(res.status).toBe(200);
     expect(res.body.map((u) => u.nombreCompleto)).toEqual([
-      "Lucía Fernández",
-      "Martín Sosa",
-      "Juan Gómez",
-      "Sofía Ramírez",
+      "Florencia Acosta",
+      "Gonzalo Pereyra",
+      "Nahuel Quiroga",
+      "Agustina Benítez",
     ]);
   });
 
   it("GET /usuarios/:id devuelve un usuario o 404", async () => {
-    const encontrado = await request(app).get("/usuarios/3").set(comoUsuario(usuarios.juan));
-    const inexistente = await request(app).get("/usuarios/99").set(comoUsuario(usuarios.juan));
+    const encontrado = await request(app).get("/usuarios/3").set(comoUsuario(usuarios.nahuel));
+    const inexistente = await request(app).get("/usuarios/99").set(comoUsuario(usuarios.nahuel));
 
     expect(encontrado.status).toBe(200);
-    expect(encontrado.body).toEqual({ id: 3, nombre: "Juan", apellido: "Gómez", nombreCompleto: "Juan Gómez" });
+    expect(encontrado.body).toEqual({ id: 3, nombre: "Nahuel", apellido: "Quiroga", nombreCompleto: "Nahuel Quiroga" });
     expect(inexistente.status).toBe(404);
     expect(inexistente.body.message).toBe("El usuario con id 99 no existe");
   });
@@ -62,21 +62,21 @@ describe("API: sesiones (login)", () => {
   const iniciarSesion = (email, contrasenia) => request(app).post("/sesiones").send({ email, contrasenia });
 
   it("POST /sesiones con credenciales correctas devuelve un token y el usuario", async () => {
-    const res = await iniciarSesion("Juan@AITicketIt.com ", CONTRASENIA_DE_PRUEBA);
+    const res = await iniciarSesion("Nahuel@AITicketIt.com ", CONTRASENIA_DE_PRUEBA);
 
     expect(res.status).toBe(201);
     expect(res.body.token).toEqual(expect.any(String));
     expect(res.body.usuario).toEqual({
       id: 3,
-      nombre: "Juan",
-      apellido: "Gómez",
-      nombreCompleto: "Juan Gómez",
-      email: "juan@aiticketit.com",
+      nombre: "Nahuel",
+      apellido: "Quiroga",
+      nombreCompleto: "Nahuel Quiroga",
+      email: "nahuel@aiticketit.com",
     });
   });
 
   it("POST /sesiones responde 401 con el mismo mensaje si el email no existe o la contraseña es incorrecta", async () => {
-    const contraseniaIncorrecta = await iniciarSesion("juan@aiticketit.com", "otra-clave");
+    const contraseniaIncorrecta = await iniciarSesion("nahuel@aiticketit.com", "otra-clave");
     const emailInexistente = await iniciarSesion("nadie@aiticketit.com", CONTRASENIA_DE_PRUEBA);
 
     expect(contraseniaIncorrecta.status).toBe(401);
@@ -86,19 +86,19 @@ describe("API: sesiones (login)", () => {
   });
 
   it("POST /sesiones sin email o contraseña responde 400", async () => {
-    const res = await request(app).post("/sesiones").send({ email: "juan@aiticketit.com" });
+    const res = await request(app).post("/sesiones").send({ email: "nahuel@aiticketit.com" });
 
     expect(res.status).toBe(400);
     expect(res.body.message).toBe("Faltan campos obligatorios: contrasenia");
   });
 
   it("el token identifica al usuario en las rutas protegidas", async () => {
-    const { body } = await iniciarSesion("sofia@aiticketit.com", CONTRASENIA_DE_PRUEBA);
+    const { body } = await iniciarSesion("agustina@aiticketit.com", CONTRASENIA_DE_PRUEBA);
 
     const compras = await request(app).get("/compras").set("Authorization", `Bearer ${body.token}`);
 
     expect(compras.status).toBe(200);
-    expect(compras.body.every((c) => c.comprador.nombreCompleto === "Sofía Ramírez")).toBe(true);
+    expect(compras.body.every((c) => c.comprador.nombreCompleto === "Agustina Benítez")).toBe(true);
   });
 
   it("sin token las rutas protegidas responden 401", async () => {
@@ -127,7 +127,7 @@ describe("API: sesiones (login)", () => {
   });
 
   it("DELETE /sesiones/actual cierra la sesión y el token deja de servir", async () => {
-    const { body } = await iniciarSesion("juan@aiticketit.com", CONTRASENIA_DE_PRUEBA);
+    const { body } = await iniciarSesion("nahuel@aiticketit.com", CONTRASENIA_DE_PRUEBA);
     const autorizacion = { Authorization: `Bearer ${body.token}` };
 
     const cierre = await request(app).delete("/sesiones/actual").set(autorizacion);

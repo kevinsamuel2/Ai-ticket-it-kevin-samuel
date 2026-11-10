@@ -125,7 +125,7 @@ paths:
                   items:
                     type: string
                   example:
-                    - https://picsum.photos/seed/cine/800/450
+                    - https://images.unsplash.com/photo-1514306191717-452ec28c7814?w=800&h=450&fit=crop&q=80
                 tiposEntrada:
                   type: array
                   minItems: 1

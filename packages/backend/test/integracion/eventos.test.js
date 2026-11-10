@@ -15,19 +15,19 @@ describe("API: búsqueda y detalle de eventos", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.total).toBe(7);
-    expect(nombres(res)[0]).toBe("Stand-up: Risas de Medianoche");
+    expect(nombres(res)[0]).toBe("Stand-up en Belushi");
   });
 
   it("GET /eventos?texto= busca sin distinguir mayúsculas ni tildes", async () => {
-    const res = await request(app).get("/eventos").query({ texto: "ROCK" });
+    const res = await request(app).get("/eventos").query({ texto: "ESCALANDRUM" });
 
-    expect(nombres(res)).toEqual(["Noche de Rock Nacional"]);
+    expect(nombres(res)).toEqual(["Escalandrum en Bebop Club"]);
   });
 
   it("GET /eventos?categoria= filtra por categoría", async () => {
     const res = await request(app).get("/eventos").query({ categoria: "Recitales" });
 
-    expect(nombres(res)).toEqual(["Jazz en el Bosque", "Noche de Rock Nacional"]);
+    expect(nombres(res)).toEqual(["Escalandrum en Bebop Club", "Divididos en Obras"]);
   });
 
   it("GET /eventos?orden=precio ordena por la entrada más barata", async () => {
@@ -58,7 +58,7 @@ describe("API: búsqueda y detalle de eventos", () => {
     const res = await request(app).get("/eventos/1");
 
     expect(res.status).toBe(200);
-    expect(res.body.nombre).toBe("Noche de Rock Nacional");
+    expect(res.body.nombre).toBe("Divididos en Obras");
     expect(res.body.tiposEntrada.map((t) => [t.nombre, t.disponibles])).toEqual([
       ["General", 198],
       ["Campo VIP", 29],

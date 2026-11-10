@@ -11,8 +11,8 @@ describe("CompraService: reseñas", () => {
   const ahora = new Date(2026, 10, 1, 12, 0);
   const diaDelEvento = new Date(2026, 10, 6, 18, 0);
   const usuario = (id, nombre) => Object.assign(new Usuario({ nombre, apellido: "Test" }), { id });
-  const organizador = usuario(1, "Lucía");
-  const comprador = usuario(2, "Juan");
+  const organizador = usuario(1, "Florencia");
+  const comprador = usuario(2, "Nahuel");
 
   let compra;
   let compraRepository;
@@ -20,7 +20,7 @@ describe("CompraService: reseñas", () => {
 
   beforeEach(() => {
     const evento = new Evento({
-      nombre: "Hamlet",
+      nombre: "Esperando la carroza",
       descripcion: "Obra",
       categoria: new Categoria({ nombre: "Teatro" }),
       fecha: new Date(2026, 10, 6, 20, 0),

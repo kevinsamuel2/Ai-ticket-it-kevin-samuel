@@ -13,8 +13,8 @@ describe("CompraService: cambios de estado", () => {
   const despuesDelEvento = new Date(2026, 10, 10, 12, 0);
   const diaDelEvento = new Date(2026, 10, 6, 18, 0);
   const usuario = (id, nombre) => Object.assign(new Usuario({ nombre, apellido: "Test" }), { id });
-  const organizador = usuario(1, "Lucía");
-  const comprador = usuario(2, "Juan");
+  const organizador = usuario(1, "Florencia");
+  const comprador = usuario(2, "Nahuel");
 
   let evento;
   let compra;
@@ -24,7 +24,7 @@ describe("CompraService: cambios de estado", () => {
 
   beforeEach(() => {
     evento = new Evento({
-      nombre: "Hamlet",
+      nombre: "Esperando la carroza",
       descripcion: "Obra",
       categoria: new Categoria({ nombre: "Teatro" }),
       fecha: new Date(2026, 10, 6, 20, 0),
@@ -65,7 +65,7 @@ describe("CompraService: cambios de estado", () => {
     const dto = await service.cambiarEstado(organizador, 1, "UTILIZADA", diaDelEvento);
 
     expect(dto.estado).toBe("UTILIZADA");
-    expect(dto.historialEstados.at(-1)).toMatchObject({ estado: "UTILIZADA", quien: "Lucía Test" });
+    expect(dto.historialEstados.at(-1)).toMatchObject({ estado: "UTILIZADA", quien: "Florencia Test" });
   });
 
   it("cada rol solo puede pedir sus cambios de estado", async () => {

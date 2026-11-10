@@ -25,14 +25,14 @@ describe("Pantalla de login", () => {
 
   it("inicia sesión con el email y la contraseña ingresados", async () => {
     const user = userEvent.setup();
-    iniciarSesion.mockResolvedValue({ token: "abc", usuario: { id: 3, nombreCompleto: "Juan Gómez" } });
+    iniciarSesion.mockResolvedValue({ token: "abc", usuario: { id: 3, nombreCompleto: "Nahuel Quiroga" } });
     await renderizarLogin();
 
-    await user.type(screen.getByLabelText("Email"), "juan@aiticketit.com");
+    await user.type(screen.getByLabelText("Email"), "nahuel@aiticketit.com");
     await user.type(screen.getByLabelText("Contraseña"), "ticket123");
     await user.press(screen.getByRole("button", { name: "Ingresar" }));
 
-    expect(iniciarSesion).toHaveBeenCalledWith("juan@aiticketit.com", "ticket123");
+    expect(iniciarSesion).toHaveBeenCalledWith("nahuel@aiticketit.com", "ticket123");
   });
 
   it("muestra el error del servidor si las credenciales son incorrectas", async () => {
@@ -40,7 +40,7 @@ describe("Pantalla de login", () => {
     iniciarSesion.mockRejectedValue({ response: { data: { message: "Email o contraseña incorrectos" } } });
     await renderizarLogin();
 
-    await user.type(screen.getByLabelText("Email"), "juan@aiticketit.com");
+    await user.type(screen.getByLabelText("Email"), "nahuel@aiticketit.com");
     await user.type(screen.getByLabelText("Contraseña"), "otra");
     await user.press(screen.getByRole("button", { name: "Ingresar" }));
 

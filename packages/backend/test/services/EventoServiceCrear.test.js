@@ -9,11 +9,11 @@ import { UnprocessableEntityError } from "../../errors/UnprocessableEntityError.
 
 describe("EventoService: crear evento y eventos de un organizador", () => {
   const ahora = new Date(2026, 10, 1, 12, 0);
-  const organizador = Object.assign(new Usuario({ nombre: "Lucía", apellido: "Fernández" }), { id: 1 });
+  const organizador = Object.assign(new Usuario({ nombre: "Florencia", apellido: "Acosta" }), { id: 1 });
   const teatro = Object.assign(new Categoria({ nombre: "Teatro" }), { id: 2 });
 
   const datosValidos = {
-    nombre: "Hamlet",
+    nombre: "Esperando la carroza",
     descripcion: "Obra de Shakespeare",
     categoriaId: 2,
     fecha: "2026-12-10T20:30:00.000Z",
@@ -54,7 +54,12 @@ describe("EventoService: crear evento y eventos de un organizador", () => {
       expect(eventoGuardado).toBeInstanceOf(Evento);
       expect(eventoGuardado.organizador).toBe(organizador);
       expect(eventoGuardado.categoria).toBe(teatro);
-      expect(detalle).toMatchObject({ id: 10, nombre: "Hamlet", categoria: "Teatro", precioMinimo: 16000 });
+      expect(detalle).toMatchObject({
+        id: 10,
+        nombre: "Esperando la carroza",
+        categoria: "Teatro",
+        precioMinimo: 16000,
+      });
       expect(detalle.tiposEntrada.map((t) => [t.id, t.nombre, t.disponibles])).toEqual([
         [1, "Platea", 100],
         [2, "Pullman", 50],

@@ -20,13 +20,13 @@ describe("Cron job: vencimiento de compras pendientes", () => {
   let comprador;
 
   beforeEach(() => {
-    comprador = Object.assign(new Usuario({ nombre: "Juan", apellido: "Gómez" }), { id: 2 });
+    comprador = Object.assign(new Usuario({ nombre: "Nahuel", apellido: "Quiroga" }), { id: 2 });
     evento = new Evento({
-      nombre: "Hamlet",
+      nombre: "Esperando la carroza",
       descripcion: "Obra",
       categoria: new Categoria({ nombre: "Teatro" }),
       fecha: new Date(2026, 10, 10, 20, 0),
-      organizador: Object.assign(new Usuario({ nombre: "Martín", apellido: "Sosa" }), { id: 1 }),
+      organizador: Object.assign(new Usuario({ nombre: "Gonzalo", apellido: "Pereyra" }), { id: 1 }),
       tiposEntrada: [{ nombre: "Platea", precio: 20000, cupo: 10 }],
     });
     compraRepository = new CompraRepository();

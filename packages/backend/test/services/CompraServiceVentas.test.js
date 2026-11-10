@@ -10,9 +10,9 @@ import { ForbiddenError } from "../../errors/ForbiddenError.js";
 describe("CompraService: compras de un evento (vista del organizador)", () => {
   const ahora = new Date(2026, 10, 1, 12, 0);
   const usuario = (id, nombre) => Object.assign(new Usuario({ nombre, apellido: "Test" }), { id });
-  const organizador = usuario(1, "Lucía");
-  const juan = usuario(2, "Juan");
-  const sofia = usuario(3, "Sofía");
+  const organizador = usuario(1, "Florencia");
+  const nahuel = usuario(2, "Nahuel");
+  const agustina = usuario(3, "Agustina");
 
   let evento;
   let compras;
@@ -36,11 +36,11 @@ describe("CompraService: compras de un evento (vista del organizador)", () => {
     const comprar = (comprador, tipo, cantidad, dia) =>
       new Compra({ comprador, evento, tipoEntrada: evento.buscarTipoEntrada(tipo), cantidad }, new Date(2026, 9, dia));
 
-    const pendiente = Object.assign(comprar(juan, 1, 3, 1), { id: 1 });
-    const confirmada = Object.assign(comprar(sofia, 2, 2, 2), { id: 2 });
-    confirmada.confirmarPago(sofia, ahora);
-    const cancelada = Object.assign(comprar(juan, 1, 5, 3), { id: 3 });
-    cancelada.cancelar(juan, ahora);
+    const pendiente = Object.assign(comprar(nahuel, 1, 3, 1), { id: 1 });
+    const confirmada = Object.assign(comprar(agustina, 2, 2, 2), { id: 2 });
+    confirmada.confirmarPago(agustina, ahora);
+    const cancelada = Object.assign(comprar(nahuel, 1, 5, 3), { id: 3 });
+    cancelada.cancelar(nahuel, ahora);
     compras = [pendiente, confirmada, cancelada];
 
     service = new CompraService({
@@ -75,11 +75,11 @@ describe("CompraService: compras de un evento (vista del organizador)", () => {
     const confirmadas = await service.listarComprasDeEvento(organizador, 1, { estado: EstadoCompra.CONFIRMADA }, ahora);
 
     expect(todas.compras.map((c) => c.id)).toEqual([3, 2, 1]);
-    expect(confirmadas.compras.map((c) => [c.id, c.comprador.nombreCompleto])).toEqual([[2, "Sofía Test"]]);
+    expect(confirmadas.compras.map((c) => [c.id, c.comprador.nombreCompleto])).toEqual([[2, "Agustina Test"]]);
   });
 
   it("solo el organizador del evento puede ver sus compras", async () => {
-    await expect(service.listarComprasDeEvento(juan, 1, {}, ahora)).rejects.toThrow(ForbiddenError);
+    await expect(service.listarComprasDeEvento(nahuel, 1, {}, ahora)).rejects.toThrow(ForbiddenError);
     await expect(service.listarComprasDeEvento(organizador, 99, {}, ahora)).rejects.toThrow(
       "El evento con id 99 no existe",
     );

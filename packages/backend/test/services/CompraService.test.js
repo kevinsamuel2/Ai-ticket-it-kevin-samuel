@@ -12,8 +12,8 @@ import { ConflictError } from "../../errors/ConflictError.js";
 describe("CompraService: comprar y consultar compras", () => {
   const ahora = new Date(2026, 10, 1, 12, 0);
   const usuario = (id, nombre) => Object.assign(new Usuario({ nombre, apellido: "Test" }), { id });
-  const organizador = usuario(1, "Lucía");
-  const comprador = usuario(2, "Juan");
+  const organizador = usuario(1, "Florencia");
+  const comprador = usuario(2, "Nahuel");
   const otro = usuario(3, "Otro");
 
   let evento;
@@ -24,7 +24,7 @@ describe("CompraService: comprar y consultar compras", () => {
   beforeEach(() => {
     evento = Object.assign(
       new Evento({
-        nombre: "Jazz en el Bosque",
+        nombre: "Escalandrum en Bebop Club",
         descripcion: "Concierto",
         categoria: new Categoria({ nombre: "Recitales" }),
         fecha: new Date(2026, 10, 6, 20, 0),
@@ -62,12 +62,12 @@ describe("CompraService: comprar y consultar compras", () => {
         cantidad: 2,
         total: 60000,
         diasParaElEvento: null,
-        evento: { id: 7, nombre: "Jazz en el Bosque", categoria: "Recitales", imagen: "https://img/jazz.jpg" },
+        evento: { id: 7, nombre: "Escalandrum en Bebop Club", categoria: "Recitales", imagen: "https://img/jazz.jpg" },
         tipoEntrada: { id: 2, nombre: "Mesa", precio: 30000 },
-        comprador: { id: 2, nombreCompleto: "Juan Test" },
-        organizador: { id: 1, nombreCompleto: "Lucía Test" },
+        comprador: { id: 2, nombreCompleto: "Nahuel Test" },
+        organizador: { id: 1, nombreCompleto: "Florencia Test" },
       });
-      expect(dto.historialEstados).toEqual([{ estado: "PENDIENTE", quien: "Juan Test", fechaHora: ahora }]);
+      expect(dto.historialEstados).toEqual([{ estado: "PENDIENTE", quien: "Nahuel Test", fechaHora: ahora }]);
     });
 
     it("no permite superar el cupo disponible y no guarda nada", async () => {

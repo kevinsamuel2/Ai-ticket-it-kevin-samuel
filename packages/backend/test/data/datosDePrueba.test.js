@@ -22,10 +22,10 @@ describe("Datos de prueba y repositorios", () => {
   });
 
   it("cada usuario tiene una cuenta para iniciar sesión", async () => {
-    const cuenta = await repos.cuentaRepository.buscarPorEmail("juan@aiticketit.com");
+    const cuenta = await repos.cuentaRepository.buscarPorEmail("nahuel@aiticketit.com");
 
     expect(await repos.cuentaRepository.buscarTodos()).toHaveLength(4);
-    expect(cuenta.usuario).toBe(usuarios.juan);
+    expect(cuenta.usuario).toBe(usuarios.nahuel);
     expect(cuenta.contraseniaEsCorrecta("ticket123")).toBe(true);
   });
 
@@ -56,31 +56,31 @@ describe("Datos de prueba y repositorios", () => {
   });
 
   it("eventoRepository busca los eventos de un organizador", async () => {
-    const eventosDeLucia = await repos.eventoRepository.buscarPorOrganizador(usuarios.lucia);
+    const eventosDeFlorencia = await repos.eventoRepository.buscarPorOrganizador(usuarios.florencia);
 
-    expect(eventosDeLucia).toHaveLength(5);
-    expect(eventosDeLucia.every((e) => e.organizador === usuarios.lucia)).toBe(true);
+    expect(eventosDeFlorencia).toHaveLength(5);
+    expect(eventosDeFlorencia.every((e) => e.organizador === usuarios.florencia)).toBe(true);
   });
 
   it("compraRepository busca compras por comprador y por evento", async () => {
-    const comprasDeJuan = await repos.compraRepository.buscarPorComprador(usuarios.juan);
-    const [rock] = (await repos.eventoRepository.buscarTodos()).filter((e) => e.nombre === "Noche de Rock Nacional");
+    const comprasDeNahuel = await repos.compraRepository.buscarPorComprador(usuarios.nahuel);
+    const [rock] = (await repos.eventoRepository.buscarTodos()).filter((e) => e.nombre === "Divididos en Obras");
 
-    expect(comprasDeJuan).toHaveLength(5);
+    expect(comprasDeNahuel).toHaveLength(5);
     expect(await repos.compraRepository.buscarPorEvento(rock)).toHaveLength(2);
   });
 
   it("la reputación de cada organizador sale de las reseñas de sus eventos", async () => {
-    const reseniasLucia = await repos.compraRepository.buscarReseniasDeOrganizador(usuarios.lucia);
-    const reseniasMartin = await repos.compraRepository.buscarReseniasDeOrganizador(usuarios.martin);
+    const reseniasFlorencia = await repos.compraRepository.buscarReseniasDeOrganizador(usuarios.florencia);
+    const reseniasGonzalo = await repos.compraRepository.buscarReseniasDeOrganizador(usuarios.gonzalo);
 
-    expect(Resenia.promedio(reseniasLucia)).toBe(4.5);
-    expect(Resenia.promedio(reseniasMartin)).toBe(3.8);
+    expect(Resenia.promedio(reseniasFlorencia)).toBe(4.5);
+    expect(Resenia.promedio(reseniasGonzalo)).toBe(3.8);
   });
 
-  it("Juan tiene una entrada utilizada sin reseñar, para probar la reseña desde la app", async () => {
-    const comprasDeJuan = await repos.compraRepository.buscarPorComprador(usuarios.juan);
+  it("Nahuel tiene una entrada utilizada sin reseñar, para probar la reseña desde la app", async () => {
+    const comprasDeNahuel = await repos.compraRepository.buscarPorComprador(usuarios.nahuel);
 
-    expect(comprasDeJuan.filter((c) => c.puedeReseniarse())).toHaveLength(1);
+    expect(comprasDeNahuel.filter((c) => c.puedeReseniarse())).toHaveLength(1);
   });
 });

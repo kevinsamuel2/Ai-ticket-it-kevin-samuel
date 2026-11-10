@@ -92,9 +92,9 @@ components:
       type: object
       properties:
         id: { type: integer, example: 3 }
-        nombre: { type: string, example: Juan }
-        apellido: { type: string, example: Gómez }
-        nombreCompleto: { type: string, example: Juan Gómez }
+        nombre: { type: string, example: Nahuel }
+        apellido: { type: string, example: Quiroga }
+        nombreCompleto: { type: string, example: Nahuel Quiroga }
 
     Categoria:
       type: object
@@ -107,7 +107,7 @@ components:
       type: object
       properties:
         id: { type: integer, example: 1 }
-        nombreCompleto: { type: string, example: Lucía Fernández }
+        nombreCompleto: { type: string, example: Florencia Acosta }
         puntaje:
           type: number
           nullable: true
@@ -139,10 +139,15 @@ components:
       type: object
       properties:
         id: { type: integer, example: 1 }
-        nombre: { type: string, example: Noche de Rock Nacional }
+        nombre: { type: string, example: Divididos en Obras }
         categoria: { type: string, example: Recitales }
         fecha: { type: string, format: date-time }
-        imagen: { type: string, nullable: true, example: "https://picsum.photos/seed/rock/800/450" }
+        imagen:
+          {
+            type: string,
+            nullable: true,
+            example: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=800&h=450&fit=crop&q=80",
+          }
         precioMinimo: { type: number, example: 25000 }
         agotado: { type: boolean }
         yaSeRealizo: { type: boolean }
@@ -156,8 +161,8 @@ components:
           type: object
           properties:
             id: { type: integer }
-            nombre: { type: string, example: Tributo a Soda Stereo }
-        comprador: { type: string, example: Sofía Ramírez }
+            nombre: { type: string, example: Ciro y Los Persas en Vorterix }
+        comprador: { type: string, example: Agustina Benítez }
         detalle: { type: string, example: Muy buen show }
         puntuacion: { type: number, example: 4 }
         fecha: { type: string, format: date-time }
@@ -247,7 +252,7 @@ components:
                   quien:
                     type: string
                     description: Quién hizo el cambio ("Sistema" si fue el vencimiento automático).
-                    example: Juan Gómez
+                    example: Nahuel Quiroga
                   fechaHora: { type: string, format: date-time }
             resenia:
               type: object

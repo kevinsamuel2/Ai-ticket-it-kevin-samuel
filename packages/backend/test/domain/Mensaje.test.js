@@ -1,7 +1,7 @@
 import { Mensaje, LARGO_MAXIMO_MENSAJE } from "../../domain/Mensaje.js";
 
 describe("Dominio: Mensaje", () => {
-  const usuario = { nombre: "Juan" };
+  const usuario = { nombre: "Nahuel" };
 
   it("crea un mensaje con su autor, texto y fecha de envío", () => {
     const enviado = new Date(2026, 10, 2, 18, 30);

@@ -7,8 +7,8 @@ describe("validaciones", () => {
         email: "Ingresá tu email",
         contrasenia: "Ingresá tu contraseña",
       });
-      expect(validarLogin({ email: "juan@", contrasenia: "x" }).email).toBe("El email no tiene un formato válido");
-      expect(hayErrores(validarLogin({ email: "juan@aiticketit.com", contrasenia: "ticket123" }))).toBe(false);
+      expect(validarLogin({ email: "nahuel@", contrasenia: "x" }).email).toBe("El email no tiene un formato válido");
+      expect(hayErrores(validarLogin({ email: "nahuel@aiticketit.com", contrasenia: "ticket123" }))).toBe(false);
     });
   });
 
@@ -27,7 +27,7 @@ describe("validaciones", () => {
   describe("validarEvento", () => {
     const ahora = new Date(2026, 10, 1);
     const eventoValido = {
-      nombre: "Hamlet",
+      nombre: "Esperando la carroza",
       descripcion: "Obra de teatro",
       categoria: 2,
       fecha: "10/12/2026",

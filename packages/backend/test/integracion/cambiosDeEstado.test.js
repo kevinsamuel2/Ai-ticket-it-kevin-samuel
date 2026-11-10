@@ -25,7 +25,7 @@ describe("API: cambios de estado de una compra", () => {
   let usuarios;
   let comoUsuario;
 
-  // Hamlet (id 5) lo organiza Martín
+  // Esperando la carroza (id 5) lo organiza Gonzalo
   const HAMLET = 5;
 
   beforeEach(async () => {
@@ -34,19 +34,19 @@ describe("API: cambios de estado de una compra", () => {
 
   afterEach(() => jest.useRealTimers());
 
-  // La entrada se valida recién el día del evento: se adelanta el reloj (solo Date) a la mañana del día de Hamlet
-  const llegarAlDiaDeHamlet = async () => {
+  // La entrada se valida recién el día del evento: se adelanta el reloj (solo Date) a la mañana del día de la función
+  const llegarAlDiaDeLaCarroza = async () => {
     const { fecha } = (await request(app).get(`/eventos/${HAMLET}`)).body;
     const mananaDelEvento = new Date(fecha);
     mananaDelEvento.setHours(10, 0, 0, 0);
     jest.useFakeTimers({ now: mananaDelEvento, doNotFake: TODO_MENOS_DATE });
   };
 
-  const comprarHamlet = async (cantidad = 2) =>
+  const comprarCarroza = async (cantidad = 2) =>
     (
       await request(app)
         .post("/compras")
-        .set(comoUsuario(usuarios.sofia))
+        .set(comoUsuario(usuarios.agustina))
         .send({ eventoId: HAMLET, tipoEntradaId: 1, cantidad })
     ).body;
   const cambiarEstado = (compraId, usuario, estado) =>
@@ -54,62 +54,62 @@ describe("API: cambios de estado de una compra", () => {
   const disponiblesPlatea = async () => (await request(app).get(`/eventos/${HAMLET}`)).body.tiposEntrada[0].disponibles;
 
   it("flujo completo: comprar, pagar y usar la entrada en la puerta", async () => {
-    const compra = await comprarHamlet();
+    const compra = await comprarCarroza();
 
-    const pago = await cambiarEstado(compra.id, usuarios.sofia, "confirmada");
-    await llegarAlDiaDeHamlet();
-    const uso = await cambiarEstado(compra.id, usuarios.martin, "UTILIZADA");
+    const pago = await cambiarEstado(compra.id, usuarios.agustina, "confirmada");
+    await llegarAlDiaDeLaCarroza();
+    const uso = await cambiarEstado(compra.id, usuarios.gonzalo, "UTILIZADA");
 
     expect(pago.status).toBe(201);
     expect(pago.body.estado).toBe("CONFIRMADA");
     expect(uso.body.estado).toBe("UTILIZADA");
     expect(uso.body.historialEstados.map((h) => [h.estado, h.quien])).toEqual([
-      ["PENDIENTE", "Sofía Ramírez"],
-      ["CONFIRMADA", "Sofía Ramírez"],
-      ["UTILIZADA", "Martín Sosa"],
+      ["PENDIENTE", "Agustina Benítez"],
+      ["CONFIRMADA", "Agustina Benítez"],
+      ["UTILIZADA", "Gonzalo Pereyra"],
     ]);
   });
 
   it("cancelar una compra pendiente la deja CANCELADA y devuelve el cupo", async () => {
     const antes = await disponiblesPlatea();
-    const compra = await comprarHamlet(3);
+    const compra = await comprarCarroza(3);
     expect(await disponiblesPlatea()).toBe(antes - 3);
 
-    const res = await cambiarEstado(compra.id, usuarios.sofia, "CANCELADA");
+    const res = await cambiarEstado(compra.id, usuarios.agustina, "CANCELADA");
 
     expect(res.body.estado).toBe("CANCELADA");
     expect(await disponiblesPlatea()).toBe(antes);
   });
 
   it("cancelar una compra paga la deja REEMBOLSADA", async () => {
-    const compra = await comprarHamlet();
-    await cambiarEstado(compra.id, usuarios.sofia, "CONFIRMADA");
+    const compra = await comprarCarroza();
+    await cambiarEstado(compra.id, usuarios.agustina, "CONFIRMADA");
 
-    const res = await cambiarEstado(compra.id, usuarios.sofia, "CANCELADA");
+    const res = await cambiarEstado(compra.id, usuarios.agustina, "CANCELADA");
 
     expect(res.body.estado).toBe("REEMBOLSADA");
     expect(res.body.acciones.puedeCancelar).toBe(false);
   });
 
   it("no se puede cancelar una entrada ya utilizada (409)", async () => {
-    const compra = await comprarHamlet();
-    await cambiarEstado(compra.id, usuarios.sofia, "CONFIRMADA");
-    await llegarAlDiaDeHamlet();
-    await cambiarEstado(compra.id, usuarios.martin, "UTILIZADA");
+    const compra = await comprarCarroza();
+    await cambiarEstado(compra.id, usuarios.agustina, "CONFIRMADA");
+    await llegarAlDiaDeLaCarroza();
+    await cambiarEstado(compra.id, usuarios.gonzalo, "UTILIZADA");
 
-    const res = await cambiarEstado(compra.id, usuarios.sofia, "CANCELADA");
+    const res = await cambiarEstado(compra.id, usuarios.agustina, "CANCELADA");
 
     expect(res.status).toBe(409);
     expect(res.body.message).toBe("No se puede cancelar una compra en estado UTILIZADA");
   });
 
   it("antes del día del evento no se puede marcar la entrada como utilizada y el comprador puede cancelar", async () => {
-    const compra = await comprarHamlet();
-    const pagada = await cambiarEstado(compra.id, usuarios.sofia, "CONFIRMADA");
-    const comoOrganizador = await request(app).get(`/compras/${compra.id}`).set(comoUsuario(usuarios.martin));
+    const compra = await comprarCarroza();
+    const pagada = await cambiarEstado(compra.id, usuarios.agustina, "CONFIRMADA");
+    const comoOrganizador = await request(app).get(`/compras/${compra.id}`).set(comoUsuario(usuarios.gonzalo));
 
-    const uso = await cambiarEstado(compra.id, usuarios.martin, "UTILIZADA");
-    const cancelacion = await cambiarEstado(compra.id, usuarios.sofia, "CANCELADA");
+    const uso = await cambiarEstado(compra.id, usuarios.gonzalo, "UTILIZADA");
+    const cancelacion = await cambiarEstado(compra.id, usuarios.agustina, "CANCELADA");
 
     expect(pagada.body.acciones.puedeCancelar).toBe(true);
     expect(comoOrganizador.body.acciones.puedeMarcarComoUtilizada).toBe(false);
@@ -119,14 +119,14 @@ describe("API: cambios de estado de una compra", () => {
   });
 
   it("respeta los permisos de cada rol (403) y valida el estado pedido (400)", async () => {
-    const compra = await comprarHamlet();
+    const compra = await comprarCarroza();
 
-    const organizadorPaga = await cambiarEstado(compra.id, usuarios.martin, "CONFIRMADA");
-    const otroCancela = await cambiarEstado(compra.id, usuarios.juan, "CANCELADA");
-    const estadoInvalido = await cambiarEstado(compra.id, usuarios.sofia, "PAGADA");
+    const organizadorPaga = await cambiarEstado(compra.id, usuarios.gonzalo, "CONFIRMADA");
+    const otroCancela = await cambiarEstado(compra.id, usuarios.nahuel, "CANCELADA");
+    const estadoInvalido = await cambiarEstado(compra.id, usuarios.agustina, "PAGADA");
     const sinEstado = await request(app)
       .post(`/compras/${compra.id}/cambios-de-estado`)
-      .set(comoUsuario(usuarios.sofia))
+      .set(comoUsuario(usuarios.agustina))
       .send({});
 
     expect(organizadorPaga.status).toBe(403);

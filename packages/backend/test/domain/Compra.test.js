@@ -19,10 +19,10 @@ describe("Dominio: Compra", () => {
   let platea;
 
   beforeEach(() => {
-    organizador = Object.assign(new Usuario({ nombre: "Lucía", apellido: "Pérez" }), { id: 1 });
-    comprador = Object.assign(new Usuario({ nombre: "Juan", apellido: "Gómez" }), { id: 2 });
+    organizador = Object.assign(new Usuario({ nombre: "Florencia", apellido: "Acosta" }), { id: 1 });
+    comprador = Object.assign(new Usuario({ nombre: "Nahuel", apellido: "Quiroga" }), { id: 2 });
     evento = new Evento({
-      nombre: "Hamlet",
+      nombre: "Esperando la carroza",
       descripcion: "Obra de teatro clásica",
       categoria: new Categoria({ nombre: "Teatro" }),
       fecha: new Date(2026, 11, 5, 20, 0),

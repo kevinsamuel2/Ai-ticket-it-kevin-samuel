@@ -38,7 +38,7 @@ describe("Documentación Swagger", () => {
   it.each(endpointsDocumentados)("%s %s existe en la app", async (metodo, path) => {
     const url = path.replace(/\{[^}]+\}/g, "1");
 
-    const res = await request(app)[metodo.toLowerCase()](url).set(comoUsuario(usuarios.lucia)).send({});
+    const res = await request(app)[metodo.toLowerCase()](url).set(comoUsuario(usuarios.florencia)).send({});
 
     expect(res.body.message ?? "").not.toMatch(/^No existe el endpoint/);
   });

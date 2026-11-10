@@ -72,12 +72,12 @@ npm run start:mobile
 
 Todos con la contraseña **`ticket123`**:
 
-| Email                   | Rol en los datos de prueba                                              |
-| ----------------------- | ----------------------------------------------------------------------- |
-| `lucia@aiticketit.com`  | Organiza recitales, un festival y básquet (reputación 4.5)              |
-| `martin@aiticketit.com` | Organiza teatro, stand-up y una conferencia                             |
-| `juan@aiticketit.com`   | Comprador: tiene compras en todos los estados y una entrada sin reseñar |
-| `sofia@aiticketit.com`  | Compradora                                                              |
+| Email                      | Rol en los datos de prueba                                              |
+| -------------------------- | ----------------------------------------------------------------------- |
+| `florencia@aiticketit.com` | Organiza recitales, un festival y básquet (reputación 4.5)              |
+| `gonzalo@aiticketit.com`   | Organiza teatro, stand-up y una conferencia                             |
+| `nahuel@aiticketit.com`    | Comprador: tiene compras en todos los estados y una entrada sin reseñar |
+| `agustina@aiticketit.com`  | Compradora                                                              |
 
 Cualquier usuario puede comprar y también publicar eventos (pero no comprar entradas de un evento propio). No hay registro de usuarios: la consigna no lo pide, así que se entra con estas cuentas de prueba.
 

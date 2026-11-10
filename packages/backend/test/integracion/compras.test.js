@@ -7,7 +7,7 @@ describe("API: comprar entradas y consultar compras", () => {
   let comoUsuario;
   let repositorios;
 
-  // Jazz en el Bosque (id 3) tiene una "Mesa preferencial" (tipo 2) con solo 3 lugares
+  // Escalandrum en Bebop Club (id 3) tiene una "Mesa preferencial" (tipo 2) con solo 3 lugares
   const JAZZ = 3;
   const MESA = 2;
 
@@ -18,7 +18,7 @@ describe("API: comprar entradas y consultar compras", () => {
   it("POST /compras crea una compra pendiente y descuenta el cupo del evento", async () => {
     const res = await request(app)
       .post("/compras")
-      .set(comoUsuario(usuarios.sofia))
+      .set(comoUsuario(usuarios.agustina))
       .send({ eventoId: JAZZ, tipoEntradaId: MESA, cantidad: 2 });
 
     expect(res.status).toBe(201);
@@ -32,7 +32,7 @@ describe("API: comprar entradas y consultar compras", () => {
   it("POST /compras no deja superar el cupo disponible (409)", async () => {
     const res = await request(app)
       .post("/compras")
-      .set(comoUsuario(usuarios.sofia))
+      .set(comoUsuario(usuarios.agustina))
       .send({ eventoId: JAZZ, tipoEntradaId: MESA, cantidad: 4 });
 
     expect(res.status).toBe(409);
@@ -42,11 +42,11 @@ describe("API: comprar entradas y consultar compras", () => {
   it("POST /compras valida los campos y la cantidad", async () => {
     const faltaCantidad = await request(app)
       .post("/compras")
-      .set(comoUsuario(usuarios.sofia))
+      .set(comoUsuario(usuarios.agustina))
       .send({ eventoId: JAZZ, tipoEntradaId: MESA });
     const cantidadInvalida = await request(app)
       .post("/compras")
-      .set(comoUsuario(usuarios.sofia))
+      .set(comoUsuario(usuarios.agustina))
       .send({ eventoId: JAZZ, tipoEntradaId: MESA, cantidad: 0 });
 
     expect(faltaCantidad.status).toBe(400);
@@ -57,7 +57,7 @@ describe("API: comprar entradas y consultar compras", () => {
   it("POST /compras del organizador para su propio evento responde 422", async () => {
     const res = await request(app)
       .post("/compras")
-      .set(comoUsuario(usuarios.lucia))
+      .set(comoUsuario(usuarios.florencia))
       .send({ eventoId: JAZZ, tipoEntradaId: 1, cantidad: 1 });
 
     expect(res.status).toBe(422);
@@ -65,12 +65,12 @@ describe("API: comprar entradas y consultar compras", () => {
   });
 
   it("POST /compras para un evento pasado responde 409", async () => {
-    const [tributo] = (await repositorios.eventoRepository.buscarTodos()).filter((e) => e.nombre.startsWith("Tributo"));
+    const [ciro] = (await repositorios.eventoRepository.buscarTodos()).filter((e) => e.nombre.startsWith("Ciro"));
 
     const res = await request(app)
       .post("/compras")
-      .set(comoUsuario(usuarios.sofia))
-      .send({ eventoId: tributo.id, tipoEntradaId: 1, cantidad: 1 });
+      .set(comoUsuario(usuarios.agustina))
+      .send({ eventoId: ciro.id, tipoEntradaId: 1, cantidad: 1 });
 
     expect(res.status).toBe(409);
   });
@@ -81,11 +81,11 @@ describe("API: comprar entradas y consultar compras", () => {
   });
 
   it("GET /compras lista solo las compras del usuario identificado", async () => {
-    const res = await request(app).get("/compras").set(comoUsuario(usuarios.juan));
+    const res = await request(app).get("/compras").set(comoUsuario(usuarios.nahuel));
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(5);
-    expect(res.body.every((c) => c.comprador.id === usuarios.juan.id)).toBe(true);
+    expect(res.body.every((c) => c.comprador.id === usuarios.nahuel.id)).toBe(true);
     const confirmada = res.body.find((c) => c.estado === "CONFIRMADA");
     expect(confirmada.diasParaElEvento).toBe(12);
   });
@@ -94,21 +94,23 @@ describe("API: comprar entradas y consultar compras", () => {
     const utilizadas = await request(app)
       .get("/compras")
       .query({ estado: "utilizada" })
-      .set(comoUsuario(usuarios.juan));
-    const invalido = await request(app).get("/compras").query({ estado: "PAGADA" }).set(comoUsuario(usuarios.juan));
+      .set(comoUsuario(usuarios.nahuel));
+    const invalido = await request(app).get("/compras").query({ estado: "PAGADA" }).set(comoUsuario(usuarios.nahuel));
 
     expect(utilizadas.body).toHaveLength(2);
     expect(invalido.status).toBe(400);
   });
 
   it("GET /compras/:id la ven el comprador y el organizador, pero no otro usuario", async () => {
-    const [compraDeJuan] = (await request(app).get("/compras").set(comoUsuario(usuarios.juan))).body.filter(
-      (c) => c.evento.nombre === "Noche de Rock Nacional",
+    const [compraDeNahuel] = (await request(app).get("/compras").set(comoUsuario(usuarios.nahuel))).body.filter(
+      (c) => c.evento.nombre === "Divididos en Obras",
     );
 
-    const comoComprador = await request(app).get(`/compras/${compraDeJuan.id}`).set(comoUsuario(usuarios.juan));
-    const comoOrganizador = await request(app).get(`/compras/${compraDeJuan.id}`).set(comoUsuario(usuarios.lucia));
-    const comoOtro = await request(app).get(`/compras/${compraDeJuan.id}`).set(comoUsuario(usuarios.sofia));
+    const comoComprador = await request(app).get(`/compras/${compraDeNahuel.id}`).set(comoUsuario(usuarios.nahuel));
+    const comoOrganizador = await request(app)
+      .get(`/compras/${compraDeNahuel.id}`)
+      .set(comoUsuario(usuarios.florencia));
+    const comoOtro = await request(app).get(`/compras/${compraDeNahuel.id}`).set(comoUsuario(usuarios.agustina));
 
     expect(comoComprador.status).toBe(200);
     expect(comoComprador.body.historialEstados.map((h) => h.estado)).toEqual(["PENDIENTE", "CONFIRMADA"]);

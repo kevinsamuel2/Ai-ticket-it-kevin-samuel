@@ -27,7 +27,7 @@ describe("API: crear eventos", () => {
   });
 
   it("POST /eventos crea el evento con el usuario identificado como organizador", async () => {
-    const res = await request(app).post("/eventos").set(comoUsuario(usuarios.juan)).send(nuevoEvento());
+    const res = await request(app).post("/eventos").set(comoUsuario(usuarios.nahuel)).send(nuevoEvento());
 
     expect(res.status).toBe(201);
     expect(res.headers.location).toBe(`/eventos/${res.body.id}`);
@@ -35,7 +35,7 @@ describe("API: crear eventos", () => {
       nombre: "Ciclo de cine de terror",
       categoria: "Conferencias",
       precioMinimo: 5000,
-      organizador: { id: usuarios.juan.id, nombreCompleto: "Juan Gómez", puntaje: null, cantidadResenias: 0 },
+      organizador: { id: usuarios.nahuel.id, nombreCompleto: "Nahuel Quiroga", puntaje: null, cantidadResenias: 0 },
     });
     expect(res.body.tiposEntrada).toHaveLength(2);
 
@@ -52,7 +52,7 @@ describe("API: crear eventos", () => {
   it("POST /eventos con un tipo de entrada inválido responde 422 con el motivo", async () => {
     const evento = { ...nuevoEvento(), tiposEntrada: [{ nombre: "General", precio: 5000, cupo: -3 }] };
 
-    const res = await request(app).post("/eventos").set(comoUsuario(usuarios.lucia)).send(evento);
+    const res = await request(app).post("/eventos").set(comoUsuario(usuarios.florencia)).send(evento);
 
     expect(res.status).toBe(422);
     expect(res.body.message).toBe('El cupo de "General" debe ser un número entero mayor a 0');
@@ -62,8 +62,8 @@ describe("API: crear eventos", () => {
     const conCampoExtra = { ...nuevoEvento(), organizadorId: 2 };
     const tipoConCampoExtra = { ...nuevoEvento(), tiposEntrada: [{ nombre: "G", precio: 1, cupo: 1, vendidas: 5 }] };
 
-    const res = await request(app).post("/eventos").set(comoUsuario(usuarios.lucia)).send(conCampoExtra);
-    const resTipo = await request(app).post("/eventos").set(comoUsuario(usuarios.lucia)).send(tipoConCampoExtra);
+    const res = await request(app).post("/eventos").set(comoUsuario(usuarios.florencia)).send(conCampoExtra);
+    const resTipo = await request(app).post("/eventos").set(comoUsuario(usuarios.florencia)).send(tipoConCampoExtra);
 
     expect(res.status).toBe(400);
     expect(res.body.message).toBe("Campos no permitidos en la request: organizadorId");
@@ -72,11 +72,11 @@ describe("API: crear eventos", () => {
   });
 
   it("GET /usuarios/:id/eventos lista los eventos del organizador, incluidos los pasados", async () => {
-    const res = await request(app).get(`/usuarios/${usuarios.lucia.id}/eventos`);
+    const res = await request(app).get(`/usuarios/${usuarios.florencia.id}/eventos`);
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(5);
-    expect(res.body[0]).toMatchObject({ nombre: "Tributo a Soda Stereo", yaSeRealizo: true });
-    expect(res.body.every((e) => e.organizador.id === usuarios.lucia.id)).toBe(true);
+    expect(res.body[0]).toMatchObject({ nombre: "Ciro y Los Persas en Vorterix", yaSeRealizo: true });
+    expect(res.body.every((e) => e.organizador.id === usuarios.florencia.id)).toBe(true);
   });
 });

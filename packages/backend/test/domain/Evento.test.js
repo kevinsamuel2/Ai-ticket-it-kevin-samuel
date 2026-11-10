@@ -5,7 +5,7 @@ import { TipoEntrada } from "../../domain/TipoEntrada.js";
 import { NotFoundError } from "../../errors/NotFoundError.js";
 
 describe("Dominio: Evento", () => {
-  const organizador = Object.assign(new Usuario({ nombre: "Lucía", apellido: "Pérez" }), { id: 1 });
+  const organizador = Object.assign(new Usuario({ nombre: "Florencia", apellido: "Acosta" }), { id: 1 });
   const recitales = new Categoria({ nombre: "Recitales" });
 
   const crearEvento = (cambios = {}) =>
@@ -151,7 +151,7 @@ describe("Dominio: Evento", () => {
     });
 
     it("estaOrganizadoPor reconoce al organizador", () => {
-      const otro = Object.assign(new Usuario({ nombre: "Juan", apellido: "Gómez" }), { id: 2 });
+      const otro = Object.assign(new Usuario({ nombre: "Nahuel", apellido: "Quiroga" }), { id: 2 });
 
       expect(crearEvento().estaOrganizadoPor(organizador)).toBe(true);
       expect(crearEvento().estaOrganizadoPor(otro)).toBe(false);

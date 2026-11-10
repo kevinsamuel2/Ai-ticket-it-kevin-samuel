@@ -84,7 +84,7 @@ export default function NuevoEvento() {
           value={formulario.nombre}
           onChangeText={cambiar("nombre")}
           error={errores.nombre}
-          placeholder="Ej: Noche de Rock Nacional"
+          placeholder="Ej: Divididos en Obras"
         />
         <Campo
           etiqueta="Descripción"

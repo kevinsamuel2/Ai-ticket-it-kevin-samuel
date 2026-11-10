@@ -10,8 +10,8 @@ import { UnprocessableEntityError } from "../../errors/UnprocessableEntityError.
 describe("CompraService: chat de la compra", () => {
   const ahora = new Date(2026, 10, 1, 12, 0);
   const usuario = (id, nombre) => Object.assign(new Usuario({ nombre, apellido: "Test" }), { id });
-  const organizador = usuario(1, "Lucía");
-  const comprador = usuario(2, "Juan");
+  const organizador = usuario(1, "Florencia");
+  const comprador = usuario(2, "Nahuel");
   const otro = usuario(3, "Otro");
 
   let compra;
@@ -20,7 +20,7 @@ describe("CompraService: chat de la compra", () => {
 
   beforeEach(() => {
     const evento = new Evento({
-      nombre: "Hamlet",
+      nombre: "Esperando la carroza",
       descripcion: "Obra",
       categoria: new Categoria({ nombre: "Teatro" }),
       fecha: new Date(2026, 10, 6, 20, 0),
@@ -40,7 +40,7 @@ describe("CompraService: chat de la compra", () => {
     const respuesta = await service.enviarMensaje(organizador, 1, "Sí, en la cochera de enfrente", ahora);
 
     expect(pregunta).toEqual({
-      autor: { id: 2, nombreCompleto: "Juan Test", rol: "comprador" },
+      autor: { id: 2, nombreCompleto: "Nahuel Test", rol: "comprador" },
       mensaje: "¿Hay estacionamiento?",
       enviado: ahora,
       esMio: true,

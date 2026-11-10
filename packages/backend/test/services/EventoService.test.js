@@ -11,8 +11,8 @@ describe("EventoService", () => {
   const ahora = new Date(2026, 10, 1, 12, 0);
   const enDias = (dias) => new Date(2026, 10, 1 + dias, 21, 0);
 
-  const bienPuntuado = Object.assign(new Usuario({ nombre: "Lucía", apellido: "Fernández" }), { id: 1 });
-  const malPuntuado = Object.assign(new Usuario({ nombre: "Martín", apellido: "Sosa" }), { id: 2 });
+  const bienPuntuado = Object.assign(new Usuario({ nombre: "Florencia", apellido: "Acosta" }), { id: 1 });
+  const malPuntuado = Object.assign(new Usuario({ nombre: "Gonzalo", apellido: "Pereyra" }), { id: 2 });
   const sinResenias = Object.assign(new Usuario({ nombre: "Nuevo", apellido: "Organizador" }), { id: 3 });
   const recitales = new Categoria({ nombre: "Recitales" });
   const teatro = new Categoria({ nombre: "Teatro" });
@@ -33,12 +33,18 @@ describe("EventoService", () => {
 
   const rock = evento(1, { nombre: "Rock", dias: 10, precio: 20000, organizador: bienPuntuado });
   const jazz = evento(2, { nombre: "Jazz", dias: 3, precio: 15000, organizador: malPuntuado });
-  const hamlet = evento(3, { nombre: "Hamlet", categoria: teatro, dias: 5, precio: 30000, organizador: sinResenias });
+  const hamlet = evento(3, {
+    nombre: "Esperando la carroza",
+    categoria: teatro,
+    dias: 5,
+    precio: 30000,
+    organizador: sinResenias,
+  });
   const pasado = evento(4, { nombre: "Rock viejo", dias: -5, precio: 5000, organizador: bienPuntuado });
 
   const resenia = (organizador, puntuacion) =>
     new Resenia({
-      comprador: Object.assign(new Usuario({ nombre: "Juan", apellido: "Gómez" }), { id: 9 }),
+      comprador: Object.assign(new Usuario({ nombre: "Nahuel", apellido: "Quiroga" }), { id: 9 }),
       evento: { id: 4, nombre: "Rock viejo", organizador },
       detalle: "Comentario",
       puntuacion,
@@ -71,19 +77,19 @@ describe("EventoService", () => {
     it("por defecto lista solo eventos futuros ordenados por fecha", async () => {
       const resultado = await service.buscarEventos({}, ahora);
 
-      expect(nombres(resultado)).toEqual(["Jazz", "Hamlet", "Rock"]);
+      expect(nombres(resultado)).toEqual(["Jazz", "Esperando la carroza", "Rock"]);
       expect(resultado).toMatchObject({ page: 1, limit: 10, total: 3, totalPages: 1 });
     });
 
     it("incluirPasados agrega los eventos que ya se realizaron", async () => {
       const resultado = await service.buscarEventos({ incluirPasados: true }, ahora);
 
-      expect(nombres(resultado)).toEqual(["Rock viejo", "Jazz", "Hamlet", "Rock"]);
+      expect(nombres(resultado)).toEqual(["Rock viejo", "Jazz", "Esperando la carroza", "Rock"]);
     });
 
     it("filtra por texto y por categoría", async () => {
       expect(nombres(await service.buscarEventos({ texto: "rock" }, ahora))).toEqual(["Rock"]);
-      expect(nombres(await service.buscarEventos({ categoria: "teatro" }, ahora))).toEqual(["Hamlet"]);
+      expect(nombres(await service.buscarEventos({ categoria: "teatro" }, ahora))).toEqual(["Esperando la carroza"]);
     });
 
     it("filtra por rango de precio", async () => {
@@ -99,9 +105,13 @@ describe("EventoService", () => {
     });
 
     it("ordena por precio ascendente o descendente", async () => {
-      expect(nombres(await service.buscarEventos({ orden: "precio" }, ahora))).toEqual(["Jazz", "Rock", "Hamlet"]);
+      expect(nombres(await service.buscarEventos({ orden: "precio" }, ahora))).toEqual([
+        "Jazz",
+        "Rock",
+        "Esperando la carroza",
+      ]);
       expect(nombres(await service.buscarEventos({ orden: "precio", direccion: "desc" }, ahora))).toEqual([
-        "Hamlet",
+        "Esperando la carroza",
         "Rock",
         "Jazz",
       ]);
@@ -110,7 +120,7 @@ describe("EventoService", () => {
     it("ordena por puntaje del organizador, de mayor a menor, con los organizadores sin reseñas al final", async () => {
       const resultado = await service.buscarEventos({ orden: "puntaje" }, ahora);
 
-      expect(nombres(resultado)).toEqual(["Rock", "Jazz", "Hamlet"]);
+      expect(nombres(resultado)).toEqual(["Rock", "Jazz", "Esperando la carroza"]);
       expect(resultado.items.map((e) => e.organizador.puntaje)).toEqual([4.5, 2, null]);
     });
 
@@ -139,7 +149,7 @@ describe("EventoService", () => {
         precioMinimo: 15000,
         agotado: false,
         yaSeRealizo: false,
-        organizador: { id: 2, nombreCompleto: "Martín Sosa", puntaje: 2, cantidadResenias: 1 },
+        organizador: { id: 2, nombreCompleto: "Gonzalo Pereyra", puntaje: 2, cantidadResenias: 1 },
       });
     });
   });
@@ -159,7 +169,7 @@ describe("EventoService", () => {
       expect(detalle.reseniasOrganizador).toHaveLength(2);
       expect(detalle.reseniasOrganizador[0]).toEqual({
         evento: { id: 4, nombre: "Rock viejo" },
-        comprador: "Juan Gómez",
+        comprador: "Nahuel Quiroga",
         detalle: "Comentario",
         puntuacion: 5,
         fecha: enDias(-4),
