@@ -233,6 +233,16 @@ components:
         fechaCompra: { type: string, format: date-time }
         cantidad: { type: integer, example: 2 }
         total: { type: number, example: 50000 }
+        entradas:
+          type: array
+          description: >-
+            Una entrada por cada unidad comprada, cada una con su propio código (y QR en la app): una compra de 3
+            entradas emite 3 códigos. Vacía hasta que la compra se paga y mientras esté CONFIRMADA o UTILIZADA.
+          items:
+            type: object
+            properties:
+              numero: { type: integer, example: 1 }
+              codigo: { type: string, example: AT-00012-1 }
         diasParaElEvento:
           type: integer
           nullable: true

@@ -215,6 +215,53 @@ describe("Dominio: Compra", () => {
     });
   });
 
+  describe("entradas", () => {
+    const comprarConId = (cantidad) => Object.assign(comprar(cantidad), { id: 12 });
+
+    it("una compra pendiente de pago todavía no tiene entradas", () => {
+      expect(comprarConId(3).entradas()).toEqual([]);
+    });
+
+    it("al pagar emite una entrada con su propio código por cada unidad comprada", () => {
+      const compra = comprarConId(3);
+
+      compra.confirmarPago(comprador, antesDelEvento);
+
+      expect(compra.entradas()).toEqual([
+        { numero: 1, codigo: "AT-00012-1" },
+        { numero: 2, codigo: "AT-00012-2" },
+        { numero: 3, codigo: "AT-00012-3" },
+      ]);
+    });
+
+    it("una sola entrada emite un solo código", () => {
+      const compra = comprarConId(1);
+      compra.confirmarPago(comprador, antesDelEvento);
+
+      expect(compra.entradas()).toEqual([{ numero: 1, codigo: "AT-00012-1" }]);
+    });
+
+    it("los códigos se conservan cuando la entrada ya se usó", () => {
+      const compra = comprarConId(2);
+      compra.confirmarPago(comprador, antesDelEvento);
+
+      compra.marcarComoUtilizada(organizador, diaDelEvento);
+
+      expect(compra.entradas().map((entrada) => entrada.codigo)).toEqual(["AT-00012-1", "AT-00012-2"]);
+    });
+
+    it("una compra cancelada o reembolsada ya no tiene entradas", () => {
+      const cancelada = comprarConId(2);
+      cancelada.cancelar(comprador, antesDelEvento);
+      const reembolsada = comprarConId(2);
+      reembolsada.confirmarPago(comprador, antesDelEvento);
+      reembolsada.cancelar(comprador, antesDelEvento);
+
+      expect(cancelada.entradas()).toEqual([]);
+      expect(reembolsada.entradas()).toEqual([]);
+    });
+  });
+
   describe("diasParaElEvento", () => {
     it("devuelve los días que faltan solo si la compra está confirmada", () => {
       const compra = comprar();

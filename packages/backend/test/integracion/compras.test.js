@@ -29,6 +29,27 @@ describe("API: comprar entradas y consultar compras", () => {
     expect(evento.body.tiposEntrada[1]).toMatchObject({ nombre: "Mesa preferencial", disponibles: 1 });
   });
 
+  it("una compra de varias entradas emite un código por cada una recién cuando se paga", async () => {
+    const compra = await request(app)
+      .post("/compras")
+      .set(comoUsuario(usuarios.agustina))
+      .send({ eventoId: JAZZ, tipoEntradaId: 1, cantidad: 3 });
+    expect(compra.body.entradas).toEqual([]);
+
+    const pago = await request(app)
+      .post(`/compras/${compra.body.id}/cambios-de-estado`)
+      .set(comoUsuario(usuarios.agustina))
+      .send({ estado: "CONFIRMADA" });
+
+    const codigos = pago.body.entradas.map((entrada) => entrada.codigo);
+    expect(pago.body.entradas.map((entrada) => entrada.numero)).toEqual([1, 2, 3]);
+    expect(new Set(codigos).size).toBe(3);
+    expect(codigos[0]).toMatch(/^AT-\d{5}-1$/);
+
+    const lista = await request(app).get("/compras").set(comoUsuario(usuarios.agustina));
+    expect(lista.body.find((c) => c.id === compra.body.id).entradas).toHaveLength(3);
+  });
+
   it("POST /compras no deja superar el cupo disponible (409)", async () => {
     const res = await request(app)
       .post("/compras")

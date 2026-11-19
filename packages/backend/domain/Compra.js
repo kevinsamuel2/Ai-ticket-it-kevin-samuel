@@ -110,6 +110,20 @@ export class Compra {
     this.actualizarEstado(EstadoCompra.CANCELADA, null, ahora);
   }
 
+  // Cada entrada comprada tiene su propio código (y su propio QR en la app): una compra de 3 entradas emite 3 códigos
+  // distintos, ej: AT-00012-1, AT-00012-2 y AT-00012-3. Se emiten recién cuando la compra se paga (CONFIRMADA) y se
+  // conservan una vez usadas; una compra pendiente de pago o dada de baja no tiene entradas.
+  entradas() {
+    if (this.estado !== EstadoCompra.CONFIRMADA && this.estado !== EstadoCompra.UTILIZADA) {
+      return [];
+    }
+    const base = `AT-${String(this.id).padStart(5, "0")}`;
+    return Array.from({ length: this.cantidad }, (_, indice) => ({
+      numero: indice + 1,
+      codigo: `${base}-${indice + 1}`,
+    }));
+  }
+
   // Solo tiene sentido contar los días para una compra confirmada
   diasParaElEvento(ahora = new Date()) {
     return this.estado === EstadoCompra.CONFIRMADA ? this.evento.diasRestantes(ahora) : null;

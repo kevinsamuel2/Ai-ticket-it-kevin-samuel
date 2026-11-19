@@ -51,6 +51,8 @@ export class CompraService {
       fechaCompra: compra.fechaCompra,
       cantidad: compra.cantidad,
       total: compra.total,
+      // Un código por cada entrada comprada; vacío hasta que la compra se paga
+      entradas: compra.entradas(),
       // Solo viene con valor si la compra está confirmada
       diasParaElEvento: compra.diasParaElEvento(ahora),
       // Solo viene con valor si la compra está pendiente: pasado ese momento se cancela sola
