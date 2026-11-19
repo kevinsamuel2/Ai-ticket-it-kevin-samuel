@@ -45,3 +45,10 @@ export async function obtenerVentasDeEvento(eventoId, estado) {
   const { data } = await api.get(`/eventos/${eventoId}/compras`, { params: estado ? { estado } : {} });
   return data;
 }
+
+// Solo el organizador: da por terminado el evento. Las compras pagas pasan a utilizadas (ya se pueden reseñar)
+// y las pendientes de pago se cancelan. Devuelve cuántas compras cambiaron de estado.
+export async function finalizarEvento(eventoId) {
+  const { data } = await api.post(`/eventos/${eventoId}/finalizacion`);
+  return data;
+}

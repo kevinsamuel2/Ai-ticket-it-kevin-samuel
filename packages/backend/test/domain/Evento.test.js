@@ -3,6 +3,7 @@ import { Usuario } from "../../domain/Usuario.js";
 import { Categoria } from "../../domain/Categoria.js";
 import { TipoEntrada } from "../../domain/TipoEntrada.js";
 import { NotFoundError } from "../../errors/NotFoundError.js";
+import { ConflictError } from "../../errors/ConflictError.js";
 
 describe("Dominio: Evento", () => {
   const organizador = Object.assign(new Usuario({ nombre: "Florencia", apellido: "Acosta" }), { id: 1 });
@@ -155,6 +156,35 @@ describe("Dominio: Evento", () => {
 
       expect(crearEvento().estaOrganizadoPor(organizador)).toBe(true);
       expect(crearEvento().estaOrganizadoPor(otro)).toBe(false);
+    });
+  });
+
+  describe("Finalización", () => {
+    const antesDelEvento = new Date("2026-12-01T12:00:00.000Z");
+
+    it("empieza sin finalizar y todavía no se realizó si falta para su fecha", () => {
+      const evento = crearEvento();
+
+      expect(evento.estaFinalizado()).toBe(false);
+      expect(evento.yaSeRealizo(antesDelEvento)).toBe(false);
+    });
+
+    it("al finalizarlo cuenta como realizado aunque no haya llegado su fecha", () => {
+      const evento = crearEvento();
+
+      evento.finalizar(antesDelEvento);
+
+      expect(evento.estaFinalizado()).toBe(true);
+      expect(evento.finalizadoEn).toBe(antesDelEvento);
+      expect(evento.yaSeRealizo(antesDelEvento)).toBe(true);
+    });
+
+    it("no se puede finalizar dos veces", () => {
+      const evento = crearEvento();
+      evento.finalizar(antesDelEvento);
+
+      expect(() => evento.finalizar(antesDelEvento)).toThrow(ConflictError);
+      expect(() => evento.finalizar(antesDelEvento)).toThrow("El evento ya fue finalizado");
     });
   });
 });

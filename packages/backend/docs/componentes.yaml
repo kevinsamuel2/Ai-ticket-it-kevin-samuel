@@ -151,6 +151,9 @@ components:
         precioMinimo: { type: number, example: 25000 }
         agotado: { type: boolean }
         yaSeRealizo: { type: boolean }
+        finalizado:
+          type: boolean
+          description: El organizador lo dio por terminado con POST /eventos/{eventoId}/finalizacion.
         organizador:
           $ref: "#/components/schemas/Organizador"
 
@@ -219,6 +222,7 @@ components:
             categoria: { type: string }
             imagen: { type: string, nullable: true }
             yaSeRealizo: { type: boolean }
+            finalizado: { type: boolean }
         tipoEntrada:
           type: object
           properties:
@@ -236,6 +240,9 @@ components:
             id: { type: integer }
             nombreCompleto: { type: string }
         cantidadMensajes: { type: integer, example: 2 }
+        puedeReseniar:
+          type: boolean
+          description: La entrada ya se usó y todavía no tiene reseña (el comprador puede calificar el evento).
 
     CompraDetalle:
       allOf:

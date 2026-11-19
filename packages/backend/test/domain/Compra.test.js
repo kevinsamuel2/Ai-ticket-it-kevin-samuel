@@ -296,4 +296,61 @@ describe("Dominio: Compra", () => {
       expect(compra.participa(otro)).toBe(false);
     });
   });
+
+  describe("Al finalizar el evento", () => {
+    it("una compra confirmada pasa a UTILIZADA, la registra el organizador y ya se puede reseñar", () => {
+      const compra = comprar();
+      compra.confirmarPago(comprador, ahora);
+
+      const nuevoEstado = compra.cerrarPorFinDelEvento(organizador, antesDelEvento);
+
+      expect(nuevoEstado).toBe(EstadoCompra.UTILIZADA);
+      expect(compra.estado).toBe(EstadoCompra.UTILIZADA);
+      expect(compra.historialEstados.at(-1)).toMatchObject({ estado: EstadoCompra.UTILIZADA, quien: organizador });
+      expect(compra.puedeReseniarse()).toBe(true);
+    });
+
+    it("una compra pendiente de pago la cancela el sistema y libera el cupo", () => {
+      const compra = comprar(3);
+
+      const nuevoEstado = compra.cerrarPorFinDelEvento(organizador, antesDelEvento);
+
+      expect(nuevoEstado).toBe(EstadoCompra.CANCELADA);
+      expect(compra.historialEstados.at(-1)).toMatchObject({ estado: EstadoCompra.CANCELADA, quien: null });
+      expect(platea.disponibles()).toBe(4);
+    });
+
+    it("las compras ya canceladas, reembolsadas o utilizadas quedan como estaban", () => {
+      const cancelada = comprar(1);
+      cancelada.cancelar(comprador, ahora);
+      const reembolsada = comprar(1);
+      reembolsada.confirmarPago(comprador, ahora);
+      reembolsada.cancelar(comprador, ahora);
+      const utilizada = comprar(1);
+      utilizada.confirmarPago(comprador, ahora);
+      utilizada.marcarComoUtilizada(organizador, diaDelEvento);
+
+      for (const compra of [cancelada, reembolsada, utilizada]) {
+        const estadoAnterior = compra.estado;
+        expect(compra.cerrarPorFinDelEvento(organizador, despuesDelEvento)).toBeNull();
+        expect(compra.estado).toBe(estadoAnterior);
+      }
+    });
+
+    it("una compra sin pagar no se puede reseñar", () => {
+      expect(comprar().puedeReseniarse()).toBe(false);
+    });
+
+    it("con el evento finalizado ya no se puede cancelar ni comprar", () => {
+      const compra = comprar();
+      compra.confirmarPago(comprador, ahora);
+      evento.finalizar(antesDelEvento);
+
+      expect(compra.puedeCancelarse(antesDelEvento)).toBe(false);
+      expect(() => compra.cancelar(comprador, antesDelEvento)).toThrow(ConflictError);
+      expect(() => new Compra({ comprador, evento, tipoEntrada: platea, cantidad: 1 }, antesDelEvento)).toThrow(
+        "No se pueden comprar entradas para un evento que ya se realizó",
+      );
+    });
+  });
 });

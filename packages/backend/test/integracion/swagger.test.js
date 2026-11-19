@@ -22,6 +22,7 @@ describe("Documentación Swagger", () => {
         "POST /eventos",
         "GET /eventos/{eventoId}",
         "GET /eventos/{eventoId}/compras",
+        "POST /eventos/{eventoId}/finalizacion",
         "GET /compras",
         "POST /compras",
         "GET /compras/{compraId}",

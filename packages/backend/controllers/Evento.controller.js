@@ -52,6 +52,11 @@ export class EventoController {
     res.status(201).location(`/eventos/${evento.id}`).json(evento);
   }
 
+  // POST /eventos/:eventoId/finalizacion — solo el organizador; deja reseñar a quienes usaron su entrada
+  async finalizarEvento(req, res) {
+    res.status(200).json(await this.eventoService.finalizarEvento(req.usuario, req.params.eventoId));
+  }
+
   // GET /favoritos — los eventos favoritos del usuario identificado
   async listarFavoritos(req, res) {
     res.status(200).json(await this.eventoService.listarFavoritos(req.usuario));

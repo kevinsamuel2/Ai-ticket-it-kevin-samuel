@@ -6,6 +6,7 @@ export function crearEventoRouter(eventoController) {
   router.get("/", (req, res) => eventoController.buscarEventos(req, res));
   router.post("/", requerirUsuario, (req, res) => eventoController.crearEvento(req, res));
   router.get("/:eventoId", (req, res) => eventoController.obtenerEvento(req, res));
+  router.post("/:eventoId/finalizacion", requerirUsuario, (req, res) => eventoController.finalizarEvento(req, res));
   return router;
 }
 

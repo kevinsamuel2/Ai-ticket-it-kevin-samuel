@@ -5,6 +5,7 @@ import { useCarga } from "../../../hooks/useCarga";
 import { obtenerVentasDeEvento } from "../../../services/eventos.service";
 import { Cargando, MensajeError } from "../../../components/EstadosDeCarga";
 import { CompraCard } from "../../../components/CompraCard";
+import { FinalizarEvento } from "../../../components/FinalizarEvento";
 import { colores, espaciado, estilosDeEstado, radio, sombra, texto } from "../../../theme";
 import { formatearFecha, formatearPrecio } from "../../../utils/formato";
 
@@ -29,6 +30,8 @@ export default function VentasDelEvento() {
         <Text style={texto.titulo}>{ventas.evento.nombre}</Text>
         <Text style={texto.secundario}>{formatearFecha(ventas.evento.fecha)}</Text>
       </View>
+
+      <FinalizarEvento evento={ventas.evento} onFinalizado={recargar} />
 
       <View style={styles.seccion}>
         <Text style={texto.subtitulo}>Disponibilidad</Text>

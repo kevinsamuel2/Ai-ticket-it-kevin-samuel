@@ -1,5 +1,7 @@
 import { NotFoundError } from "../errors/NotFoundError.js";
+import { ForbiddenError } from "../errors/ForbiddenError.js";
 import { ValidationError } from "../errors/ValidationError.js";
+import { EstadoCompra } from "../domain/EstadoCompra.js";
 import { Resenia } from "../domain/Resenia.js";
 import { Evento } from "../domain/Evento.js";
 
@@ -55,6 +57,7 @@ export class EventoService {
       precioMinimo: evento.precioMinimo(),
       agotado: evento.estaAgotado(),
       yaSeRealizo: evento.yaSeRealizo(ahora),
+      finalizado: evento.estaFinalizado(),
       organizador: this.organizadorToDTO(evento.organizador, reputacion),
     };
   }
@@ -173,6 +176,28 @@ export class EventoService {
 
     const guardado = await this.eventoRepository.guardar(evento);
     return this.obtenerEvento(guardado.id, ahora);
+  }
+
+  // El organizador da por terminado su evento (en la app, para simular que ya se realizó). Las compras pagas pasan
+  // a UTILIZADA, así cada comprador ya puede reseñar el evento, y las que nunca se pagaron se cancelan para liberar
+  // el cupo. A partir de ahí no se pueden comprar ni cancelar entradas.
+  async finalizarEvento(organizador, eventoId, ahora = new Date()) {
+    const evento = await this.buscarEventoExistente(eventoId);
+    if (!evento.estaOrganizadoPor(organizador)) {
+      throw new ForbiddenError("Solo el organizador del evento puede finalizarlo");
+    }
+    evento.finalizar(ahora);
+
+    const resultado = { comprasUtilizadas: 0, comprasCanceladas: 0 };
+    for (const compra of await this.compraRepository.buscarPorEvento(evento)) {
+      const nuevoEstado = compra.cerrarPorFinDelEvento(organizador, ahora);
+      if (nuevoEstado === EstadoCompra.UTILIZADA) resultado.comprasUtilizadas++;
+      if (nuevoEstado === EstadoCompra.CANCELADA) resultado.comprasCanceladas++;
+      if (nuevoEstado) await this.compraRepository.guardar(compra);
+    }
+    await this.eventoRepository.guardar(evento);
+
+    return { ...resultado, evento: await this.obtenerEvento(evento.id, ahora, organizador) };
   }
 
   // Todos los eventos de un organizador (próximos y pasados), del más cercano al más lejano

@@ -1,5 +1,6 @@
 import { UnprocessableEntityError } from "../errors/UnprocessableEntityError.js";
 import { NotFoundError } from "../errors/NotFoundError.js";
+import { ConflictError } from "../errors/ConflictError.js";
 import { TipoEntrada } from "./TipoEntrada.js";
 import { validarTextoNoVacio, validarFecha } from "./validaciones.js";
 
@@ -20,6 +21,7 @@ export class Evento {
     this.fecha = validarFecha(fecha, "La fecha del evento no es válida");
     this.multimedia = this._validarMultimedia(multimedia);
     this.tiposEntrada = this._crearTiposEntrada(tiposEntrada);
+    this.finalizadoEn = null;
   }
 
   _crearTiposEntrada(tiposEntrada) {
@@ -52,8 +54,21 @@ export class Evento {
     }
   }
 
+  // Terminó porque llegó su fecha o porque el organizador lo finalizó antes
   yaSeRealizo(ahora = new Date()) {
-    return this.fecha <= ahora;
+    return this.estaFinalizado() || this.fecha <= ahora;
+  }
+
+  estaFinalizado() {
+    return this.finalizadoEn !== null;
+  }
+
+  // El organizador da por terminado el evento (en la app sirve para simular que ya se realizó)
+  finalizar(ahora = new Date()) {
+    if (this.estaFinalizado()) {
+      throw new ConflictError("El evento ya fue finalizado");
+    }
+    this.finalizadoEn = ahora;
   }
 
   // Desde las 00:00 del día del evento ya se pueden validar las entradas en la puerta

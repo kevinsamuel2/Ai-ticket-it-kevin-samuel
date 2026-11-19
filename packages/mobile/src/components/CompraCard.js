@@ -39,6 +39,13 @@ export function CompraCard({ compra, onPress, mostrarComprador = false }) {
         <Text style={texto.secundario}>
           {mostrarComprador ? `Compró el ${formatearFecha(compra.fechaCompra)}` : formatearFecha(compra.evento.fecha)}
         </Text>
+        {/* El comprador ve que el evento terminó y todavía falta su reseña (el organizador no necesita este aviso) */}
+        {!mostrarComprador && compra.puedeReseniar && (
+          <View style={styles.pendienteDeResenia}>
+            <Ionicons name="star" size={14} color={colores.primarioOscuro} />
+            <Text style={styles.textoPendiente}>El evento finalizó: calificá tu experiencia</Text>
+          </View>
+        )}
         <View style={styles.pie}>
           <Text style={texto.secundario}>
             {compra.cantidad} × {compra.tipoEntrada.nombre}
@@ -73,6 +80,18 @@ const styles = StyleSheet.create({
   encabezado: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: espaciado.s },
   dias: { ...fuente, fontSize: 13, fontWeight: "600", color: colores.primarioOscuro },
   plazo: { ...fuente, fontSize: 12, fontWeight: "600", color: colores.texto },
+  pendienteDeResenia: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    alignSelf: "flex-start",
+    marginTop: 4,
+    paddingVertical: 3,
+    paddingHorizontal: espaciado.s,
+    borderRadius: radio.s,
+    backgroundColor: colores.primarioSuave,
+  },
+  textoPendiente: { ...fuente, fontSize: 12, fontWeight: "600", color: colores.primarioOscuro },
   pie: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 2 },
   derecha: { flexDirection: "row", alignItems: "center", gap: espaciado.m },
   mensajes: { flexDirection: "row", alignItems: "center", gap: 3 },

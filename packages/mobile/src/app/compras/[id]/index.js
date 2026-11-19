@@ -154,7 +154,15 @@ export default function DetalleCompra() {
         )}
       </View>
 
-      {acciones.puedeReseniar && <FormularioResenia compraId={compra.id} onReseniado={recargar} />}
+      {acciones.puedeReseniar && (
+        <View style={styles.seccion}>
+          <Text style={texto.secundario}>
+            {compra.evento.nombre} ya finalizó. Tu reseña se suma a la reputación de {compra.organizador.nombreCompleto}
+            .
+          </Text>
+          <FormularioResenia compraId={compra.id} onReseniado={recargar} />
+        </View>
+      )}
       {compra.resenia && (
         <View style={styles.seccion}>
           <Text style={texto.subtitulo}>{esComprador ? "Tu reseña" : "Reseña del comprador"}</Text>

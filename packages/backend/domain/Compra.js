@@ -86,6 +86,16 @@ export class Compra {
     this.actualizarEstado(this.estado.estadoAlCancelar(), quien, ahora);
   }
 
+  // Cuando el organizador finaliza el evento: la entrada paga se da por utilizada (el comprador ya puede reseñar)
+  // y la que nunca se pagó la cancela el sistema para liberar el cupo. Las demás quedan como están.
+  // Devuelve el estado al que pasó, o null si no cambió.
+  cerrarPorFinDelEvento(organizador, ahora = new Date()) {
+    const nuevoEstado = this.estado.estadoAlFinalizarElEvento();
+    if (!nuevoEstado) return null;
+    this.actualizarEstado(nuevoEstado, nuevoEstado === EstadoCompra.UTILIZADA ? organizador : null, ahora);
+    return nuevoEstado;
+  }
+
   // Una compra que no se pagó a tiempo la cancela el sistema (quien = null) para liberar el cupo reservado
   // Momento límite para pagar una compra pendiente
   venceEl(minutosParaPagar) {

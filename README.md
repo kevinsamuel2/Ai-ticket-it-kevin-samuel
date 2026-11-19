@@ -111,7 +111,8 @@ Levanta el backend en `http://localhost:3001`. El CI de GitHub Actions corre el 
 | Comprador y organizador intercambian mensajes en cualquier momento         | `GET/POST /compras/:id/mensajes`                 | Compra → Chat                     |
 | Cancelar una compra para obtener el reembolso                              | `POST /compras/:id/cambios-de-estado`            | Compra → Cancelar                 |
 | Solo se cancela si no está utilizada y el evento no se realizó             | Regla en `Compra.cancelar()`                     | El botón aparece solo si se puede |
-| Puntuar el evento y comentar una vez utilizada la entrada                  | `POST /compras/:id/resenia`                      | Compra → Reseña                   |
+| Simular que el evento ya se realizó (solo el organizador)                  | `POST /eventos/:id/finalizacion`                 | Mis eventos → Finalizar evento    |
+| Puntuar el evento y comentar una vez utilizada la entrada                  | `POST /compras/:id/resenia`                      | Mis compras → Compra → Reseña     |
 | Ver las reseñas de eventos anteriores del organizador                      | `GET /eventos/:id`, `GET /usuarios/:id/resenias` | Detalle del evento                |
 | Ordenar por precio, fecha del evento y puntaje del organizador             | `GET /eventos?orden=precio\|fecha\|puntaje`      | Explorar                          |
 | Comprar eligiendo tipo de entrada y cantidad, sin superar el cupo          | `POST /compras`                                  | Detalle del evento                |
@@ -126,6 +127,7 @@ Levanta el backend en `http://localhost:3001`. El CI de GitHub Actions corre el 
 - **Manejo de errores** centralizado: errores propios (`ValidationError` 400, `UnauthorizedError` 401, `ForbiddenError` 403, `NotFoundError` 404, `ConflictError` 409, `UnprocessableEntityError` 422) y un middleware que los traduce a respuestas HTTP.
 - **Sesiones**: login con email y contraseña (guardada con hash `scrypt`), token `Bearer` y permisos por rol (solo el organizador ve las ventas de su evento, solo el comprador paga o cancela, etc.).
 - **Procesamiento asincrónico**: un cron job (`node-cron`) vence las compras no pagadas a tiempo y libera el cupo. La app muestra hasta cuándo se puede pagar cada compra pendiente.
+- **Finalizar un evento**: como en una demo no se puede esperar a la fecha real, el organizador tiene un botón para dar por terminado su evento (`POST /eventos/:id/finalizacion`, solo él). Las compras pagas pasan a UTILIZADA, así cada comprador puede reseñar desde Mis compras sin romper la regla de que solo se reseña con la entrada utilizada, y las pendientes de pago se cancelan y liberan el cupo. El evento sale de los próximos y ya no se puede comprar ni cancelar.
 - **Reglas de negocio extra**: la entrada se marca como utilizada recién el día del evento (si no, el comprador perdería la posibilidad de cancelar y podría reseñar un evento al que no fue) y el organizador no puede comprar entradas de su propio evento.
 - **App**: Expo Router con rutas protegidas, Context API + custom hooks para la sesión, la carga de datos y la paginación, una única instancia de axios, formularios con validaciones y componentes con props de accesibilidad.
 - **Feedback al usuario**: pantalla de carga al abrir la app (verifica que el backend responda y, si no, permite reintentar), indicadores de carga en cada pantalla y botón, y avisos visibles de error y de éxito en todas las acciones.

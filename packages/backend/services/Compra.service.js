@@ -62,11 +62,14 @@ export class CompraService {
         categoria: evento.categoria.nombre,
         imagen: evento.multimedia[0] ?? null,
         yaSeRealizo: evento.yaSeRealizo(ahora),
+        finalizado: evento.estaFinalizado(),
       },
       tipoEntrada: { id: tipoEntrada.id, nombre: tipoEntrada.nombre, precio: tipoEntrada.precio },
       comprador: { id: compra.comprador.id, nombreCompleto: compra.comprador.nombreCompleto() },
       organizador: { id: evento.organizador.id, nombreCompleto: evento.organizador.nombreCompleto() },
       cantidadMensajes: compra.mensajes.length,
+      // Para avisar en la lista que falta dejar la reseña: la entrada se usó y todavía no se calificó
+      puedeReseniar: compra.puedeReseniarse(),
     };
   }
 
@@ -138,7 +141,13 @@ export class CompraService {
     );
 
     return {
-      evento: { id: evento.id, nombre: evento.nombre, fecha: evento.fecha, yaSeRealizo: evento.yaSeRealizo(ahora) },
+      evento: {
+        id: evento.id,
+        nombre: evento.nombre,
+        fecha: evento.fecha,
+        yaSeRealizo: evento.yaSeRealizo(ahora),
+        finalizado: evento.estaFinalizado(),
+      },
       disponibilidad: evento.tiposEntrada.map((tipo) => ({
         tipoEntrada: { id: tipo.id, nombre: tipo.nombre, precio: tipo.precio },
         cupo: tipo.cupo,

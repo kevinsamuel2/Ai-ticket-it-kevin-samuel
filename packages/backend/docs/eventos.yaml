@@ -166,6 +166,44 @@ paths:
                 $ref: "#/components/schemas/EventoDetalle"
         "404":
           $ref: "#/components/responses/NoEncontrado"
+  "/eventos/{eventoId}/finalizacion":
+    post:
+      tags:
+        - Eventos
+      summary: Finalizar un evento (solo el organizador)
+      description: >-
+        El organizador da por terminado su evento (en la app sirve para simular que ya
+        se realizó). Las compras confirmadas pasan a UTILIZADA, así cada comprador ya
+        puede reseñar el evento, y las pendientes de pago se cancelan para liberar el
+        cupo. Después ya no se pueden comprar ni cancelar entradas.
+      parameters:
+        - $ref: "#/components/parameters/EventoIdPath"
+      responses:
+        "200":
+          description: Evento finalizado, con cuántas compras cambiaron de estado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comprasUtilizadas:
+                    type: integer
+                    example: 3
+                  comprasCanceladas:
+                    type: integer
+                    example: 1
+                  evento:
+                    $ref: "#/components/schemas/EventoDetalle"
+        "401":
+          $ref: "#/components/responses/NoIdentificado"
+        "403":
+          $ref: "#/components/responses/SinPermiso"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+        "409":
+          description: El evento ya fue finalizado.
+      security:
+        - bearerAuth: []
   "/eventos/{eventoId}/compras":
     get:
       tags:
@@ -196,6 +234,8 @@ paths:
                         type: string
                         format: date-time
                       yaSeRealizo:
+                        type: boolean
+                      finalizado:
                         type: boolean
                   disponibilidad:
                     type: array

@@ -149,6 +149,7 @@ describe("EventoService", () => {
         precioMinimo: 15000,
         agotado: false,
         yaSeRealizo: false,
+        finalizado: false,
         organizador: { id: 2, nombreCompleto: "Gonzalo Pereyra", puntaje: 2, cantidadResenias: 1 },
       });
     });

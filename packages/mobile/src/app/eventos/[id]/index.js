@@ -10,6 +10,7 @@ import { comprar } from "../../../services/compras.service";
 import { mensajeDeError } from "../../../services/api";
 import { Cargando, MensajeError } from "../../../components/EstadosDeCarga";
 import { Boton } from "../../../components/Boton";
+import { FinalizarEvento } from "../../../components/FinalizarEvento";
 import { Galeria } from "../../../components/Galeria";
 import { Puntaje } from "../../../components/Puntaje";
 import { ReseniaItem } from "../../../components/ReseniaItem";
@@ -119,6 +120,7 @@ export default function DetalleEvento() {
             variante="secundario"
             onPress={() => router.push(`/eventos/${evento.id}/ventas`)}
           />
+          <FinalizarEvento evento={evento} onFinalizado={recargar} />
         </View>
       )}
 
