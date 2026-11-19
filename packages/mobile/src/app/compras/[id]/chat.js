@@ -99,7 +99,7 @@ export default function Chat() {
           accessibilityLabel="Enviar mensaje"
           style={[styles.enviar, (enviando || !texto.trim()) && styles.enviarDeshabilitado]}
         >
-          <Ionicons name="send" size={18} color={colores.negro} />
+          <Ionicons name="arrow-up" size={20} color={colores.blanco} />
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -124,16 +124,21 @@ function Burbuja({ mensaje }) {
 const styles = StyleSheet.create({
   contenedor: { flex: 1 },
   lista: { padding: espaciado.l, gap: espaciado.s, flexGrow: 1 },
-  burbuja: { maxWidth: "82%", padding: espaciado.m, borderRadius: radio.l, gap: 2 },
-  mia: { alignSelf: "flex-end", backgroundColor: colores.primario, borderBottomRightRadius: 4 },
+  burbuja: {
+    maxWidth: "82%",
+    paddingHorizontal: 14,
+    paddingVertical: espaciado.s + 2,
+    borderRadius: radio.l,
+    borderCurve: "continuous",
+    gap: 2,
+  },
+  mia: { alignSelf: "flex-end", backgroundColor: colores.primario, borderBottomRightRadius: 6 },
   ajena: {
     alignSelf: "flex-start",
     backgroundColor: colores.superficie,
-    borderWidth: 1,
-    borderColor: colores.borde,
-    borderBottomLeftRadius: 4,
+    borderBottomLeftRadius: 6,
   },
-  autor: { fontSize: 12, fontWeight: "700", color: colores.primarioOscuro },
+  autor: { fontSize: 12, fontWeight: "600", color: colores.primarioOscuro },
   textoMio: { color: colores.blanco },
   hora: { fontSize: 11, color: colores.textoSecundario, alignSelf: "flex-end" },
   horaMia: { color: "#DCFCE7" },
@@ -143,23 +148,25 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     gap: espaciado.s,
     padding: espaciado.m,
-    backgroundColor: colores.negro,
+    backgroundColor: colores.superficie,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colores.borde,
   },
   input: {
     flex: 1,
-    minHeight: 44,
+    minHeight: 40,
     maxHeight: 120,
-    paddingHorizontal: espaciado.m,
+    paddingHorizontal: espaciado.l,
     paddingVertical: espaciado.s,
-    borderRadius: radio.l,
-    backgroundColor: colores.superficie,
-    fontSize: 15,
+    borderRadius: 20,
+    backgroundColor: colores.relleno,
+    fontSize: 17,
     color: colores.texto,
   },
   enviar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: colores.primario,
     alignItems: "center",
     justifyContent: "center",

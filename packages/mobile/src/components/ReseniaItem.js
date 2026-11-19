@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colores, espaciado, radio, texto } from "../theme";
+import { colores, espaciado, radio, sombra, texto } from "../theme";
 import { formatearFechaCompleta } from "../utils/formato";
 
 export function Estrellas({ puntuacion, tamanio = 14 }) {
@@ -38,11 +38,11 @@ const styles = StyleSheet.create({
   tarjeta: {
     gap: espaciado.xs,
     padding: espaciado.m,
-    borderRadius: radio.m,
+    borderRadius: radio.m + 4,
+    borderCurve: "continuous",
     backgroundColor: colores.superficie,
-    borderWidth: 1,
-    borderColor: colores.borde,
+    ...sombra,
   },
   encabezado: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  autor: { fontWeight: "700", color: colores.texto },
+  autor: { fontWeight: "600", color: colores.texto },
 });

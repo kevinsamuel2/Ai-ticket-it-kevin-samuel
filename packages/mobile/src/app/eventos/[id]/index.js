@@ -14,7 +14,7 @@ import { Galeria } from "../../../components/Galeria";
 import { Puntaje } from "../../../components/Puntaje";
 import { ReseniaItem } from "../../../components/ReseniaItem";
 import { SelectorCantidad } from "../../../components/SelectorCantidad";
-import { colores, espaciado, radio, texto } from "../../../theme";
+import { colores, espaciado, radio, sombra, texto } from "../../../theme";
 import { formatearFecha, formatearPrecio } from "../../../utils/formato";
 
 export default function DetalleEvento() {
@@ -195,37 +195,37 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: espaciado.l,
     padding: espaciado.m,
-    borderRadius: radio.m,
+    borderRadius: radio.m + 4,
+    borderCurve: "continuous",
     backgroundColor: colores.superficie,
-    borderWidth: 1,
-    borderColor: colores.borde,
-    borderLeftWidth: 4,
-    borderLeftColor: colores.primario,
+    ...sombra,
   },
   tipo: {
     flexDirection: "row",
     alignItems: "center",
     gap: espaciado.m,
     padding: espaciado.m,
-    borderRadius: radio.m,
-    borderWidth: 1.5,
-    borderColor: colores.borde,
+    borderRadius: radio.m + 4,
+    borderCurve: "continuous",
+    borderWidth: 2,
+    borderColor: "transparent",
     backgroundColor: colores.superficie,
+    ...sombra,
   },
   tipoElegido: { borderColor: colores.primario, backgroundColor: colores.primarioSuave },
   tipoAgotado: { opacity: 0.5 },
-  tipoNombre: { fontSize: 16, fontWeight: "700", color: colores.texto },
-  tipoPrecio: { fontSize: 16, fontWeight: "800", color: colores.texto },
-  pocasEntradas: { color: colores.primarioOscuro, fontWeight: "700" },
+  tipoNombre: { fontSize: 17, fontWeight: "600", color: colores.texto },
+  tipoPrecio: { fontSize: 17, fontWeight: "700", color: colores.texto },
+  pocasEntradas: { color: colores.primarioOscuro, fontWeight: "600" },
   resumenCompra: {
     gap: espaciado.m,
     marginTop: espaciado.s,
     padding: espaciado.l,
     borderRadius: radio.l,
+    borderCurve: "continuous",
     backgroundColor: colores.superficie,
-    borderWidth: 1,
-    borderColor: colores.borde,
+    ...sombra,
   },
-  total: { fontSize: 22, fontWeight: "800", color: colores.primarioOscuro },
+  total: { fontSize: 22, fontWeight: "700", letterSpacing: 0.35, color: colores.primarioOscuro },
   centrado: { textAlign: "center" },
 });

@@ -10,7 +10,7 @@ import { Campo } from "../../components/Campo";
 import { Boton } from "../../components/Boton";
 import { Chips } from "../../components/Chips";
 import { armarFecha, hayErrores, separarImagenes, validarEvento } from "../../utils/validaciones";
-import { colores, espaciado, radio, texto } from "../../theme";
+import { colores, espaciado, radio, sombra, texto } from "../../theme";
 
 const tipoVacio = () => ({ nombre: "", descripcion: "", precio: "", cupo: "" });
 
@@ -218,11 +218,9 @@ const styles = StyleSheet.create({
     gap: espaciado.s,
     padding: espaciado.m,
     borderRadius: radio.l,
+    borderCurve: "continuous",
     backgroundColor: colores.superficie,
-    borderWidth: 1,
-    borderColor: colores.borde,
-    borderLeftWidth: 4,
-    borderLeftColor: colores.primario,
+    ...sombra,
   },
   error: { color: colores.peligro, fontSize: 13 },
 });

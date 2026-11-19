@@ -5,7 +5,7 @@ import { useCarga } from "../../../hooks/useCarga";
 import { obtenerVentasDeEvento } from "../../../services/eventos.service";
 import { Cargando, MensajeError } from "../../../components/EstadosDeCarga";
 import { CompraCard } from "../../../components/CompraCard";
-import { colores, espaciado, estilosDeEstado, radio, texto } from "../../../theme";
+import { colores, espaciado, estilosDeEstado, radio, sombra, texto } from "../../../theme";
 import { formatearFecha, formatearPrecio } from "../../../utils/formato";
 
 // Vista del organizador: compras del evento por estado y cuántas entradas quedan de cada tipo
@@ -110,16 +110,16 @@ const styles = StyleSheet.create({
   tipo: {
     gap: espaciado.xs,
     padding: espaciado.m,
-    borderRadius: radio.m,
+    borderRadius: radio.m + 4,
+    borderCurve: "continuous",
     backgroundColor: colores.superficie,
-    borderWidth: 1,
-    borderColor: colores.borde,
+    ...sombra,
   },
   filaEntre: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  tipoNombre: { fontWeight: "700", color: colores.texto },
-  disponibles: { fontWeight: "800", color: colores.primarioOscuro },
+  tipoNombre: { fontWeight: "600", color: colores.texto },
+  disponibles: { fontWeight: "700", color: colores.primarioOscuro },
   agotado: { color: colores.negro },
-  barra: { height: 10, borderRadius: 5, backgroundColor: "#F4F4F5", overflow: "hidden" },
+  barra: { height: 8, borderRadius: 4, backgroundColor: colores.relleno, overflow: "hidden" },
   barraRelleno: { height: "100%", backgroundColor: colores.primario },
   contadores: { flexDirection: "row", flexWrap: "wrap", gap: espaciado.s },
   contador: {
@@ -131,6 +131,6 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
   contadorActivo: { borderWidth: 3 },
-  contadorNumero: { fontSize: 22, fontWeight: "800" },
+  contadorNumero: { fontSize: 22, fontWeight: "700" },
   contadorEtiqueta: { fontSize: 12, fontWeight: "600" },
 });

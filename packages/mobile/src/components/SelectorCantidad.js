@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colores, espaciado, radio } from "../theme";
+import { colores, espaciado } from "../theme";
 
 // Botones - / + que no dejan bajar de `minimo` ni pasar de `maximo` (el cupo disponible)
 export function SelectorCantidad({ valor, minimo = 1, maximo, onCambiar }) {
@@ -45,11 +45,11 @@ const styles = StyleSheet.create({
   boton: {
     width: 40,
     height: 40,
-    borderRadius: radio.m,
+    borderRadius: 20,
     backgroundColor: colores.negro,
     alignItems: "center",
     justifyContent: "center",
   },
-  deshabilitado: { backgroundColor: "#A1A1AA" },
-  valor: { minWidth: 28, textAlign: "center", fontSize: 20, fontWeight: "700", color: colores.texto },
+  deshabilitado: { backgroundColor: "#C7C7CC" },
+  valor: { minWidth: 28, textAlign: "center", fontSize: 20, fontWeight: "600", color: colores.texto },
 });

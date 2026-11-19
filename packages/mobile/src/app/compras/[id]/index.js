@@ -12,7 +12,7 @@ import { Boton } from "../../../components/Boton";
 import { EstadoBadge } from "../../../components/EstadoBadge";
 import { FormularioResenia } from "../../../components/FormularioResenia";
 import { Estrellas } from "../../../components/ReseniaItem";
-import { colores, espaciado, estilosDeEstado, radio, texto } from "../../../theme";
+import { colores, espaciado, estilosDeEstado, radio, sombra, texto } from "../../../theme";
 import { confirmar } from "../../../utils/confirmar";
 import {
   formatearDiaYHora,
@@ -191,10 +191,10 @@ const styles = StyleSheet.create({
   contenedor: { padding: espaciado.l, gap: espaciado.l, paddingBottom: espaciado.xl * 2 },
   tarjeta: {
     borderRadius: radio.l,
+    borderCurve: "continuous",
     overflow: "hidden",
     backgroundColor: colores.superficie,
-    borderWidth: 1,
-    borderColor: colores.borde,
+    ...sombra,
   },
   imagen: { width: "100%", aspectRatio: 16 / 7 },
   cuerpoTarjeta: { padding: espaciado.l, gap: espaciado.s },
@@ -205,36 +205,36 @@ const styles = StyleSheet.create({
     gap: espaciado.s,
     paddingHorizontal: espaciado.m,
     paddingVertical: espaciado.s,
-    borderRadius: radio.m,
+    borderRadius: 999,
     backgroundColor: colores.negro,
   },
-  diasRestantesTexto: { color: colores.blanco, fontWeight: "800", fontSize: 16 },
+  diasRestantesTexto: { color: colores.blanco, fontWeight: "600", fontSize: 16 },
   plazo: {
     flexDirection: "row",
     alignItems: "center",
     gap: espaciado.s,
     padding: espaciado.m,
-    borderRadius: radio.m,
-    borderWidth: 1.5,
-    borderColor: colores.negro,
+    borderRadius: radio.m + 4,
+    borderCurve: "continuous",
     backgroundColor: colores.superficie,
+    ...sombra,
   },
-  plazoTexto: { flex: 1, fontSize: 14, fontWeight: "600", color: colores.texto },
-  separador: { height: 1, backgroundColor: colores.borde, marginVertical: espaciado.xs },
+  plazoTexto: { flex: 1, fontSize: 15, fontWeight: "600", color: colores.texto },
+  separador: { height: StyleSheet.hairlineWidth, backgroundColor: colores.borde, marginVertical: espaciado.xs },
   fila: { flexDirection: "row", justifyContent: "space-between" },
-  destacado: { fontWeight: "800", color: colores.primarioOscuro, fontSize: 17 },
+  destacado: { fontWeight: "700", color: colores.primarioOscuro, fontSize: 17 },
   acciones: { gap: espaciado.m },
   seccion: { gap: espaciado.s },
   resenia: {
     gap: espaciado.xs,
     padding: espaciado.m,
-    borderRadius: radio.m,
+    borderRadius: radio.m + 4,
+    borderCurve: "continuous",
     backgroundColor: colores.superficie,
-    borderWidth: 1,
-    borderColor: colores.borde,
+    ...sombra,
   },
   cambio: { flexDirection: "row", gap: espaciado.m, alignItems: "flex-start" },
   punto: { width: 12, height: 12, borderRadius: 6, marginTop: 4 },
   flex: { flex: 1 },
-  cambioEstado: { fontWeight: "700", color: colores.texto },
+  cambioEstado: { fontWeight: "600", color: colores.texto },
 });

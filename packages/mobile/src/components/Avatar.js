@@ -22,5 +22,5 @@ export function Avatar({ nombreCompleto, tamanio = 44 }) {
 
 const styles = StyleSheet.create({
   avatar: { backgroundColor: colores.primarioSuave, alignItems: "center", justifyContent: "center" },
-  iniciales: { color: colores.primario, fontWeight: "700" },
+  iniciales: { color: colores.primarioOscuro, fontWeight: "600" },
 });
