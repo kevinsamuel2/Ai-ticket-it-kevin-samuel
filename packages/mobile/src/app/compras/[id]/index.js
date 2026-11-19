@@ -10,10 +10,12 @@ import { mensajeDeError } from "../../../services/api";
 import { urlDeImagen } from "../../../utils/imagen";
 import { Cargando, MensajeError } from "../../../components/EstadosDeCarga";
 import { Boton } from "../../../components/Boton";
+import { EntradaConQR } from "../../../components/EntradaConQR";
 import { EstadoBadge } from "../../../components/EstadoBadge";
 import { FormularioResenia } from "../../../components/FormularioResenia";
 import { Estrellas } from "../../../components/ReseniaItem";
-import { colores, espaciado, estilosDeEstado, radio, sombra, texto } from "../../../theme";
+import { TituloDeSeccion } from "../../../components/TituloDeSeccion";
+import { colores, espaciado, estilosDeEstado, radio, contorno, texto } from "../../../theme";
 import { confirmar } from "../../../utils/confirmar";
 import {
   formatearDiaYHora,
@@ -86,13 +88,13 @@ export default function DetalleCompra() {
           <EstadoBadge estado={compra.estado} grande />
           {compra.diasParaElEvento !== null && (
             <View style={styles.diasRestantes}>
-              <Ionicons name="hourglass-outline" size={18} color={colores.blanco} />
+              <Ionicons name="hourglass-outline" size={18} color={colores.primarioClaro} />
               <Text style={styles.diasRestantesTexto}>{textoDiasRestantes(compra.diasParaElEvento)}</Text>
             </View>
           )}
           {compra.pagarAntesDe && (
             <View style={styles.plazo} accessibilityRole="alert">
-              <Ionicons name="alarm-outline" size={18} color={colores.negro} />
+              <Ionicons name="alarm-outline" size={18} color={colores.primarioClaro} />
               <Text style={styles.plazoTexto}>
                 {esComprador ? "Pagá" : "El comprador tiene que pagar"} antes del{" "}
                 {formatearDiaYHora(compra.pagarAntesDe)} o la compra se cancela automáticamente.
@@ -113,6 +115,11 @@ export default function DetalleCompra() {
           />
         </View>
       </View>
+
+      {/* El comprador lleva su entrada digital con el QR una vez pagada (y apagada cuando ya se usó) */}
+      {esComprador && (compra.estado === "CONFIRMADA" || compra.estado === "UTILIZADA") && (
+        <EntradaConQR compra={compra} />
+      )}
 
       <View style={styles.acciones}>
         {acciones.puedePagar && (
@@ -165,7 +172,7 @@ export default function DetalleCompra() {
       )}
       {compra.resenia && (
         <View style={styles.seccion}>
-          <Text style={texto.subtitulo}>{esComprador ? "Tu reseña" : "Reseña del comprador"}</Text>
+          <TituloDeSeccion>{esComprador ? "Tu reseña" : "Reseña del comprador"}</TituloDeSeccion>
           <View style={styles.resenia}>
             <Estrellas puntuacion={compra.resenia.puntuacion} tamanio={18} />
             <Text style={texto.cuerpo}>{compra.resenia.detalle}</Text>
@@ -174,7 +181,7 @@ export default function DetalleCompra() {
       )}
 
       <View style={styles.seccion}>
-        <Text style={texto.subtitulo}>Historial</Text>
+        <TituloDeSeccion>Historial</TituloDeSeccion>
         {compra.historialEstados.map((cambio, indice) => (
           <View key={indice} style={styles.cambio}>
             <View style={[styles.punto, { backgroundColor: estilosDeEstado[cambio.estado].borde }]} />
@@ -207,7 +214,7 @@ const styles = StyleSheet.create({
     borderCurve: "continuous",
     overflow: "hidden",
     backgroundColor: colores.superficie,
-    ...sombra,
+    ...contorno,
   },
   imagen: { width: "100%", aspectRatio: 16 / 7 },
   cuerpoTarjeta: { padding: espaciado.l, gap: espaciado.s },
@@ -219,9 +226,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: espaciado.m,
     paddingVertical: espaciado.s,
     borderRadius: 999,
-    backgroundColor: colores.negro,
+    backgroundColor: colores.primarioSuave,
   },
-  diasRestantesTexto: { color: colores.blanco, fontWeight: "600", fontSize: 16 },
+  diasRestantesTexto: { color: colores.primarioClaro, fontWeight: "700", fontSize: 16 },
   plazo: {
     flexDirection: "row",
     alignItems: "center",
@@ -230,12 +237,12 @@ const styles = StyleSheet.create({
     borderRadius: radio.m + 4,
     borderCurve: "continuous",
     backgroundColor: colores.superficie,
-    ...sombra,
+    ...contorno,
   },
   plazoTexto: { flex: 1, fontSize: 15, fontWeight: "600", color: colores.texto },
   separador: { height: StyleSheet.hairlineWidth, backgroundColor: colores.borde, marginVertical: espaciado.xs },
   fila: { flexDirection: "row", justifyContent: "space-between" },
-  destacado: { fontWeight: "700", color: colores.primarioOscuro, fontSize: 17 },
+  destacado: { fontWeight: "700", color: colores.primarioClaro, fontSize: 17 },
   acciones: { gap: espaciado.m },
   seccion: { gap: espaciado.s },
   resenia: {
@@ -244,7 +251,7 @@ const styles = StyleSheet.create({
     borderRadius: radio.m + 4,
     borderCurve: "continuous",
     backgroundColor: colores.superficie,
-    ...sombra,
+    ...contorno,
   },
   cambio: { flexDirection: "row", gap: espaciado.m, alignItems: "flex-start" },
   punto: { width: 12, height: 12, borderRadius: 6, marginTop: 4 },
