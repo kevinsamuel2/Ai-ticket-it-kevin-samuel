@@ -1,11 +1,12 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { colores, espaciado, radio } from "../theme";
+import { colores, espaciado, fuente, radio } from "../theme";
 
+// Botones al estilo iOS: el principal es sólido y los demás son "tintados" (fondo suave con el color del texto)
 const VARIANTES = {
-  primario: { fondo: colores.primario, texto: "#FFFFFF", borde: colores.primario },
-  secundario: { fondo: colores.superficie, texto: colores.primario, borde: colores.primario },
-  peligro: { fondo: colores.superficie, texto: colores.peligro, borde: colores.peligro },
+  primario: { fondo: colores.primario, texto: colores.blanco },
+  secundario: { fondo: colores.primarioSuave, texto: colores.primarioOscuro },
+  peligro: { fondo: colores.peligroSuave, texto: colores.peligro },
 };
 
 export function Boton({ titulo, onPress, variante = "primario", icono, cargando = false, deshabilitado = false }) {
@@ -20,15 +21,16 @@ export function Boton({ titulo, onPress, variante = "primario", icono, cargando 
       accessibilityState={{ disabled: inactivo, busy: cargando }}
       style={({ pressed }) => [
         styles.boton,
-        { backgroundColor: estilo.fondo, borderColor: estilo.borde },
-        (pressed || inactivo) && styles.atenuado,
+        { backgroundColor: estilo.fondo },
+        pressed && styles.presionado,
+        inactivo && styles.atenuado,
       ]}
     >
       {cargando ? (
         <ActivityIndicator color={estilo.texto} />
       ) : (
         <>
-          {icono && <Ionicons name={icono} size={18} color={estilo.texto} />}
+          {icono && <Ionicons name={icono} size={20} color={estilo.texto} />}
           <Text style={[styles.texto, { color: estilo.texto }]}>{titulo}</Text>
         </>
       )}
@@ -42,11 +44,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: espaciado.s,
-    minHeight: 48,
+    minHeight: 50,
     paddingHorizontal: espaciado.l,
-    borderRadius: radio.m,
-    borderWidth: 1.5,
+    borderRadius: radio.m + 2,
+    borderCurve: "continuous",
   },
-  texto: { fontSize: 16, fontWeight: "600" },
-  atenuado: { opacity: 0.6 },
+  texto: { ...fuente, fontSize: 17, fontWeight: "600", letterSpacing: -0.41 },
+  // Como en iOS, al presionar el botón se atenúa y se achica apenas
+  presionado: { opacity: 0.7, transform: [{ scale: 0.98 }] },
+  atenuado: { opacity: 0.4 },
 });

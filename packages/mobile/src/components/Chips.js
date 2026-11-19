@@ -1,7 +1,8 @@
 import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
-import { colores, espaciado } from "../theme";
+import { colores, espaciado, fuente } from "../theme";
 
-// Fila horizontal de opciones donde se elige una (categorías, orden, estados)
+// Fila horizontal de opciones donde se elige una (categorías, orden, estados).
+// Cápsulas al estilo iOS: grises las inactivas y negra la seleccionada.
 export function Chips({ opciones, seleccionada, onSeleccionar, etiquetaAccesible }) {
   return (
     <ScrollView
@@ -19,7 +20,7 @@ export function Chips({ opciones, seleccionada, onSeleccionar, etiquetaAccesible
             accessibilityRole="button"
             accessibilityLabel={etiqueta}
             accessibilityState={{ selected: activa }}
-            style={[styles.chip, activa && styles.chipActivo]}
+            style={({ pressed }) => [styles.chip, activa && styles.chipActivo, pressed && styles.presionado]}
           >
             <Text style={[styles.texto, activa && styles.textoActivo]}>{etiqueta}</Text>
           </Pressable>
@@ -32,14 +33,13 @@ export function Chips({ opciones, seleccionada, onSeleccionar, etiquetaAccesible
 const styles = StyleSheet.create({
   fila: { gap: espaciado.s, paddingHorizontal: espaciado.l },
   chip: {
-    paddingHorizontal: espaciado.m,
-    paddingVertical: 7,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 999,
-    borderWidth: 1.5,
-    borderColor: colores.borde,
-    backgroundColor: colores.superficie,
+    backgroundColor: colores.relleno,
   },
-  chipActivo: { backgroundColor: colores.negro, borderColor: colores.negro },
-  texto: { fontSize: 14, fontWeight: "600", color: colores.texto },
-  textoActivo: { color: colores.primario },
+  chipActivo: { backgroundColor: colores.negro },
+  presionado: { opacity: 0.7 },
+  texto: { ...fuente, fontSize: 15, fontWeight: "500", letterSpacing: -0.24, color: colores.texto },
+  textoActivo: { color: colores.blanco },
 });

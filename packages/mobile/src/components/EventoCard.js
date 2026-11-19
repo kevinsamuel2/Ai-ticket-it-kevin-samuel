@@ -1,7 +1,7 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Puntaje } from "./Puntaje";
-import { colores, espaciado, radio, texto } from "../theme";
+import { colores, espaciado, fuente, radio, sombra, texto } from "../theme";
 import { formatearFecha, formatearPrecio } from "../utils/formato";
 
 export function EventoCard({ evento, onPress }) {
@@ -59,38 +59,38 @@ const styles = StyleSheet.create({
   tarjeta: {
     backgroundColor: colores.superficie,
     borderRadius: radio.l,
-    borderWidth: 1,
-    borderColor: colores.borde,
+    borderCurve: "continuous",
     overflow: "hidden",
+    ...sombra,
   },
-  presionada: { opacity: 0.85 },
-  imagen: { width: "100%", aspectRatio: 16 / 8, backgroundColor: colores.primarioSuave },
+  presionada: { opacity: 0.85, transform: [{ scale: 0.99 }] },
+  imagen: { width: "100%", aspectRatio: 16 / 9, backgroundColor: colores.primarioSuave },
   sinImagen: { alignItems: "center", justifyContent: "center" },
   categoria: {
     position: "absolute",
     top: espaciado.s,
     left: espaciado.s,
-    backgroundColor: colores.negro,
-    paddingHorizontal: espaciado.s,
-    paddingVertical: 3,
-    borderRadius: radio.s,
+    backgroundColor: "rgba(0,0,0,0.65)",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
   },
-  categoriaTexto: { color: colores.blanco, fontSize: 12, fontWeight: "700" },
+  categoriaTexto: { ...fuente, color: colores.blanco, fontSize: 12, fontWeight: "600" },
   agotado: {
     position: "absolute",
     top: espaciado.s,
     right: espaciado.s,
     backgroundColor: colores.blanco,
-    paddingHorizontal: espaciado.s,
-    paddingVertical: 3,
-    borderRadius: radio.s,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
   },
-  agotadoTexto: { color: colores.negro, fontSize: 12, fontWeight: "800" },
-  cuerpo: { padding: espaciado.m, gap: espaciado.xs },
+  agotadoTexto: { ...fuente, color: colores.negro, fontSize: 12, fontWeight: "700", letterSpacing: 0.4 },
+  cuerpo: { padding: espaciado.l, gap: espaciado.xs },
   fila: { flexDirection: "row", alignItems: "center", gap: espaciado.xs },
   pie: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", marginTop: espaciado.xs },
   organizador: { flex: 1, gap: 2 },
   precio: { alignItems: "flex-end" },
-  desde: { fontSize: 11, color: colores.textoSecundario },
-  precioTexto: { fontSize: 18, fontWeight: "800", color: colores.primarioOscuro },
+  desde: { ...fuente, fontSize: 12, color: colores.textoSecundario },
+  precioTexto: { ...fuente, fontSize: 20, fontWeight: "700", letterSpacing: 0.35, color: colores.primarioOscuro },
 });

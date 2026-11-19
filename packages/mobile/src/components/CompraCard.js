@@ -1,7 +1,7 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { EstadoBadge } from "./EstadoBadge";
-import { colores, espaciado, radio, texto } from "../theme";
+import { colores, espaciado, fuente, radio, sombra, texto } from "../theme";
 import { formatearDiaYHora, formatearFecha, formatearPrecio, textoDiasRestantes } from "../utils/formato";
 
 // Resumen de una compra: estado, días para el evento (si está confirmada), entradas y total
@@ -58,18 +58,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: colores.superficie,
     borderRadius: radio.l,
-    borderWidth: 1,
-    borderColor: colores.borde,
+    borderCurve: "continuous",
     overflow: "hidden",
+    ...sombra,
   },
-  presionada: { opacity: 0.85 },
+  presionada: { opacity: 0.85, transform: [{ scale: 0.99 }] },
   imagen: { width: 88, backgroundColor: colores.primarioSuave },
-  cuerpo: { flex: 1, padding: espaciado.m, gap: 3 },
+  cuerpo: { flex: 1, padding: espaciado.l, gap: 3 },
   encabezado: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: espaciado.s },
-  dias: { fontSize: 13, fontWeight: "800", color: colores.primarioOscuro },
-  plazo: { fontSize: 12, fontWeight: "700", color: colores.texto },
+  dias: { ...fuente, fontSize: 13, fontWeight: "600", color: colores.primarioOscuro },
+  plazo: { ...fuente, fontSize: 12, fontWeight: "600", color: colores.texto },
   pie: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 2 },
   derecha: { flexDirection: "row", alignItems: "center", gap: espaciado.m },
   mensajes: { flexDirection: "row", alignItems: "center", gap: 3 },
-  total: { fontWeight: "800", color: colores.texto },
+  total: { ...fuente, fontSize: 17, fontWeight: "700", color: colores.texto },
 });
