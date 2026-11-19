@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCarga } from "../../../hooks/useCarga";
@@ -9,7 +9,6 @@ import { cambiarEstado, obtenerCompra } from "../../../services/compras.service"
 import { mensajeDeError } from "../../../services/api";
 import { Cargando, MensajeError } from "../../../components/EstadosDeCarga";
 import { Boton } from "../../../components/Boton";
-import { EntradaConQR } from "../../../components/EntradaConQR";
 import { EstadoBadge } from "../../../components/EstadoBadge";
 import { Foto } from "../../../components/Foto";
 import { FormularioResenia } from "../../../components/FormularioResenia";
@@ -27,7 +26,7 @@ import {
 
 // Aviso que se muestra según el estado en que quedó la compra después de la acción
 const MENSAJES_DE_EXITO = {
-  CONFIRMADA: () => "¡Pago confirmado! Ya tenés tus entradas.",
+  CONFIRMADA: () => "¡Pago confirmado! Tus entradas con QR están en la pestaña Entradas.",
   UTILIZADA: () => "Entrada marcada como utilizada.",
   CANCELADA: () => "Compra cancelada. Las entradas volvieron a estar disponibles.",
   REEMBOLSADA: (compra) => `Compra cancelada. Te vamos a reembolsar ${formatearPrecio(compra.total)}.`,
@@ -110,9 +109,31 @@ export default function DetalleCompra() {
         </View>
       </View>
 
-      {/* El comprador lleva su entrada digital con el QR una vez pagada (y apagada cuando ya se usó) */}
-      {esComprador && (compra.estado === "CONFIRMADA" || compra.estado === "UTILIZADA") && (
-        <EntradaConQR compra={compra} />
+      {/* Los QR no se muestran acá: una vez paga, cada entrada se ve en la pestaña Entradas */}
+      {esComprador && compra.entradas.length > 0 && (
+        <View style={styles.avisoDeEntradas}>
+          <Ionicons name="qr-code-outline" size={22} color={colores.primarioClaro} />
+          <View style={styles.flex}>
+            <Text style={styles.tituloDelAviso}>
+              {compra.entradas.length === 1
+                ? "Tu entrada está lista"
+                : `Tus ${compra.entradas.length} entradas están listas`}
+            </Text>
+            <Text style={texto.pie}>
+              {compra.estado === "UTILIZADA"
+                ? "Las encontrás en la pestaña Entradas."
+                : "Los QR los encontrás en la pestaña Entradas."}
+            </Text>
+          </View>
+          <Pressable
+            onPress={() => router.push("/entradas")}
+            accessibilityRole="button"
+            accessibilityLabel="Ir a la pestaña Entradas"
+            style={({ pressed }) => [styles.irAEntradas, pressed && styles.presionada]}
+          >
+            <Text style={styles.irAEntradasTexto}>Ir a Entradas</Text>
+          </Pressable>
+        </View>
       )}
 
       <View style={styles.acciones}>
@@ -238,6 +259,27 @@ const styles = StyleSheet.create({
   fila: { flexDirection: "row", justifyContent: "space-between" },
   destacado: { fontWeight: "700", color: colores.primarioClaro, fontSize: 17 },
   acciones: { gap: espaciado.m },
+  avisoDeEntradas: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: espaciado.m,
+    padding: espaciado.m,
+    borderRadius: radio.m + 4,
+    borderCurve: "continuous",
+    backgroundColor: colores.primarioSuave,
+    borderWidth: 1,
+    borderColor: colores.primario,
+  },
+  tituloDelAviso: { fontSize: 15, fontWeight: "800", color: colores.texto },
+  irAEntradas: {
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    borderRadius: 12,
+    borderCurve: "continuous",
+    backgroundColor: colores.primario,
+  },
+  irAEntradasTexto: { fontSize: 13, fontWeight: "800", color: colores.sobrePrimario },
+  presionada: { opacity: 0.7 },
   seccion: { gap: espaciado.s },
   resenia: {
     gap: espaciado.xs,

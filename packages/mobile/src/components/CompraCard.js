@@ -2,65 +2,81 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { EstadoBadge } from "./EstadoBadge";
-import { codigoDeEntrada } from "./EntradaConQR";
 import { Foto } from "./Foto";
 import { colores, contorno, espaciado, fuente, radio, texto } from "../theme";
 import { formatearDiaYHora, formatearFecha, formatearPrecio, textoDiasRestantes } from "../utils/formato";
 
 // Compra con formato de ticket, como en "Mis Tickets" de Punch: foto con el nombre del evento y el estado, los datos
-// de la entrada y, abajo, el código del ticket con el botón del QR. Si la ve el organizador (mostrarComprador) en lugar
-// del código se muestra quién compró.
-export function CompraCard({ compra, onPress, mostrarComprador = false }) {
-  const tieneQR = !mostrarComprador && (compra.estado === "CONFIRMADA" || compra.estado === "UTILIZADA");
+// de la compra y, abajo, el botón para ver los QR (uno por cada entrada). Tocar la tarjeta abre el detalle de la compra
+// y tocar el botón del QR abre sus entradas. Si la ve el organizador (mostrarComprador) en lugar del QR se muestra
+// quién compró.
+export function CompraCard({ compra, onPress, onVerEntradas, mostrarComprador = false }) {
+  const cantidadDeEntradas = compra.entradas?.length ?? 0;
+  const tieneQR = !mostrarComprador && cantidadDeEntradas > 0 && Boolean(onVerEntradas);
+
+  let etiquetaDelPie = "COMPRA";
+  let valorDelPie = `#${compra.id}`;
+  if (mostrarComprador) {
+    etiquetaDelPie = "COMPRADOR";
+    valorDelPie = compra.comprador.nombreCompleto;
+  } else if (tieneQR) {
+    etiquetaDelPie = "TUS ENTRADAS";
+    valorDelPie = `${cantidadDeEntradas} ${cantidadDeEntradas === 1 ? "código QR" : "códigos QR"}`;
+  }
+
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={`Compra de ${compra.evento.nombre}`}
-      style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada]}
-    >
-      <View style={styles.portada}>
-        <Foto uri={compra.evento.imagen} style={StyleSheet.absoluteFill} tamanioDelIcono={48} />
-        <LinearGradient
-          colors={["rgba(0,0,0,0.35)", "rgba(0,0,0,0.2)", "rgba(0,0,0,0.9)"]}
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-        />
-        <View style={styles.estado}>
-          <EstadoBadge estado={compra.estado} />
-        </View>
-        <Text style={styles.nombre} numberOfLines={2}>
-          {compra.evento.nombre}
-        </Text>
-      </View>
-
-      <View style={styles.cuerpo}>
-        <Dato icono="calendar-outline" valor={formatearFecha(compra.evento.fecha)} />
-        <Dato icono="ticket-outline" valor={`${compra.cantidad} × ${compra.tipoEntrada.nombre}`} />
-        {compra.diasParaElEvento !== null && (
-          <Dato icono="hourglass-outline" valor={textoDiasRestantes(compra.diasParaElEvento)} destacado />
-        )}
-        {compra.pagarAntesDe && (
-          <Dato
-            icono="alarm-outline"
-            valor={`${mostrarComprador ? "Vence el" : "Pagá antes del"} ${formatearDiaYHora(compra.pagarAntesDe)}`}
-            destacado
+    <View style={styles.tarjeta}>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={`Compra de ${compra.evento.nombre}`}
+        style={({ pressed }) => pressed && styles.presionada}
+      >
+        <View style={styles.portada}>
+          <Foto uri={compra.evento.imagen} style={StyleSheet.absoluteFill} tamanioDelIcono={48} />
+          <LinearGradient
+            colors={["rgba(0,0,0,0.35)", "rgba(0,0,0,0.2)", "rgba(0,0,0,0.9)"]}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
           />
-        )}
-        {/* El comprador ve que el evento terminó y todavía falta su reseña (el organizador no necesita este aviso) */}
-        {!mostrarComprador && compra.puedeReseniar && (
-          <View style={styles.pendienteDeResenia}>
-            <Ionicons name="star" size={14} color={colores.primarioClaro} />
-            <Text style={styles.textoPendiente}>El evento finalizó: calificá tu experiencia</Text>
+          <View style={styles.estado}>
+            <EstadoBadge estado={compra.estado} />
           </View>
-        )}
-      </View>
+          <Text style={styles.nombre} numberOfLines={2}>
+            {compra.evento.nombre}
+          </Text>
+        </View>
 
+        <View style={styles.cuerpo}>
+          <Dato icono="calendar-outline" valor={formatearFecha(compra.evento.fecha)} />
+          <Dato icono="ticket-outline" valor={`${compra.cantidad} × ${compra.tipoEntrada.nombre}`} />
+          <Dato icono="cash-outline" valor={formatearPrecio(compra.total)} />
+          {compra.diasParaElEvento !== null && (
+            <Dato icono="hourglass-outline" valor={textoDiasRestantes(compra.diasParaElEvento)} destacado />
+          )}
+          {compra.pagarAntesDe && (
+            <Dato
+              icono="alarm-outline"
+              valor={`${mostrarComprador ? "Vence el" : "Pagá antes del"} ${formatearDiaYHora(compra.pagarAntesDe)}`}
+              destacado
+            />
+          )}
+          {/* El comprador ve que el evento terminó y todavía falta su reseña (el organizador no necesita este aviso) */}
+          {!mostrarComprador && compra.puedeReseniar && (
+            <View style={styles.pendienteDeResenia}>
+              <Ionicons name="star" size={14} color={colores.primarioClaro} />
+              <Text style={styles.textoPendiente}>El evento finalizó: calificá tu experiencia</Text>
+            </View>
+          )}
+        </View>
+      </Pressable>
+
+      {/* El botón del QR es un Pressable aparte (no está adentro del de arriba) para no anidar botones */}
       <View style={styles.pie}>
         <View style={styles.izquierda}>
-          <Text style={styles.etiquetaPie}>{mostrarComprador ? "COMPRADOR" : "TICKET ID"}</Text>
+          <Text style={styles.etiquetaPie}>{etiquetaDelPie}</Text>
           <Text style={styles.valorPie} numberOfLines={1}>
-            {mostrarComprador ? compra.comprador.nombreCompleto : codigoDeEntrada(compra)}
+            {valorDelPie}
           </Text>
         </View>
         {compra.cantidadMensajes > 0 && (
@@ -69,21 +85,24 @@ export function CompraCard({ compra, onPress, mostrarComprador = false }) {
             <Text style={texto.pie}>{compra.cantidadMensajes}</Text>
           </View>
         )}
-        {tieneQR ? (
-          <View style={styles.escanear}>
-            <Text style={styles.etiquetaPie}>TAP PARA</Text>
-            <Text style={styles.valorPie}>ESCANEAR</Text>
-          </View>
-        ) : (
-          <Text style={styles.total}>{formatearPrecio(compra.total)}</Text>
-        )}
         {tieneQR && (
-          <View style={styles.botonQR}>
-            <Ionicons name="qr-code-outline" size={24} color={colores.primarioClaro} />
-          </View>
+          <Pressable
+            onPress={onVerEntradas}
+            accessibilityRole="button"
+            accessibilityLabel={`Ver ${cantidadDeEntradas === 1 ? "el QR" : `los ${cantidadDeEntradas} QR`} de ${compra.evento.nombre}`}
+            style={({ pressed }) => [styles.escanear, pressed && styles.presionada]}
+          >
+            <View style={styles.textosDelQR}>
+              <Text style={styles.etiquetaPie}>TAP PARA</Text>
+              <Text style={styles.valorPie}>ESCANEAR</Text>
+            </View>
+            <View style={styles.botonQR}>
+              <Ionicons name="qr-code-outline" size={24} color={colores.primarioClaro} />
+            </View>
+          </Pressable>
         )}
       </View>
-    </Pressable>
+    </View>
   );
 }
 
@@ -104,11 +123,11 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     ...contorno,
   },
-  presionada: { opacity: 0.85, transform: [{ scale: 0.99 }] },
+  presionada: { opacity: 0.85 },
   portada: { height: 150, justifyContent: "flex-end", padding: espaciado.l, backgroundColor: colores.relleno },
   estado: { position: "absolute", top: espaciado.m, left: espaciado.m },
   nombre: { ...fuente, fontSize: 24, lineHeight: 27, fontWeight: "800", letterSpacing: -0.5, color: colores.blanco },
-  cuerpo: { gap: 6, padding: espaciado.l, borderBottomWidth: 1, borderBottomColor: colores.separador },
+  cuerpo: { gap: 6, padding: espaciado.l },
   dato: { flexDirection: "row", alignItems: "center", gap: espaciado.s },
   datoDestacado: { color: colores.primarioClaro, fontWeight: "700" },
   pendienteDeResenia: {
@@ -123,13 +142,20 @@ const styles = StyleSheet.create({
     backgroundColor: colores.primarioSuave,
   },
   textoPendiente: { ...fuente, fontSize: 12, fontWeight: "700", color: colores.primarioClaro },
-  pie: { flexDirection: "row", alignItems: "center", gap: espaciado.m, padding: espaciado.l },
+  pie: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: espaciado.m,
+    padding: espaciado.l,
+    borderTopWidth: 1,
+    borderTopColor: colores.separador,
+  },
   izquierda: { flex: 1, gap: 2 },
   etiquetaPie: { ...fuente, fontSize: 10, fontWeight: "800", letterSpacing: 1, color: colores.textoApagado },
   valorPie: { ...fuente, fontSize: 15, fontWeight: "800", letterSpacing: 0.3, color: colores.texto },
-  escanear: { alignItems: "flex-end", gap: 2 },
+  escanear: { flexDirection: "row", alignItems: "center", gap: espaciado.m },
+  textosDelQR: { alignItems: "flex-end", gap: 2 },
   mensajes: { flexDirection: "row", alignItems: "center", gap: 3 },
-  total: { ...fuente, fontSize: 20, fontWeight: "800", letterSpacing: -0.3, color: colores.primarioClaro },
   botonQR: {
     width: 52,
     height: 52,

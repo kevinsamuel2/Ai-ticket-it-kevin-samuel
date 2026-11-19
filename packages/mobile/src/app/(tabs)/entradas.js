@@ -60,7 +60,11 @@ export default function Entradas() {
           refreshing={cargando}
           onRefresh={recargar}
           renderItem={({ item: compra }) => (
-            <CompraCard compra={compra} onPress={() => router.push(`/compras/${compra.id}`)} />
+            <CompraCard
+              compra={compra}
+              onPress={() => router.push(`/compras/${compra.id}`)}
+              onVerEntradas={() => router.push(`/entradas/${compra.id}`)}
+            />
           )}
           ListEmptyComponent={
             <SinResultados

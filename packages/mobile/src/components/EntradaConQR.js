@@ -6,26 +6,24 @@ import { formatearFecha } from "../utils/formato";
 
 const TAMANIO_QR = 196;
 
-// Código legible de la entrada, ej: AT-00012 (el mismo que viaja dentro del QR)
-export function codigoDeEntrada(compra) {
-  return `AT-${String(compra.id).padStart(5, "0")}`;
+// Lo que se codifica en el QR de una entrada: su código (que emite el backend) más la compra y el evento, para que
+// quien controla el acceso identifique esa entrada puntual entre las que se compraron juntas
+export function contenidoDelQR(compra, entrada) {
+  return `aiticketit://entrada/${entrada.codigo}?compra=${compra.id}&evento=${compra.evento.id}&entrada=${entrada.numero}&de=${compra.cantidad}`;
 }
 
-// Lo que se codifica en el QR: alcanza para que quien controla el acceso identifique la compra
-export function contenidoDelQR(compra) {
-  return `aiticketit://entrada/${codigoDeEntrada(compra)}?compra=${compra.id}&evento=${compra.evento.id}&entradas=${compra.cantidad}`;
-}
-
-// Entrada digital al estilo Punch: tarjeta oscura con los datos del evento, una línea punteada con muescas
-// como las de un ticket y el QR sobre fondo blanco para que se lea bien. Una entrada ya usada se muestra apagada.
-export function EntradaConQR({ compra }) {
+// Una entrada digital al estilo Punch: tarjeta oscura con los datos del evento, una línea punteada con muescas como las
+// de un ticket y el QR sobre fondo blanco para que se lea bien. Cada entrada comprada tiene su propia tarjeta y su
+// propio QR (una compra de 3 entradas muestra 3). Una entrada ya usada se muestra apagada.
+export function EntradaConQR({ compra, entrada }) {
   const utilizada = compra.estado === "UTILIZADA";
-  const codigo = codigoDeEntrada(compra);
 
   return (
     <View style={styles.entrada} accessible={false}>
       <View style={styles.datos}>
-        <Text style={texto.etiqueta}>{utilizada ? "Entrada utilizada" : "Tu entrada"}</Text>
+        <Text style={texto.etiqueta}>
+          {utilizada ? "Entrada utilizada" : `Entrada ${entrada.numero} de ${compra.cantidad}`}
+        </Text>
         <Text style={styles.evento} numberOfLines={2}>
           {compra.evento.nombre}
         </Text>
@@ -35,9 +33,7 @@ export function EntradaConQR({ compra }) {
         </View>
         <View style={styles.fila}>
           <Ionicons name="ticket-outline" size={14} color={colores.textoSecundario} />
-          <Text style={texto.secundario}>
-            {compra.cantidad} × {compra.tipoEntrada.nombre}
-          </Text>
+          <Text style={texto.secundario}>{compra.tipoEntrada.nombre}</Text>
         </View>
       </View>
 
@@ -50,18 +46,18 @@ export function EntradaConQR({ compra }) {
       <View style={styles.qr}>
         <View style={[styles.marcoQR, utilizada && styles.apagado]}>
           <CodigoQR
-            contenido={contenidoDelQR(compra)}
+            contenido={contenidoDelQR(compra, entrada)}
             tamanio={TAMANIO_QR}
-            accessibilityLabel={`Código QR de la entrada ${codigo}`}
+            accessibilityLabel={`Código QR de la entrada ${entrada.codigo}`}
           />
         </View>
         <Text style={styles.codigo} selectable>
-          {codigo}
+          {entrada.codigo}
         </Text>
         <Text style={[texto.pie, styles.centrado]}>
           {utilizada
             ? "Esta entrada ya se usó para ingresar."
-            : "Mostrá este código en el ingreso. Una vez escaneado, la entrada se marca como utilizada."}
+            : "Mostrá este código en el ingreso. Cada entrada tiene su propio QR y se escanea por separado."}
         </Text>
       </View>
     </View>

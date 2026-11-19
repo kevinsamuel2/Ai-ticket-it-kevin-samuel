@@ -58,6 +58,7 @@ function Navegacion() {
           <Stack.Screen name="favoritos" options={{ title: "Favoritos" }} />
           <Stack.Screen name="mis-eventos" options={{ title: "Mis eventos" }} />
           <Stack.Screen name="siguiendo" options={{ title: "Siguiendo" }} />
+          <Stack.Screen name="entradas/[id]" options={{ title: "Mis entradas" }} />
           <Stack.Screen name="organizadores/[id]" options={{ title: "Organizador" }} />
           <Stack.Screen name="eventos/[id]/index" options={{ title: "Evento" }} />
           <Stack.Screen name="eventos/nuevo" options={{ title: "Publicar evento" }} />
