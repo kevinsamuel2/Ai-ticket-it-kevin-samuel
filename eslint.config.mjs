@@ -5,7 +5,14 @@ import pluginReactHooks from "eslint-plugin-react-hooks";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-  globalIgnores(["**/node_modules/**", "**/.expo/**", "**/coverage/**", "**/dist/**"]),
+  globalIgnores([
+    "**/node_modules/**",
+    "**/.expo/**",
+    "**/coverage/**",
+    "**/dist/**",
+    // Skills de Claude Code (material de terceros, con sus propios scripts)
+    "**/.claude/**",
+  ]),
   {
     files: ["packages/backend/**/*.js"],
     plugins: { js },
