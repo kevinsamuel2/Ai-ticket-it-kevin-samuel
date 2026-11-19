@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useCarga } from "../../hooks/useCarga";
 import { listarFavoritos } from "../../services/eventos.service";
 import { EventoCard } from "../../components/EventoCard";
+import { EncabezadoGrande } from "../../components/EncabezadoGrande";
 import { Cargando, MensajeError, SinResultados } from "../../components/EstadosDeCarga";
 import { espaciado } from "../../theme";
 
@@ -12,11 +13,10 @@ export default function Favoritos() {
   const router = useRouter();
   const { datos: favoritos, cargando, error, recargar } = useCarga(useCallback(() => listarFavoritos(), []));
 
-  if (error) return <MensajeError mensaje={error} onReintentar={recargar} />;
-  if (!favoritos) return <Cargando mensaje="Cargando tus favoritos..." />;
-
-  return (
-    <View style={styles.contenedor}>
+  const renderizarContenido = () => {
+    if (error) return <MensajeError mensaje={error} onReintentar={recargar} />;
+    if (!favoritos) return <Cargando mensaje="Cargando tus favoritos..." />;
+    return (
       <FlatList
         data={favoritos}
         keyExtractor={(evento) => String(evento.id)}
@@ -33,6 +33,13 @@ export default function Favoritos() {
           />
         }
       />
+    );
+  };
+
+  return (
+    <View style={styles.contenedor}>
+      <EncabezadoGrande titulo="Favoritos" />
+      {renderizarContenido()}
     </View>
   );
 }

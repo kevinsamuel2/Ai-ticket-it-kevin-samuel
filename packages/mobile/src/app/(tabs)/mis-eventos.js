@@ -1,13 +1,14 @@
 import { useCallback } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, Pressable, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useUsuario } from "../../context/UsuarioContext";
 import { useCarga } from "../../hooks/useCarga";
 import { listarEventosDeOrganizador } from "../../services/usuarios.service";
 import { EventoCard } from "../../components/EventoCard";
-import { Boton } from "../../components/Boton";
+import { EncabezadoGrande } from "../../components/EncabezadoGrande";
 import { Cargando, MensajeError, SinResultados } from "../../components/EstadosDeCarga";
-import { espaciado } from "../../theme";
+import { colores, espaciado } from "../../theme";
 
 // Eventos que publicó el usuario: desde acá se publica uno nuevo o se ven las ventas de cada uno
 export default function MisEventos() {
@@ -22,9 +23,17 @@ export default function MisEventos() {
 
   return (
     <View style={styles.contenedor}>
-      <View style={styles.acciones}>
-        <Boton titulo="Publicar un evento" icono="add-circle-outline" onPress={() => router.push("/eventos/nuevo")} />
-      </View>
+      <EncabezadoGrande titulo="Mis eventos">
+        {/* Botón "+" circular arriba a la derecha, como en las apps de Apple */}
+        <Pressable
+          onPress={() => router.push("/eventos/nuevo")}
+          accessibilityRole="button"
+          accessibilityLabel="Publicar un evento"
+          style={({ pressed }) => [styles.agregar, pressed && styles.presionado]}
+        >
+          <Ionicons name="add" size={26} color={colores.blanco} />
+        </Pressable>
+      </EncabezadoGrande>
       {error ? (
         <MensajeError mensaje={error} onReintentar={recargar} />
       ) : !eventos ? (
@@ -48,6 +57,14 @@ export default function MisEventos() {
 
 const styles = StyleSheet.create({
   contenedor: { flex: 1 },
-  acciones: { padding: espaciado.l, paddingBottom: 0 },
   lista: { padding: espaciado.l, gap: espaciado.l, flexGrow: 1 },
+  agregar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colores.primario,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  presionado: { opacity: 0.7, transform: [{ scale: 0.95 }] },
 });

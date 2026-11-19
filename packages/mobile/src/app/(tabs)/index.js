@@ -8,8 +8,9 @@ import { usePaginado } from "../../hooks/usePaginado";
 import { buscarEventos, listarCategorias } from "../../services/eventos.service";
 import { EventoCard } from "../../components/EventoCard";
 import { Chips } from "../../components/Chips";
+import { EncabezadoGrande } from "../../components/EncabezadoGrande";
 import { Cargando, MensajeError, SinResultados } from "../../components/EstadosDeCarga";
-import { colores, espaciado, radio } from "../../theme";
+import { colores, espaciado, fuente, radio } from "../../theme";
 
 // Opciones de orden que pide el enunciado: precio, fecha del evento y puntaje del organizador
 const ORDENES = [
@@ -76,6 +77,7 @@ export default function Explorar() {
 
   return (
     <View style={styles.contenedor}>
+      <EncabezadoGrande titulo="Explorar" />
       <View style={styles.filtros}>
         <View style={styles.buscador}>
           <Ionicons name="search" size={18} color={colores.textoSecundario} />
@@ -115,11 +117,9 @@ export default function Explorar() {
 const styles = StyleSheet.create({
   contenedor: { flex: 1 },
   filtros: {
-    gap: espaciado.s,
-    paddingVertical: espaciado.m,
-    backgroundColor: colores.superficie,
-    borderBottomWidth: 1,
-    borderBottomColor: colores.borde,
+    gap: espaciado.m,
+    paddingBottom: espaciado.s,
+    backgroundColor: colores.fondo,
   },
   buscador: {
     flexDirection: "row",
@@ -127,10 +127,11 @@ const styles = StyleSheet.create({
     gap: espaciado.s,
     marginHorizontal: espaciado.l,
     paddingHorizontal: espaciado.m,
-    minHeight: 44,
+    minHeight: 40,
     borderRadius: radio.m,
-    backgroundColor: "#F4F4F5",
+    borderCurve: "continuous",
+    backgroundColor: "#E3E3E8",
   },
-  input: { flex: 1, fontSize: 15, color: colores.texto, paddingVertical: espaciado.s },
+  input: { ...fuente, flex: 1, fontSize: 17, color: colores.texto, paddingVertical: espaciado.s, outlineStyle: "none" },
   lista: { padding: espaciado.l, gap: espaciado.l, flexGrow: 1 },
 });

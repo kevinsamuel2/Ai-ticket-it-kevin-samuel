@@ -5,6 +5,7 @@ import { useCarga } from "../../hooks/useCarga";
 import { listarMisCompras } from "../../services/compras.service";
 import { CompraCard } from "../../components/CompraCard";
 import { Chips } from "../../components/Chips";
+import { EncabezadoGrande } from "../../components/EncabezadoGrande";
 import { Cargando, MensajeError, SinResultados } from "../../components/EstadosDeCarga";
 import { colores, espaciado, estilosDeEstado } from "../../theme";
 
@@ -21,6 +22,7 @@ export default function MisCompras() {
 
   return (
     <View style={styles.contenedor}>
+      <EncabezadoGrande titulo="Mis compras" />
       <View style={styles.filtros}>
         <Chips
           etiquetaAccesible="Filtrar por estado"
@@ -57,11 +59,6 @@ export default function MisCompras() {
 
 const styles = StyleSheet.create({
   contenedor: { flex: 1 },
-  filtros: {
-    paddingVertical: espaciado.m,
-    backgroundColor: colores.superficie,
-    borderBottomWidth: 1,
-    borderBottomColor: colores.borde,
-  },
+  filtros: { paddingBottom: espaciado.s, backgroundColor: colores.fondo },
   lista: { padding: espaciado.l, gap: espaciado.m, flexGrow: 1 },
 });
