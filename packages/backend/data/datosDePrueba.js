@@ -26,12 +26,14 @@ export async function cargarDatosDePrueba(
   const fotoReal = (archivo) => `/fotos/${archivo}`;
 
   // --- Usuarios y sus cuentas (todas con la contraseña CONTRASENIA_DE_PRUEBA) ---
-  const [florencia, gonzalo, nahuel, agustina] = await Promise.all(
+  const [florencia, gonzalo, nahuel, agustina, camila, ramiro] = await Promise.all(
     [
       { nombre: "Florencia", apellido: "Acosta", email: "florencia@aiticketit.com" },
       { nombre: "Gonzalo", apellido: "Pereyra", email: "gonzalo@aiticketit.com" },
       { nombre: "Nahuel", apellido: "Quiroga", email: "nahuel@aiticketit.com" },
       { nombre: "Agustina", apellido: "Benítez", email: "agustina@aiticketit.com" },
+      { nombre: "Camila", apellido: "Ferreyra", email: "camila@aiticketit.com" },
+      { nombre: "Ramiro", apellido: "Domínguez", email: "ramiro@aiticketit.com" },
     ].map(async ({ nombre, apellido, email }) => {
       const usuario = await usuarioRepository.guardar(new Usuario({ nombre, apellido }));
       await cuentaRepository.guardar(new Cuenta({ email, contrasenia: CONTRASENIA_DE_PRUEBA, usuario }));
@@ -100,7 +102,7 @@ export async function cargarDatosDePrueba(
     descripcion: "Partido por la Liga Nacional de básquet en el estadio Héctor Etchart, Caballito.",
     categoria: categorias.Deportes,
     fecha: enDias(15, 19),
-    organizador: florencia,
+    organizador: ramiro,
     multimedia: [foto("1504450758481-7338eba7524a"), foto("1563506644863-444710df1e03")],
     tiposEntrada: [
       { nombre: "Popular", precio: 9000, cupo: 400 },
@@ -176,7 +178,7 @@ export async function cargarDatosDePrueba(
     descripcion: "Bad Bunny con la gira DeBÍ TiRAR MáS FOToS World Tour en el Estadio Monumental, en Núñez.",
     categoria: categorias.Recitales,
     fecha: enDias(45, 21),
-    organizador: florencia,
+    organizador: camila,
     multimedia: [fotoReal("bad-bunny.jpg"), fotoReal("river-monumental-escenario.jpg")],
     tiposEntrada: [
       { nombre: "Campo general", descripcion: "Campo de pie", precio: 175000, cupo: 400 },
@@ -189,7 +191,7 @@ export async function cargarDatosDePrueba(
       "Torneo de boxeo amateur de Luquita Rodríguez con streamers y famosos, en la cancha de Platense (estadio Ciudad de Vicente López).",
     categoria: categorias.Deportes,
     fecha: enDias(25, 19),
-    organizador: gonzalo,
+    organizador: ramiro,
     multimedia: [fotoReal("platense-ciudad-de-vicente-lopez.jpg"), fotoReal("platense-estadio.jpg")],
     tiposEntrada: [
       { nombre: "Campo General B", precio: 50000, cupo: 300 },
@@ -201,7 +203,7 @@ export async function cargarDatosDePrueba(
     descripcion: "El torneo de fútbol 7 del Kun Agüero, con equipos de barrio y figuras del fútbol y la streaming.",
     categoria: categorias.Deportes,
     fecha: enDias(18, 15),
-    organizador: gonzalo,
+    organizador: ramiro,
     multimedia: [fotoReal("kun-aguero.jpg")],
     tiposEntrada: [
       { nombre: "General", precio: 8000, cupo: 500 },
@@ -213,7 +215,7 @@ export async function cargarDatosDePrueba(
     descripcion: "Tres días de música en el Hipódromo de San Isidro, con artistas locales e internacionales.",
     categoria: categorias.Festivales,
     fecha: enDias(120, 12),
-    organizador: florencia,
+    organizador: camila,
     multimedia: [fotoReal("lollapalooza-2015.jpg"), fotoReal("lollapalooza-2025.jpg")],
     tiposEntrada: [
       { nombre: "Pase 1 día", precio: 120000, cupo: 600 },
@@ -225,7 +227,7 @@ export async function cargarDatosDePrueba(
     descripcion: "El festival de rock más grande del país, en el Aeroparque Ciudad de Santa María de Punilla, Córdoba.",
     categoria: categorias.Festivales,
     fecha: enDias(95, 14),
-    organizador: florencia,
+    organizador: camila,
     multimedia: [fotoReal("cosquin-rock.jpg")],
     tiposEntrada: [
       { nombre: "Abono 1 día", precio: 90000, cupo: 400 },
@@ -237,12 +239,50 @@ export async function cargarDatosDePrueba(
     descripcion: "El clásico más grande del fútbol argentino, en La Bombonera.",
     categoria: categorias.Deportes,
     fecha: enDias(10, 17),
-    organizador: gonzalo,
+    organizador: ramiro,
     multimedia: [fotoReal("bombonera.jpg"), fotoReal("river-monumental.jpg")],
     tiposEntrada: [
       { nombre: "Popular", precio: 30000, cupo: 300 },
       { nombre: "Platea", precio: 90000, cupo: 100 },
     ],
+  });
+
+  // Eventos pasados de Camila y Ramiro: cada organizador tiene reseñas de lo que realmente organiza
+  const parenseIII = await crearEvento({
+    nombre: "Párense de Manos III",
+    descripcion: "La tercera edición del torneo de boxeo amateur de Luquita Rodríguez, con streamers y famosos.",
+    categoria: categorias.Deportes,
+    fecha: enDias(-45, 19),
+    organizador: ramiro,
+    multimedia: [foto("1509563268479-0f004cf3f58b")],
+    tiposEntrada: [{ nombre: "Campo General", precio: 40000, cupo: 300 }],
+  });
+  const copaFaseDeGrupos = await crearEvento({
+    nombre: "Copa Potrero: fase de grupos",
+    descripcion: "Primera jornada del torneo de fútbol 7 del Kun Agüero, con equipos de barrio contra figuras.",
+    categoria: categorias.Deportes,
+    fecha: enDias(-25, 15),
+    organizador: ramiro,
+    multimedia: [foto("1574629810360-7efbbe195018")],
+    tiposEntrada: [{ nombre: "General", precio: 6000, cupo: 400 }],
+  });
+  const trueno = await crearEvento({
+    nombre: "Trueno en Movistar Arena",
+    descripcion: "Trueno presentando sus temas más escuchados en el Movistar Arena, en Villa Crespo.",
+    categoria: categorias.Recitales,
+    fecha: enDias(-50, 21),
+    organizador: camila,
+    multimedia: [foto("1459749411175-04bf5292ceea")],
+    tiposEntrada: [{ nombre: "Campo", precio: 55000, cupo: 300 }],
+  });
+  const nicki = await crearEvento({
+    nombre: "Nicki Nicole en el Luna Park",
+    descripcion: "Nicki Nicole en una noche íntima en el Luna Park, con banda en vivo.",
+    categoria: categorias.Recitales,
+    fecha: enDias(-30, 21),
+    organizador: camila,
+    multimedia: [foto("1429962714451-bb934ecdc4ec")],
+    tiposEntrada: [{ nombre: "General", precio: 45000, cupo: 200 }],
   });
 
   // --- Favoritos ---
@@ -308,5 +348,54 @@ export async function cargarDatosDePrueba(
     { detalle: "Dos de los comediantes muy buenos, los otros bastante flojos.", puntuacion: 3 },
   );
 
-  return { usuarios: { florencia, gonzalo, nahuel, agustina }, categorias };
+  // Reseñas de Ramiro y Camila, escritas por compradores y por otros organizadores
+  await usada(
+    { comprador: nahuel, evento: parenseIII },
+    {
+      detalle: "Las peleas estuvieron buenísimas y el main event valió toda la noche. Lo malo, la salida: un caos.",
+      puntuacion: 4.5,
+    },
+  );
+  await usada(
+    { comprador: gonzalo, evento: parenseIII, cantidad: 2 },
+    {
+      detalle: "Muy buena producción, con música en vivo entre pelea y pelea. Eso sí, arrancó casi una hora tarde.",
+      puntuacion: 4,
+    },
+  );
+  await usada(
+    { comprador: agustina, evento: copaFaseDeGrupos },
+    {
+      detalle: "Ver a los equipos de barrio jugando contra ex jugadores fue lo mejor. Faltó sombra en las tribunas.",
+      puntuacion: 4,
+    },
+  );
+  await usada(
+    { comprador: florencia, evento: copaFaseDeGrupos },
+    { detalle: "Partidos parejos y mucho clima de barrio. Faltaron puestos de comida y de agua.", puntuacion: 3.5 },
+  );
+  await usada(
+    { comprador: agustina, evento: trueno },
+    { detalle: "El sonido impecable y Trueno tocó todos sus temas. Valió cada peso de la entrada.", puntuacion: 5 },
+  );
+  await usada(
+    { comprador: gonzalo, evento: trueno },
+    {
+      detalle: "Se entraba rápido y desde la platea se veía perfecto. Lo único, la cerveza carísima.",
+      puntuacion: 4.5,
+    },
+  );
+  await usada(
+    { comprador: nahuel, evento: nicki },
+    {
+      detalle: "Un show cuidado en cada detalle, se nota el laburo del equipo. El ingreso fue lento.",
+      puntuacion: 4.5,
+    },
+  );
+  await usada(
+    { comprador: florencia, evento: nicki },
+    { detalle: "Muy lindo recital, aunque el sonido en los costados del Luna Park estaba bajo.", puntuacion: 3.5 },
+  );
+
+  return { usuarios: { florencia, gonzalo, nahuel, agustina, camila, ramiro }, categorias };
 }

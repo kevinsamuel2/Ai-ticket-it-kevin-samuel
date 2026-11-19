@@ -74,10 +74,12 @@ Todos con la contraseña **`ticket123`**:
 
 | Email                      | Rol en los datos de prueba                                              |
 | -------------------------- | ----------------------------------------------------------------------- |
-| `florencia@aiticketit.com` | Organiza recitales, un festival y básquet (reputación 4.5)              |
-| `gonzalo@aiticketit.com`   | Organiza teatro, stand-up y una conferencia                             |
+| `florencia@aiticketit.com` | Organiza recitales (reputación 4.5)                                     |
+| `gonzalo@aiticketit.com`   | Organiza teatro, stand-up y una conferencia (reputación 3.8)            |
 | `nahuel@aiticketit.com`    | Comprador: tiene compras en todos los estados y una entrada sin reseñar |
 | `agustina@aiticketit.com`  | Compradora                                                              |
+| `camila@aiticketit.com`    | Organiza Bad Bunny, Lollapalooza y Cosquín Rock (reputación 4.4)        |
+| `ramiro@aiticketit.com`    | Organiza deportes: Párense de Manos, Copa Potrero y Superclásico (4.0)  |
 
 Cualquier usuario puede comprar y también publicar eventos (pero no comprar entradas de un evento propio). No hay registro de usuarios: la consigna no lo pide, así que se entra con estas cuentas de prueba.
 

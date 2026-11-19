@@ -86,4 +86,45 @@ describe("API: reseñas y reputación de organizadores", () => {
   it("GET /usuarios/:id/resenias responde 404 si el usuario no existe", async () => {
     expect((await request(app).get("/usuarios/99/resenias")).status).toBe(404);
   });
+
+  describe("reseñas en el detalle de cada evento", () => {
+    // Trueno (id 19) y Nicki Nicole (id 20) son eventos pasados de Camila; Bad Bunny (id 11) es uno próximo
+    const eventosDeLasReseniasDe = async (eventoId) =>
+      (await request(app).get(`/eventos/${eventoId}`)).body.reseniasOrganizador.map((r) => r.evento.nombre);
+
+    it("en un evento que ya pasó salen primero sus propias reseñas, aunque haya otras más recientes", async () => {
+      expect(await eventosDeLasReseniasDe(19)).toEqual([
+        "Trueno en Movistar Arena",
+        "Trueno en Movistar Arena",
+        "Nicki Nicole en el Luna Park",
+        "Nicki Nicole en el Luna Park",
+      ]);
+      expect((await eventosDeLasReseniasDe(20)).slice(0, 2)).toEqual([
+        "Nicki Nicole en el Luna Park",
+        "Nicki Nicole en el Luna Park",
+      ]);
+    });
+
+    it("en un evento próximo salen las reseñas del organizador de la más reciente a la más antigua", async () => {
+      expect(await eventosDeLasReseniasDe(11)).toEqual([
+        "Nicki Nicole en el Luna Park",
+        "Nicki Nicole en el Luna Park",
+        "Trueno en Movistar Arena",
+        "Trueno en Movistar Arena",
+      ]);
+    });
+
+    it("cada organizador muestra reseñas de lo que organiza, no las de otros", async () => {
+      const recital = await eventosDeLasReseniasDe(11);
+      const boxeo = await eventosDeLasReseniasDe(12);
+
+      expect(boxeo).toEqual([
+        "Copa Potrero: fase de grupos",
+        "Copa Potrero: fase de grupos",
+        "Párense de Manos III",
+        "Párense de Manos III",
+      ]);
+      expect(recital.some((nombre) => boxeo.includes(nombre))).toBe(false);
+    });
+  });
 });

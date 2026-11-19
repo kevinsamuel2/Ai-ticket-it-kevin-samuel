@@ -15,16 +15,16 @@ describe("Datos de prueba y repositorios", () => {
   });
 
   it("carga usuarios, categorías, eventos y compras", async () => {
-    expect(await repos.usuarioRepository.buscarTodos()).toHaveLength(4);
+    expect(await repos.usuarioRepository.buscarTodos()).toHaveLength(6);
     expect(await repos.categoriaRepository.buscarTodos()).toHaveLength(6);
-    expect(await repos.eventoRepository.buscarTodos()).toHaveLength(16);
+    expect(await repos.eventoRepository.buscarTodos()).toHaveLength(20);
     expect((await repos.compraRepository.buscarTodos()).length).toBeGreaterThan(0);
   });
 
   it("cada usuario tiene una cuenta para iniciar sesión", async () => {
     const cuenta = await repos.cuentaRepository.buscarPorEmail("nahuel@aiticketit.com");
 
-    expect(await repos.cuentaRepository.buscarTodos()).toHaveLength(4);
+    expect(await repos.cuentaRepository.buscarTodos()).toHaveLength(6);
     expect(cuenta.usuario).toBe(usuarios.nahuel);
     expect(cuenta.contraseniaEsCorrecta("ticket123")).toBe(true);
   });
@@ -33,7 +33,7 @@ describe("Datos de prueba y repositorios", () => {
     const eventos = await repos.eventoRepository.buscarTodos();
 
     expect(eventos.filter((e) => !e.yaSeRealizo(ahora))).toHaveLength(13);
-    expect(eventos.filter((e) => e.yaSeRealizo(ahora))).toHaveLength(3);
+    expect(eventos.filter((e) => e.yaSeRealizo(ahora))).toHaveLength(7);
   });
 
   it("hay compras en todos los estados excepto CANCELADA, que la genera el uso de la app", async () => {
@@ -58,7 +58,7 @@ describe("Datos de prueba y repositorios", () => {
   it("eventoRepository busca los eventos de un organizador", async () => {
     const eventosDeFlorencia = await repos.eventoRepository.buscarPorOrganizador(usuarios.florencia);
 
-    expect(eventosDeFlorencia).toHaveLength(8);
+    expect(eventosDeFlorencia).toHaveLength(4);
     expect(eventosDeFlorencia.every((e) => e.organizador === usuarios.florencia)).toBe(true);
   });
 
@@ -66,7 +66,7 @@ describe("Datos de prueba y repositorios", () => {
     const comprasDeNahuel = await repos.compraRepository.buscarPorComprador(usuarios.nahuel);
     const [rock] = (await repos.eventoRepository.buscarTodos()).filter((e) => e.nombre === "Divididos en Obras");
 
-    expect(comprasDeNahuel).toHaveLength(5);
+    expect(comprasDeNahuel).toHaveLength(7);
     expect(await repos.compraRepository.buscarPorEvento(rock)).toHaveLength(2);
   });
 

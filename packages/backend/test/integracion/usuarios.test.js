@@ -20,6 +20,8 @@ describe("API: usuarios y categorías", () => {
       "Gonzalo Pereyra",
       "Nahuel Quiroga",
       "Agustina Benítez",
+      "Camila Ferreyra",
+      "Ramiro Domínguez",
     ]);
   });
 

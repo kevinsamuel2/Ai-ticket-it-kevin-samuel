@@ -42,7 +42,7 @@ describe("API: búsqueda y detalle de eventos", () => {
     const res = await request(app).get("/eventos").query({ orden: "puntaje" });
     const puntajes = res.body.items.map((e) => e.organizador.puntaje);
 
-    expect(puntajes).toEqual([4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 3.8, 3.8, 3.8]);
+    expect(puntajes).toEqual([4.5, 4.5, 4.5, 4.4, 4.4, 4.4, 4, 4, 4, 4]);
   });
 
   it("responde 400 con parámetros de búsqueda inválidos", async () => {

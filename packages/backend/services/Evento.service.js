@@ -115,19 +115,23 @@ export class EventoService {
     };
   }
 
-  // Detalle de un evento, con las reseñas de los eventos anteriores de su organizador.
+  // Detalle de un evento, con las reseñas de los eventos anteriores de su organizador (primero las de este
+  // mismo evento, si ya se realizó, y después las más recientes de los demás).
   // Si hay un usuario identificado, indica además si el evento está entre sus favoritos.
   async obtenerEvento(eventoId, ahora = new Date(), usuario = null) {
     const evento = await this.buscarEventoExistente(eventoId);
     const resenias = await this.compraRepository.buscarReseniasDeOrganizador(evento.organizador);
     const reputacion = this._reputacion(resenias);
+    const esDeEsteEvento = (resenia) => Number(resenia.evento.id === evento.id);
 
     return {
       ...this.toResumenDTO(evento, reputacion, ahora),
       descripcion: evento.descripcion,
       multimedia: evento.multimedia,
       tiposEntrada: evento.tiposEntrada.map((tipo) => this.tipoEntradaToDTO(tipo)),
-      reseniasOrganizador: resenias.toSorted((a, b) => b.fecha - a.fecha).map((resenia) => this.reseniaToDTO(resenia)),
+      reseniasOrganizador: resenias
+        .toSorted((a, b) => esDeEsteEvento(b) - esDeEsteEvento(a) || b.fecha - a.fecha)
+        .map((resenia) => this.reseniaToDTO(resenia)),
       esFavorito: usuario?.esFavorito(evento) ?? false,
     };
   }

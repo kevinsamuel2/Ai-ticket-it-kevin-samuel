@@ -5,8 +5,8 @@ paths:
       summary: Iniciar sesión
       description: >-
         Devuelve un token para mandar en el header `Authorization: Bearer <token>` de las operaciones protegidas.
-        Usuarios de prueba: florencia@aiticketit.com, gonzalo@aiticketit.com, nahuel@aiticketit.com y
-        agustina@aiticketit.com, todos con la contraseña `ticket123`.
+        Usuarios de prueba: florencia@aiticketit.com, gonzalo@aiticketit.com, nahuel@aiticketit.com,
+        agustina@aiticketit.com, camila@aiticketit.com y ramiro@aiticketit.com, todos con la contraseña `ticket123`.
       requestBody:
         required: true
         content:

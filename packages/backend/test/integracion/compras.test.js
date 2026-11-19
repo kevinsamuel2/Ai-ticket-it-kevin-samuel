@@ -84,7 +84,7 @@ describe("API: comprar entradas y consultar compras", () => {
     const res = await request(app).get("/compras").set(comoUsuario(usuarios.nahuel));
 
     expect(res.status).toBe(200);
-    expect(res.body).toHaveLength(5);
+    expect(res.body).toHaveLength(7);
     expect(res.body.every((c) => c.comprador.id === usuarios.nahuel.id)).toBe(true);
     const confirmada = res.body.find((c) => c.estado === "CONFIRMADA");
     expect(confirmada.diasParaElEvento).toBe(12);
@@ -97,7 +97,7 @@ describe("API: comprar entradas y consultar compras", () => {
       .set(comoUsuario(usuarios.nahuel));
     const invalido = await request(app).get("/compras").query({ estado: "PAGADA" }).set(comoUsuario(usuarios.nahuel));
 
-    expect(utilizadas.body).toHaveLength(2);
+    expect(utilizadas.body).toHaveLength(4);
     expect(invalido.status).toBe(400);
   });
 
