@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Image, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
+import { ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
+import { Foto } from "./Foto";
 import { colores, espaciado } from "../theme";
-import { urlDeImagen } from "../utils/imagen";
 
 // Todas las imágenes del evento (Evento.multimedia del diagrama): se deslizan de costado, una por página
 export function Galeria({ imagenes, nombre, relacion = 16 / 9 }) {
@@ -20,10 +20,11 @@ export function Galeria({ imagenes, nombre, relacion = 16 / 9 }) {
         accessibilityLabel={`Imágenes de ${nombre}`}
       >
         {imagenes.map((url, indice) => (
-          <Image
+          <Foto
             key={url + indice}
-            source={{ uri: urlDeImagen(url) }}
-            style={[styles.imagen, { width, aspectRatio: relacion }]}
+            uri={url}
+            style={{ width, aspectRatio: relacion }}
+            tamanioDelIcono={64}
             accessible
             accessibilityLabel={`Imagen ${indice + 1} de ${imagenes.length} de ${nombre}`}
           />
@@ -41,7 +42,6 @@ export function Galeria({ imagenes, nombre, relacion = 16 / 9 }) {
 }
 
 const styles = StyleSheet.create({
-  imagen: { aspectRatio: 16 / 9, backgroundColor: colores.relleno },
   puntos: {
     position: "absolute",
     bottom: espaciado.s,

@@ -26,6 +26,7 @@ const ACCESOS = [
     titulo: "Publicar un evento",
     detalle: "Creá uno nuevo en minutos",
   },
+  { ruta: "/siguiendo", icono: "people-outline", titulo: "Siguiendo", detalle: "Los organizadores que seguís" },
   { ruta: "/favoritos", icono: "bookmark-outline", titulo: "Favoritos", detalle: "Los eventos que guardaste" },
 ];
 

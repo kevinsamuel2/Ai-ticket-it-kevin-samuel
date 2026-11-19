@@ -24,6 +24,8 @@ export default function NuevoEvento() {
     categoria: null,
     fecha: "",
     hora: "21:00",
+    lugar: "",
+    ciudad: "",
     imagenes: "",
     tiposEntrada: [{ ...tipoVacio(), nombre: "General" }],
   });
@@ -59,6 +61,9 @@ export default function NuevoEvento() {
         descripcion: formulario.descripcion.trim(),
         categoriaId: formulario.categoria,
         fecha: armarFecha(formulario.fecha, formulario.hora).toISOString(),
+        // El lugar y la ciudad son opcionales: si quedan vacíos no se mandan
+        ...(formulario.lugar.trim() && { lugar: formulario.lugar.trim() }),
+        ...(formulario.ciudad.trim() && { ciudad: formulario.ciudad.trim() }),
         multimedia: separarImagenes(formulario.imagenes),
         tiposEntrada: formulario.tiposEntrada.map((tipo) => ({
           nombre: tipo.nombre.trim(),
@@ -127,6 +132,20 @@ export default function NuevoEvento() {
           />
         </View>
         {errores.fecha && <Text style={styles.error}>{errores.fecha}</Text>}
+
+        <Campo
+          etiqueta="Lugar (opcional)"
+          value={formulario.lugar}
+          onChangeText={cambiar("lugar")}
+          placeholder="Ej: Estadio Obras Sanitarias"
+        />
+        <Campo
+          etiqueta="Ciudad (opcional)"
+          value={formulario.ciudad}
+          onChangeText={cambiar("ciudad")}
+          placeholder="Ej: Buenos Aires"
+          ayuda="Con la ciudad, tu evento aparece al filtrar por ubicación."
+        />
 
         <Campo
           etiqueta="Imágenes (opcional)"

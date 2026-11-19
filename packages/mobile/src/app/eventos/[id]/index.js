@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
+import { Linking, Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -12,6 +12,7 @@ import { comprar } from "../../../services/compras.service";
 import { mensajeDeError } from "../../../services/api";
 import { Cargando, MensajeError } from "../../../components/EstadosDeCarga";
 import { Boton } from "../../../components/Boton";
+import { BotonSeguir } from "../../../components/BotonSeguir";
 import { FinalizarEvento } from "../../../components/FinalizarEvento";
 import { Galeria } from "../../../components/Galeria";
 import { Puntaje } from "../../../components/Puntaje";
@@ -20,6 +21,7 @@ import { SelectorCantidad } from "../../../components/SelectorCantidad";
 import { TituloDeSeccion } from "../../../components/TituloDeSeccion";
 import { colores, contorno, espaciado, fuente, radio, texto } from "../../../theme";
 import { formatearFecha, formatearPrecio } from "../../../utils/formato";
+import { urlDelMapa } from "../../../utils/mapa";
 
 export default function DetalleEvento() {
   const { id } = useLocalSearchParams();
@@ -56,6 +58,9 @@ export default function DetalleEvento() {
     Share.share({
       message: `${evento.nombre} · ${formatearFecha(evento.fecha)}. Conseguí tus entradas en AI Ticket It.`,
     });
+
+  const comoLlegar = () =>
+    Linking.openURL(urlDelMapa(evento)).catch(() => mostrarError("No se pudo abrir el mapa en este dispositivo"));
 
   const confirmarCompra = async () => {
     setComprando(true);
@@ -141,12 +146,59 @@ export default function DetalleEvento() {
           <Text style={[texto.cuerpo, styles.descripcion]}>{evento.descripcion}</Text>
         </View>
 
+        {evento.lugar && (
+          <View style={styles.seccion}>
+            <TituloDeSeccion>Ubicación</TituloDeSeccion>
+            <View style={styles.ubicacion}>
+              <View style={styles.iconoDelDato}>
+                <Ionicons name="location" size={18} color={colores.primarioClaro} />
+              </View>
+              <View style={styles.flex}>
+                <Text style={texto.subtitulo}>{evento.lugar}</Text>
+                {evento.ciudad && <Text style={texto.secundario}>{evento.ciudad}</Text>}
+              </View>
+              <Pressable
+                onPress={comoLlegar}
+                accessibilityRole="link"
+                accessibilityLabel={`Cómo llegar a ${evento.lugar}`}
+                style={({ pressed }) => [styles.comoLlegar, pressed && styles.presionado]}
+              >
+                <Text style={styles.comoLlegarTexto}>Cómo llegar</Text>
+                <Ionicons name="arrow-forward" size={14} color={colores.primarioClaro} />
+              </Pressable>
+            </View>
+          </View>
+        )}
+
+        {/* La fila del organizador abre su perfil; "Seguir" va al lado y no adentro, para no anidar botones */}
         <View style={styles.organizador}>
-          <View style={styles.flex}>
+          <Pressable
+            onPress={() => router.push(`/organizadores/${evento.organizador.id}`)}
+            accessibilityRole="button"
+            accessibilityLabel={`Ver a ${evento.organizador.nombreCompleto}, organizador`}
+            style={styles.datosDelOrganizador}
+          >
             <Text style={texto.etiqueta}>Organiza</Text>
             <Text style={texto.subtitulo}>{evento.organizador.nombreCompleto}</Text>
-          </View>
-          <Puntaje puntaje={evento.organizador.puntaje} cantidad={evento.organizador.cantidadResenias} tamanio={16} />
+            <View style={styles.reputacion}>
+              <Puntaje
+                puntaje={evento.organizador.puntaje}
+                cantidad={evento.organizador.cantidadResenias}
+                tamanio={14}
+              />
+              <Text style={texto.pie}>
+                · {evento.organizador.seguidores} {evento.organizador.seguidores === 1 ? "seguidor" : "seguidores"}
+              </Text>
+            </View>
+          </Pressable>
+          {!esOrganizador && (
+            <BotonSeguir
+              organizadorId={evento.organizador.id}
+              nombre={evento.organizador.nombreCompleto}
+              loSigo={evento.organizador.loSigo}
+              onCambio={recargar}
+            />
+          )}
         </View>
 
         {esOrganizador && (
@@ -296,6 +348,7 @@ const styles = StyleSheet.create({
   organizador: {
     flexDirection: "row",
     alignItems: "center",
+    gap: espaciado.m,
     marginHorizontal: espaciado.l,
     padding: espaciado.m,
     borderRadius: radio.m + 4,
@@ -303,6 +356,32 @@ const styles = StyleSheet.create({
     backgroundColor: colores.superficie,
     ...contorno,
   },
+  datosDelOrganizador: { flex: 1, gap: 2 },
+  reputacion: { flexDirection: "row", alignItems: "center", gap: espaciado.xs },
+  ubicacion: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: espaciado.s + 2,
+    padding: espaciado.m,
+    borderRadius: radio.m + 4,
+    borderCurve: "continuous",
+    backgroundColor: colores.superficie,
+    ...contorno,
+  },
+  comoLlegar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderCurve: "continuous",
+    borderWidth: 1.5,
+    borderColor: colores.primario,
+    backgroundColor: colores.primarioSuave,
+  },
+  comoLlegarTexto: { ...fuente, fontSize: 13, fontWeight: "800", color: colores.primarioClaro },
+  presionado: { opacity: 0.7 },
   tipo: {
     flexDirection: "row",
     alignItems: "center",

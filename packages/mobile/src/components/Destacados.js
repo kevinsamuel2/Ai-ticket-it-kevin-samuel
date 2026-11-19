@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { FlatList, Image, Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { FlatList, Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { BotonGuardar } from "./BotonGuardar";
+import { Foto } from "./Foto";
 import { colores, espaciado, fuente, radio, texto } from "../theme";
 import { formatearFecha, formatearPrecio } from "../utils/formato";
-import { urlDeImagen } from "../utils/imagen";
 
 const MARGEN = espaciado.l;
 const SEPARACION = espaciado.m;
@@ -78,18 +78,8 @@ function Separador() {
 
 function Slide({ evento, ancho, onAbrir }) {
   return (
-    <Pressable
-      onPress={() => onAbrir(evento)}
-      accessibilityRole="button"
-      accessibilityLabel={`Destacado: ${evento.nombre}, ${formatearFecha(evento.fecha)}. Ver entradas`}
-      style={({ pressed }) => [styles.slide, { width: ancho }, pressed && styles.presionado]}
-    >
-      <Image
-        source={{ uri: urlDeImagen(evento.imagen) }}
-        style={StyleSheet.absoluteFill}
-        resizeMode="cover"
-        accessibilityIgnoresInvertColors
-      />
+    <View style={[styles.slide, { width: ancho }]}>
+      <Foto uri={evento.imagen} style={StyleSheet.absoluteFill} tamanioDelIcono={56} />
       <LinearGradient
         colors={["rgba(0,0,0,0.96)", "rgba(0,0,0,0.82)", "rgba(0,0,0,0.1)"]}
         locations={[0, 0.5, 1]}
@@ -98,13 +88,20 @@ function Slide({ evento, ancho, onAbrir }) {
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />
-      <View style={styles.contenido}>
+      <Pressable
+        onPress={() => onAbrir(evento)}
+        accessibilityRole="button"
+        accessibilityLabel={`Destacado: ${evento.nombre}, ${formatearFecha(evento.fecha)}. Ver entradas`}
+        style={({ pressed }) => [styles.contenido, pressed && styles.presionado]}
+      >
         <Text style={texto.etiqueta}>{evento.categoria}</Text>
         <Text style={styles.titulo} numberOfLines={2}>
           {evento.nombre}
         </Text>
         <Text style={texto.pie} numberOfLines={1}>
-          Organiza {evento.organizador.nombreCompleto}
+          {evento.lugar
+            ? [evento.lugar, evento.ciudad].filter(Boolean).join(" · ")
+            : `Organiza ${evento.organizador.nombreCompleto}`}
         </Text>
         <View style={styles.dato}>
           <Ionicons name="calendar-outline" size={13} color={colores.textoSecundario} />
@@ -120,11 +117,12 @@ function Slide({ evento, ancho, onAbrir }) {
           <Text style={styles.botonTexto}>{evento.agotado ? "Agotado" : "Ver entradas"}</Text>
           <Ionicons name="arrow-forward" size={15} color={colores.sobrePrimario} />
         </View>
-      </View>
+      </Pressable>
+      {/* El marcador queda fuera del Pressable que abre el evento para no anidar un botón dentro de otro */}
       <View style={styles.guardar}>
         <BotonGuardar eventoId={evento.id} nombre={evento.nombre} tamanio={34} />
       </View>
-    </Pressable>
+    </View>
   );
 }
 
@@ -142,7 +140,8 @@ const styles = StyleSheet.create({
     borderColor: colores.borde,
   },
   presionado: { opacity: 0.9 },
-  contenido: { width: "62%", padding: espaciado.l, gap: 3 },
+  // Todo el texto es el área tocable; ocupa el alto de la tarjeta y deja la derecha para la foto
+  contenido: { width: "66%", height: "100%", justifyContent: "center", padding: espaciado.l, gap: 3 },
   titulo: { ...fuente, fontSize: 22, lineHeight: 25, fontWeight: "800", letterSpacing: -0.5, color: colores.blanco },
   dato: { flexDirection: "row", alignItems: "center", gap: 5 },
   boton: {

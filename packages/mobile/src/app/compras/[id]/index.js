@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCarga } from "../../../hooks/useCarga";
@@ -7,11 +7,11 @@ import { useUsuario } from "../../../context/UsuarioContext";
 import { useAvisos } from "../../../context/AvisosContext";
 import { cambiarEstado, obtenerCompra } from "../../../services/compras.service";
 import { mensajeDeError } from "../../../services/api";
-import { urlDeImagen } from "../../../utils/imagen";
 import { Cargando, MensajeError } from "../../../components/EstadosDeCarga";
 import { Boton } from "../../../components/Boton";
 import { EntradaConQR } from "../../../components/EntradaConQR";
 import { EstadoBadge } from "../../../components/EstadoBadge";
+import { Foto } from "../../../components/Foto";
 import { FormularioResenia } from "../../../components/FormularioResenia";
 import { Estrellas } from "../../../components/ReseniaItem";
 import { TituloDeSeccion } from "../../../components/TituloDeSeccion";
@@ -77,13 +77,7 @@ export default function DetalleCompra() {
       <Stack.Screen options={{ title: `Compra #${compra.id}` }} />
 
       <View style={styles.tarjeta}>
-        {compra.evento.imagen && (
-          <Image
-            source={{ uri: urlDeImagen(compra.evento.imagen) }}
-            style={styles.imagen}
-            accessibilityIgnoresInvertColors
-          />
-        )}
+        <Foto uri={compra.evento.imagen} style={styles.imagen} tamanioDelIcono={48} />
         <View style={styles.cuerpoTarjeta}>
           <EstadoBadge estado={compra.estado} grande />
           {compra.diasParaElEvento !== null && (

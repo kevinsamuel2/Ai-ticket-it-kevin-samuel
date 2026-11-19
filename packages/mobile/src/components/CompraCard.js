@@ -1,11 +1,11 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { EstadoBadge } from "./EstadoBadge";
 import { codigoDeEntrada } from "./EntradaConQR";
+import { Foto } from "./Foto";
 import { colores, contorno, espaciado, fuente, radio, texto } from "../theme";
 import { formatearDiaYHora, formatearFecha, formatearPrecio, textoDiasRestantes } from "../utils/formato";
-import { urlDeImagen } from "../utils/imagen";
 
 // Compra con formato de ticket, como en "Mis Tickets" de Punch: foto con el nombre del evento y el estado, los datos
 // de la entrada y, abajo, el código del ticket con el botón del QR. Si la ve el organizador (mostrarComprador) en lugar
@@ -20,13 +20,7 @@ export function CompraCard({ compra, onPress, mostrarComprador = false }) {
       style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada]}
     >
       <View style={styles.portada}>
-        {compra.evento.imagen ? (
-          <Image
-            source={{ uri: urlDeImagen(compra.evento.imagen) }}
-            style={StyleSheet.absoluteFill}
-            accessibilityIgnoresInvertColors
-          />
-        ) : null}
+        <Foto uri={compra.evento.imagen} style={StyleSheet.absoluteFill} tamanioDelIcono={48} />
         <LinearGradient
           colors={["rgba(0,0,0,0.35)", "rgba(0,0,0,0.2)", "rgba(0,0,0,0.9)"]}
           style={StyleSheet.absoluteFill}
