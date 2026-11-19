@@ -1,55 +1,57 @@
-import { Platform, StyleSheet } from "react-native";
 import { Tabs } from "expo-router";
-import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colores, fuente } from "../../theme";
 
 function iconoDeTab(nombre, nombreActivo) {
   return function IconoDeTab({ color, size, focused }) {
-    return <Ionicons name={focused ? nombreActivo : nombre} color={color} size={size + 1} />;
+    return <Ionicons name={focused ? nombreActivo : nombre} color={color} size={size} />;
   };
 }
 
-// Fondo translúcido y oscuro de la barra de pestañas: desenfoca lo que pasa por debajo
-function FondoDeBarra() {
-  return <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill} />;
-}
-
+// Barra de pestañas flotante como la de la app de Punch: cápsula oscura con bordes redondeados, separada de los
+// bordes de la pantalla, donde la pestaña activa se resalta con un fondo verde suave
 export default function TabsLayout() {
+  const { bottom } = useSafeAreaInsets();
   return (
     <Tabs
       screenOptions={{
-        // Cada pantalla dibuja su propio título grande (EncabezadoGrande)
+        // Cada pantalla dibuja su propio encabezado
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Platform.OS === "ios" ? "transparent" : "rgba(10,10,10,0.96)",
-          borderTopColor: colores.borde,
-          borderTopWidth: StyleSheet.hairlineWidth,
+          position: "absolute",
+          left: 16,
+          right: 16,
+          bottom: Math.max(bottom, 12) + 4,
+          height: 66,
+          paddingBottom: 0,
+          paddingTop: 0,
+          borderRadius: 24,
+          borderCurve: "continuous",
+          borderWidth: 1,
+          borderTopWidth: 1,
+          borderColor: colores.borde,
+          backgroundColor: "rgba(16,16,18,0.97)",
+          elevation: 0,
         },
-        tabBarBackground: FondoDeBarra,
-        tabBarLabelStyle: { ...fuente, fontSize: 10, fontWeight: "700" },
-        tabBarActiveTintColor: colores.primario,
+        tabBarItemStyle: { marginHorizontal: 4, marginVertical: 7, borderRadius: 18, borderCurve: "continuous" },
+        tabBarActiveBackgroundColor: colores.primarioSuave,
+        tabBarLabelStyle: { ...fuente, fontSize: 11, fontWeight: "700" },
+        tabBarActiveTintColor: colores.primarioClaro,
         tabBarInactiveTintColor: colores.textoApagado,
         sceneStyle: { backgroundColor: colores.fondo },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: "Explorar", tabBarIcon: iconoDeTab("compass-outline", "compass") }} />
+      <Tabs.Screen name="index" options={{ title: "Inicio", tabBarIcon: iconoDeTab("home-outline", "home") }} />
       <Tabs.Screen
-        name="favoritos"
-        options={{ title: "Favoritos", tabBarIcon: iconoDeTab("heart-outline", "heart") }}
+        name="eventos"
+        options={{ title: "Eventos", tabBarIcon: iconoDeTab("calendar-outline", "calendar") }}
       />
       <Tabs.Screen
-        name="compras"
-        options={{ title: "Mis compras", tabBarIcon: iconoDeTab("ticket-outline", "ticket") }}
+        name="entradas"
+        options={{ title: "Entradas", tabBarIcon: iconoDeTab("ticket-outline", "ticket") }}
       />
-      <Tabs.Screen
-        name="mis-eventos"
-        options={{ title: "Mis eventos", tabBarIcon: iconoDeTab("megaphone-outline", "megaphone") }}
-      />
-      <Tabs.Screen
-        name="perfil"
-        options={{ title: "Perfil", tabBarIcon: iconoDeTab("person-circle-outline", "person-circle") }}
-      />
+      <Tabs.Screen name="perfil" options={{ title: "Perfil", tabBarIcon: iconoDeTab("person-outline", "person") }} />
     </Tabs>
   );
 }

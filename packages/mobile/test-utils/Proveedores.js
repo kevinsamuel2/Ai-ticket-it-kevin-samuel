@@ -1,5 +1,6 @@
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AvisosProvider } from "../src/context/AvisosContext";
+import { FavoritosProvider } from "../src/context/FavoritosContext";
 import { UsuarioProvider } from "../src/context/UsuarioContext";
 
 // En los tests no hay pantalla real: se fijan las medidas para que los componentes que leen el área segura funcionen
@@ -10,7 +11,9 @@ export function Proveedores({ children }) {
   return (
     <SafeAreaProvider initialMetrics={MEDIDAS}>
       <AvisosProvider>
-        <UsuarioProvider>{children}</UsuarioProvider>
+        <UsuarioProvider>
+          <FavoritosProvider>{children}</FavoritosProvider>
+        </UsuarioProvider>
       </AvisosProvider>
     </SafeAreaProvider>
   );

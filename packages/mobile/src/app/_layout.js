@@ -2,6 +2,7 @@ import { StyleSheet, View } from "react-native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { AvisosProvider } from "../context/AvisosContext";
+import { FavoritosProvider } from "../context/FavoritosContext";
 import { UsuarioProvider, useUsuario } from "../context/UsuarioContext";
 import { useConexionConServidor } from "../hooks/useConexionConServidor";
 import { PantallaDeCarga } from "../components/PantallaDeCarga";
@@ -14,17 +15,19 @@ export default function RootLayout() {
   return (
     <AvisosProvider>
       <UsuarioProvider>
-        <Navegacion />
-        {/* La pantalla de carga va encima de la navegación: Expo Router necesita que el Stack esté montado */}
-        {mostrarCarga && (
-          <View style={StyleSheet.absoluteFill}>
-            <PantallaDeCarga
-              mensaje="Conectando con el servidor..."
-              error={conexion.error}
-              onReintentar={conexion.reintentar}
-            />
-          </View>
-        )}
+        <FavoritosProvider>
+          <Navegacion />
+          {/* La pantalla de carga va encima de la navegación: Expo Router necesita que el Stack esté montado */}
+          {mostrarCarga && (
+            <View style={StyleSheet.absoluteFill}>
+              <PantallaDeCarga
+                mensaje="Conectando con el servidor..."
+                error={conexion.error}
+                onReintentar={conexion.reintentar}
+              />
+            </View>
+          )}
+        </FavoritosProvider>
       </UsuarioProvider>
     </AvisosProvider>
   );
@@ -52,6 +55,8 @@ function Navegacion() {
       >
         <Stack.Protected guard={haySesion}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="favoritos" options={{ title: "Favoritos" }} />
+          <Stack.Screen name="mis-eventos" options={{ title: "Mis eventos" }} />
           <Stack.Screen name="eventos/[id]/index" options={{ title: "Evento" }} />
           <Stack.Screen name="eventos/nuevo" options={{ title: "Publicar evento" }} />
           <Stack.Screen name="eventos/[id]/ventas" options={{ title: "Ventas" }} />

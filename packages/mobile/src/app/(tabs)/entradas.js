@@ -6,24 +6,41 @@ import { listarMisCompras } from "../../services/compras.service";
 import { CompraCard } from "../../components/CompraCard";
 import { Chips } from "../../components/Chips";
 import { EncabezadoGrande } from "../../components/EncabezadoGrande";
+import { Segmentado } from "../../components/Segmentado";
 import { Cargando, MensajeError, SinResultados } from "../../components/EstadosDeCarga";
-import { colores, espaciado, estilosDeEstado } from "../../theme";
+import { colores, espaciado, espacioParaLaBarra, estilosDeEstado } from "../../theme";
+import { esCompraPasada } from "../../utils/compras";
+
+const MOMENTOS = [
+  { valor: "proximos", etiqueta: "Próximos", icono: "calendar-outline" },
+  { valor: "pasados", etiqueta: "Pasados", icono: "checkmark-outline" },
+];
 
 const FILTROS = [
   { valor: null, etiqueta: "Todas" },
   ...Object.entries(estilosDeEstado).map(([estado, { etiqueta }]) => ({ valor: estado, etiqueta })),
 ];
 
-// Mis compras, con su estado y los días que faltan para las confirmadas
-export default function MisCompras() {
+// Mis entradas, como "Mis Tickets" de Punch: las compras separadas en próximas y pasadas, cada una con su estado,
+// los días que faltan para las confirmadas y el acceso a su QR
+export default function Entradas() {
   const router = useRouter();
+  const [momento, setMomento] = useState("proximos");
   const [estado, setEstado] = useState(null);
   const { datos: compras, cargando, error, recargar } = useCarga(useCallback(() => listarMisCompras(estado), [estado]));
 
+  const mostrar = compras?.filter((compra) => esCompraPasada(compra) === (momento === "pasados"));
+
   return (
     <View style={styles.contenedor}>
-      <EncabezadoGrande titulo="Mis compras" />
+      <EncabezadoGrande titulo="Mis entradas" />
       <View style={styles.filtros}>
+        <Segmentado
+          etiquetaAccesible="Momento de la entrada"
+          opciones={MOMENTOS}
+          valor={momento}
+          onCambiar={setMomento}
+        />
         <Chips
           etiquetaAccesible="Filtrar por estado"
           opciones={FILTROS}
@@ -33,11 +50,11 @@ export default function MisCompras() {
       </View>
       {error ? (
         <MensajeError mensaje={error} onReintentar={recargar} />
-      ) : !compras ? (
+      ) : !mostrar ? (
         <Cargando />
       ) : (
         <FlatList
-          data={compras}
+          data={mostrar}
           keyExtractor={(compra) => String(compra.id)}
           contentContainerStyle={styles.lista}
           refreshing={cargando}
@@ -48,7 +65,13 @@ export default function MisCompras() {
           ListEmptyComponent={
             <SinResultados
               icono="ticket-outline"
-              mensaje={estado ? "No tenés compras en este estado" : "Todavía no compraste entradas"}
+              mensaje={
+                estado
+                  ? "No tenés entradas en este estado"
+                  : momento === "proximos"
+                    ? "No tenés entradas para próximos eventos"
+                    : "Todavía no tenés entradas pasadas"
+              }
             />
           }
         />
@@ -59,6 +82,6 @@ export default function MisCompras() {
 
 const styles = StyleSheet.create({
   contenedor: { flex: 1 },
-  filtros: { paddingBottom: espaciado.s, backgroundColor: colores.fondo },
-  lista: { padding: espaciado.l, gap: espaciado.m, flexGrow: 1 },
+  filtros: { gap: espaciado.m, paddingBottom: espaciado.s, backgroundColor: colores.fondo },
+  lista: { padding: espaciado.l, gap: espaciado.l, flexGrow: 1, paddingBottom: espacioParaLaBarra + espaciado.l },
 });

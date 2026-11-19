@@ -30,6 +30,9 @@ export const espaciado = { xs: 4, s: 8, m: 12, l: 16, xl: 24 };
 
 export const radio = { s: 8, m: 12, l: 16 };
 
+// Espacio que dejan las pantallas con pestañas al final para que la barra flotante no tape el último elemento
+export const espacioParaLaBarra = 110;
+
 // Tipografía del sistema: San Francisco en iOS, Roboto en Android y la fuente del sistema en web
 export const fuente = Platform.select({
   ios: { fontFamily: "System" },

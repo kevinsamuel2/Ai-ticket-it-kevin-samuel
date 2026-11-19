@@ -4,7 +4,7 @@ import { colores, espaciado } from "../theme";
 import { urlDeImagen } from "../utils/imagen";
 
 // Todas las imágenes del evento (Evento.multimedia del diagrama): se deslizan de costado, una por página
-export function Galeria({ imagenes, nombre }) {
+export function Galeria({ imagenes, nombre, relacion = 16 / 9 }) {
   const { width } = useWindowDimensions();
   const [actual, setActual] = useState(0);
 
@@ -23,7 +23,7 @@ export function Galeria({ imagenes, nombre }) {
           <Image
             key={url + indice}
             source={{ uri: urlDeImagen(url) }}
-            style={[styles.imagen, { width }]}
+            style={[styles.imagen, { width, aspectRatio: relacion }]}
             accessible
             accessibilityLabel={`Imagen ${indice + 1} de ${imagenes.length} de ${nombre}`}
           />

@@ -1,11 +1,13 @@
-import { useCallback, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCarga } from "../../../hooks/useCarga";
 import { useUsuario } from "../../../context/UsuarioContext";
 import { useAvisos } from "../../../context/AvisosContext";
-import { agregarFavorito, obtenerEvento, quitarFavorito } from "../../../services/eventos.service";
+import { useFavoritos } from "../../../context/FavoritosContext";
+import { obtenerEvento } from "../../../services/eventos.service";
 import { comprar } from "../../../services/compras.service";
 import { mensajeDeError } from "../../../services/api";
 import { Cargando, MensajeError } from "../../../components/EstadosDeCarga";
@@ -16,39 +18,29 @@ import { Puntaje } from "../../../components/Puntaje";
 import { ReseniaItem } from "../../../components/ReseniaItem";
 import { SelectorCantidad } from "../../../components/SelectorCantidad";
 import { TituloDeSeccion } from "../../../components/TituloDeSeccion";
-import { colores, espaciado, radio, contorno, texto } from "../../../theme";
+import { colores, contorno, espaciado, fuente, radio, texto } from "../../../theme";
 import { formatearFecha, formatearPrecio } from "../../../utils/formato";
 
 export default function DetalleEvento() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const { bottom } = useSafeAreaInsets();
   const { usuario } = useUsuario();
+  const { ids: favoritos, alternar } = useFavoritos();
   const { datos: evento, error, recargar } = useCarga(useCallback(() => obtenerEvento(id), [id]));
 
   const [tipoElegidoId, setTipoElegidoId] = useState(null);
   const [cantidad, setCantidad] = useState(1);
   const [comprando, setComprando] = useState(false);
-  // Se actualiza al instante al tocar el corazón, sin esperar a recargar el evento
-  const [favoritoLocal, setFavoritoLocal] = useState(null);
   const { mostrarError, mostrarExito } = useAvisos();
+  const scroll = useRef(null);
+  const [inicioDeEntradas, setInicioDeEntradas] = useState(0);
 
   if (error) return <MensajeError mensaje={error} onReintentar={recargar} />;
   if (!evento) return <Cargando />;
 
   const esOrganizador = evento.organizador.id === usuario.id;
-  const esFavorito = favoritoLocal ?? evento.esFavorito;
-
-  const alternarFavorito = async () => {
-    const nuevoValor = !esFavorito;
-    setFavoritoLocal(nuevoValor);
-    try {
-      await (nuevoValor ? agregarFavorito(evento.id) : quitarFavorito(evento.id));
-      mostrarExito(nuevoValor ? "Guardado en tus favoritos" : "Quitado de tus favoritos");
-    } catch (e) {
-      setFavoritoLocal(!nuevoValor);
-      mostrarError(mensajeDeError(e));
-    }
-  };
+  const esFavorito = favoritos.has(evento.id);
   const tipoElegido = evento.tiposEntrada.find((tipo) => tipo.id === tipoElegidoId);
   const sePuedeComprar = !esOrganizador && !evento.yaSeRealizo && !evento.agotado;
 
@@ -56,6 +48,14 @@ export default function DetalleEvento() {
     setTipoElegidoId(tipo.id);
     setCantidad(1);
   };
+
+  const irALasEntradas = () =>
+    scroll.current?.scrollTo({ y: Math.max(inicioDeEntradas - espaciado.l, 0), animated: true });
+
+  const compartir = () =>
+    Share.share({
+      message: `${evento.nombre} · ${formatearFecha(evento.fecha)}. Conseguí tus entradas en AI Ticket It.`,
+    });
 
   const confirmarCompra = async () => {
     setComprando(true);
@@ -74,126 +74,225 @@ export default function DetalleEvento() {
     }
   };
 
+  // El botón fijo de abajo cambia según lo que se puede hacer: elegir entrada, comprar, ver ventas o nada
+  const accion = (() => {
+    if (esOrganizador) {
+      return {
+        titulo: "Ver ventas de este evento",
+        icono: "stats-chart",
+        onPress: () => router.push(`/eventos/${evento.id}/ventas`),
+      };
+    }
+    if (evento.yaSeRealizo)
+      return { titulo: "Este evento ya se realizó", icono: "checkmark-done", deshabilitado: true };
+    if (evento.agotado) return { titulo: "Entradas agotadas", icono: "close-circle-outline", deshabilitado: true };
+    if (tipoElegido) return { titulo: "Comprar", icono: "cart", onPress: confirmarCompra, cargando: comprando };
+    return { titulo: "Seleccionar entradas", icono: "ticket", onPress: irALasEntradas };
+  })();
+
   return (
-    <ScrollView contentContainerStyle={styles.contenedor}>
+    <View style={styles.pantalla}>
       <Stack.Screen
         options={{
           title: evento.categoria,
           headerRight: () => (
-            <Pressable
-              onPress={alternarFavorito}
-              hitSlop={10}
-              accessibilityRole="button"
-              accessibilityLabel={esFavorito ? "Quitar de favoritos" : "Guardar en favoritos"}
-              accessibilityState={{ selected: esFavorito }}
-            >
-              <Ionicons name={esFavorito ? "heart" : "heart-outline"} size={26} color={colores.primario} />
-            </Pressable>
+            <View style={styles.accionesDelEncabezado}>
+              <Pressable
+                onPress={compartir}
+                hitSlop={10}
+                accessibilityRole="button"
+                accessibilityLabel="Compartir evento"
+              >
+                <Ionicons name="share-outline" size={24} color={colores.primario} />
+              </Pressable>
+              <Pressable
+                onPress={() => alternar(evento.id)}
+                hitSlop={10}
+                accessibilityRole="button"
+                accessibilityLabel={esFavorito ? "Quitar de favoritos" : "Guardar en favoritos"}
+                accessibilityState={{ selected: esFavorito }}
+              >
+                <Ionicons name={esFavorito ? "bookmark" : "bookmark-outline"} size={24} color={colores.primario} />
+              </Pressable>
+            </View>
           ),
         }}
       />
-      <Galeria imagenes={evento.multimedia} nombre={evento.nombre} />
+      <ScrollView ref={scroll} contentContainerStyle={styles.contenedor}>
+        <Galeria imagenes={evento.multimedia} nombre={evento.nombre} relacion={16 / 10} />
 
-      <View style={styles.seccion}>
-        <Text style={texto.etiqueta}>{evento.categoria}</Text>
-        <Text style={texto.titulo}>{evento.nombre}</Text>
-        <View style={styles.fila}>
-          <Ionicons name="calendar" size={16} color={colores.primario} />
-          <Text style={texto.cuerpo}>{formatearFecha(evento.fecha)}</Text>
+        <View style={styles.seccion}>
+          <Text style={texto.etiqueta}>{evento.categoria}</Text>
+          <Text style={styles.titulo}>{evento.nombre}</Text>
+          {evento.yaSeRealizo && <Text style={styles.aviso}>Este evento ya se realizó</Text>}
         </View>
-        {evento.yaSeRealizo && <Text style={styles.aviso}>Este evento ya se realizó</Text>}
-        <Text style={[texto.cuerpo, styles.descripcion]}>{evento.descripcion}</Text>
-      </View>
 
-      <View style={styles.organizador}>
-        <View style={styles.flex}>
-          <Text style={texto.secundario}>Organiza</Text>
-          <Text style={texto.subtitulo}>{evento.organizador.nombreCompleto}</Text>
-        </View>
-        <Puntaje puntaje={evento.organizador.puntaje} cantidad={evento.organizador.cantidadResenias} tamanio={16} />
-      </View>
-
-      {esOrganizador && (
-        <View style={styles.avisoOrganizador}>
-          <Text style={texto.cuerpo}>Sos el organizador de este evento, así que no podés comprar entradas.</Text>
-          <Boton
-            titulo="Ver ventas de este evento"
-            icono="stats-chart"
-            variante="secundario"
-            onPress={() => router.push(`/eventos/${evento.id}/ventas`)}
+        <View style={styles.datos}>
+          <Dato icono="calendar" etiqueta="Fecha" valor={formatearFecha(evento.fecha)} />
+          <Dato
+            icono="ticket"
+            etiqueta="Entradas desde"
+            valor={formatearPrecio(Math.min(...evento.tiposEntrada.map((tipo) => tipo.precio)))}
           />
-          <FinalizarEvento evento={evento} onFinalizado={recargar} />
         </View>
-      )}
 
-      <View style={styles.seccion}>
-        <TituloDeSeccion>Entradas</TituloDeSeccion>
-        {evento.tiposEntrada.map((tipo) => {
-          const elegido = tipo.id === tipoElegidoId;
-          return (
-            <Pressable
-              key={tipo.id}
-              onPress={() => elegirTipo(tipo)}
-              disabled={!sePuedeComprar || tipo.agotado}
-              accessibilityRole="radio"
-              accessibilityState={{ checked: elegido, disabled: !sePuedeComprar || tipo.agotado }}
-              accessibilityLabel={`${tipo.nombre}, ${formatearPrecio(tipo.precio)}, ${tipo.agotado ? "agotado" : `quedan ${tipo.disponibles}`}`}
-              style={[styles.tipo, elegido && styles.tipoElegido, tipo.agotado && styles.tipoAgotado]}
-            >
-              <Ionicons
-                name={elegido ? "radio-button-on" : "radio-button-off"}
-                size={22}
-                color={elegido ? colores.primario : colores.textoSecundario}
-              />
-              <View style={styles.flex}>
-                <Text style={styles.tipoNombre}>{tipo.nombre}</Text>
-                {tipo.descripcion ? <Text style={texto.secundario}>{tipo.descripcion}</Text> : null}
-                <Text style={[texto.secundario, tipo.disponibles <= 5 && styles.pocasEntradas]}>
-                  {tipo.agotado ? "Agotado" : `Quedan ${tipo.disponibles}`}
-                </Text>
-              </View>
-              <Text style={styles.tipoPrecio}>{formatearPrecio(tipo.precio)}</Text>
-            </Pressable>
-          );
-        })}
+        <View style={styles.seccion}>
+          <TituloDeSeccion>Sobre el evento</TituloDeSeccion>
+          <Text style={[texto.cuerpo, styles.descripcion]}>{evento.descripcion}</Text>
+        </View>
 
-        {tipoElegido && (
-          <View style={styles.resumenCompra}>
-            <View style={styles.filaEntre}>
-              <Text style={texto.cuerpo}>Cantidad</Text>
-              <SelectorCantidad valor={cantidad} maximo={tipoElegido.disponibles} onCambiar={setCantidad} />
-            </View>
-            <View style={styles.filaEntre}>
-              <Text style={texto.subtitulo}>Total</Text>
-              <Text style={styles.total}>{formatearPrecio(tipoElegido.precio * cantidad)}</Text>
-            </View>
-            <Boton titulo="Comprar" icono="cart" onPress={confirmarCompra} cargando={comprando} />
-            <Text style={[texto.secundario, styles.centrado]}>La compra queda pendiente hasta que la pagues.</Text>
+        <View style={styles.organizador}>
+          <View style={styles.flex}>
+            <Text style={texto.etiqueta}>Organiza</Text>
+            <Text style={texto.subtitulo}>{evento.organizador.nombreCompleto}</Text>
+          </View>
+          <Puntaje puntaje={evento.organizador.puntaje} cantidad={evento.organizador.cantidadResenias} tamanio={16} />
+        </View>
+
+        {esOrganizador && (
+          <View style={styles.avisoOrganizador}>
+            <Text style={texto.cuerpo}>Sos el organizador de este evento, así que no podés comprar entradas.</Text>
+            <FinalizarEvento evento={evento} onFinalizado={recargar} />
           </View>
         )}
-      </View>
 
-      <View style={styles.seccion}>
-        <TituloDeSeccion>Reseñas del organizador</TituloDeSeccion>
-        {evento.reseniasOrganizador.length === 0 ? (
-          <Text style={texto.secundario}>Este organizador todavía no tiene reseñas.</Text>
-        ) : (
-          evento.reseniasOrganizador.map((resenia, indice) => <ReseniaItem key={indice} resenia={resenia} />)
+        <View style={styles.seccion} onLayout={(e) => setInicioDeEntradas(e.nativeEvent.layout.y)}>
+          <TituloDeSeccion>Entradas</TituloDeSeccion>
+          {evento.tiposEntrada.map((tipo) => {
+            const elegido = tipo.id === tipoElegidoId;
+            return (
+              <Pressable
+                key={tipo.id}
+                onPress={() => elegirTipo(tipo)}
+                disabled={!sePuedeComprar || tipo.agotado}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: elegido, disabled: !sePuedeComprar || tipo.agotado }}
+                accessibilityLabel={`${tipo.nombre}, ${formatearPrecio(tipo.precio)}, ${tipo.agotado ? "agotado" : `quedan ${tipo.disponibles}`}`}
+                style={[styles.tipo, elegido && styles.tipoElegido, tipo.agotado && styles.tipoAgotado]}
+              >
+                <Ionicons
+                  name={elegido ? "radio-button-on" : "radio-button-off"}
+                  size={22}
+                  color={elegido ? colores.primario : colores.textoSecundario}
+                />
+                <View style={styles.flex}>
+                  <Text style={styles.tipoNombre}>{tipo.nombre}</Text>
+                  {tipo.descripcion ? <Text style={texto.secundario}>{tipo.descripcion}</Text> : null}
+                  <Text style={[texto.secundario, tipo.disponibles <= 5 && styles.pocasEntradas]}>
+                    {tipo.agotado ? "Agotado" : `Quedan ${tipo.disponibles}`}
+                  </Text>
+                </View>
+                <Text style={styles.tipoPrecio}>{formatearPrecio(tipo.precio)}</Text>
+              </Pressable>
+            );
+          })}
+
+          {tipoElegido && (
+            <View style={styles.resumenCompra}>
+              <View style={styles.filaEntre}>
+                <Text style={texto.cuerpo}>Cantidad</Text>
+                <SelectorCantidad valor={cantidad} maximo={tipoElegido.disponibles} onCambiar={setCantidad} />
+              </View>
+              <View style={styles.filaEntre}>
+                <Text style={texto.subtitulo}>Total</Text>
+                <Text style={styles.total}>{formatearPrecio(tipoElegido.precio * cantidad)}</Text>
+              </View>
+              <Text style={[texto.secundario, styles.centrado]}>La compra queda pendiente hasta que la pagues.</Text>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.seccion}>
+          <TituloDeSeccion>Reseñas del organizador</TituloDeSeccion>
+          {evento.reseniasOrganizador.length === 0 ? (
+            <Text style={texto.secundario}>Este organizador todavía no tiene reseñas.</Text>
+          ) : (
+            evento.reseniasOrganizador.map((resenia, indice) => <ReseniaItem key={indice} resenia={resenia} />)
+          )}
+        </View>
+      </ScrollView>
+
+      {/* Barra fija de abajo con el botón verde principal, como "Seleccionar Entradas" en la app de Punch */}
+      <View style={[styles.barra, { paddingBottom: Math.max(bottom, espaciado.m) }]}>
+        {tipoElegido && !accion.deshabilitado && !esOrganizador && (
+          <View style={styles.resumenDeLaBarra}>
+            <Text style={texto.pie}>
+              Total · {cantidad} {cantidad === 1 ? "entrada" : "entradas"}
+            </Text>
+            <Text style={styles.totalDeLaBarra}>{formatearPrecio(tipoElegido.precio * cantidad)}</Text>
+          </View>
         )}
+        <View style={styles.flex}>
+          <Boton
+            titulo={accion.titulo}
+            icono={accion.icono}
+            onPress={accion.onPress}
+            cargando={accion.cargando}
+            deshabilitado={accion.deshabilitado}
+          />
+        </View>
       </View>
-    </ScrollView>
+    </View>
+  );
+}
+
+function Dato({ icono, etiqueta, valor }) {
+  return (
+    <View style={styles.dato}>
+      <View style={styles.iconoDelDato}>
+        <Ionicons name={icono} size={18} color={colores.primarioClaro} />
+      </View>
+      <View style={styles.flex}>
+        <Text style={styles.etiquetaDelDato}>{etiqueta}</Text>
+        <Text style={styles.valorDelDato} numberOfLines={2}>
+          {valor}
+        </Text>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  contenedor: { paddingBottom: espaciado.xl * 2, gap: espaciado.l },
+  pantalla: { flex: 1 },
+  contenedor: { paddingBottom: 130, gap: espaciado.l },
   seccion: { paddingHorizontal: espaciado.l, gap: espaciado.s },
   avisoOrganizador: { marginHorizontal: espaciado.l, gap: espaciado.m },
-  fila: { flexDirection: "row", alignItems: "center", gap: espaciado.s },
+  accionesDelEncabezado: { flexDirection: "row", alignItems: "center", gap: espaciado.l },
   filaEntre: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   flex: { flex: 1 },
-  descripcion: { color: colores.textoSecundario, lineHeight: 22 },
-  aviso: { color: colores.peligro, fontWeight: "600" },
+  titulo: { ...fuente, fontSize: 30, lineHeight: 34, fontWeight: "800", letterSpacing: -0.8, color: colores.texto },
+  datos: { flexDirection: "row", gap: espaciado.m, paddingHorizontal: espaciado.l },
+  dato: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: espaciado.s + 2,
+    padding: espaciado.m,
+    borderRadius: radio.m + 2,
+    borderCurve: "continuous",
+    backgroundColor: colores.superficie,
+    ...contorno,
+  },
+  iconoDelDato: {
+    width: 38,
+    height: 38,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 11,
+    borderCurve: "continuous",
+    backgroundColor: colores.primarioSuave,
+  },
+  etiquetaDelDato: {
+    ...fuente,
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    color: colores.textoApagado,
+  },
+  valorDelDato: { ...fuente, fontSize: 14, fontWeight: "700", color: colores.texto },
+  descripcion: { color: colores.textoSecundario, lineHeight: 23 },
+  aviso: { color: colores.peligro, fontWeight: "700" },
   organizador: {
     flexDirection: "row",
     alignItems: "center",
@@ -231,4 +330,20 @@ const styles = StyleSheet.create({
   },
   total: { fontSize: 24, fontWeight: "800", letterSpacing: -0.4, color: colores.primarioClaro },
   centrado: { textAlign: "center" },
+  barra: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: espaciado.l,
+    paddingTop: espaciado.m,
+    paddingHorizontal: espaciado.l,
+    borderTopWidth: 1,
+    borderTopColor: colores.borde,
+    backgroundColor: "rgba(0,0,0,0.96)",
+  },
+  resumenDeLaBarra: { gap: 2 },
+  totalDeLaBarra: { ...fuente, fontSize: 20, fontWeight: "800", letterSpacing: -0.3, color: colores.texto },
 });
