@@ -53,6 +53,8 @@ export class EventoService {
       nombre: evento.nombre,
       categoria: evento.categoria.nombre,
       fecha: evento.fecha,
+      lugar: evento.lugar,
+      ciudad: evento.ciudad,
       imagen: evento.multimedia[0] ?? null,
       precioMinimo: evento.precioMinimo(),
       agotado: evento.estaAgotado(),
@@ -74,13 +76,16 @@ export class EventoService {
 
   // --- Casos de uso ---
 
-  // Búsqueda textual, filtro por categoría y rango de precio, orden y paginado
+  // Búsqueda textual, filtro por categoría, ciudad, rango de precio y de fecha, orden y paginado
   async buscarEventos(
     {
       texto,
       categoria,
+      ciudad,
       precioMinimo,
       precioMaximo,
+      fechaDesde,
+      fechaHasta,
       orden = "fecha",
       direccion,
       incluirPasados = false,
@@ -92,13 +97,18 @@ export class EventoService {
     if (precioMinimo !== undefined && precioMaximo !== undefined && precioMinimo > precioMaximo) {
       throw new ValidationError("El precio mínimo no puede ser mayor al precio máximo");
     }
+    if (fechaDesde && fechaHasta && fechaDesde > fechaHasta) {
+      throw new ValidationError("La fecha desde no puede ser posterior a la fecha hasta");
+    }
 
     const eventos = (await this.eventoRepository.buscarTodos()).filter(
       (evento) =>
         (incluirPasados || !evento.yaSeRealizo(ahora)) &&
         (!texto || evento.coincideCon(texto)) &&
         (!categoria || evento.esDeCategoria({ nombre: categoria })) &&
-        evento.tuPrecioEstaEntre(precioMinimo ?? 0, precioMaximo ?? Infinity),
+        (!ciudad || evento.estaEnCiudad(ciudad)) &&
+        evento.tuPrecioEstaEntre(precioMinimo ?? 0, precioMaximo ?? Infinity) &&
+        evento.tuFechaEstaEntre(fechaDesde, fechaHasta),
     );
 
     const reputaciones = await this._reputacionesDe(eventos.map((evento) => evento.organizador));
@@ -118,6 +128,15 @@ export class EventoService {
     };
   }
 
+  // Ciudades donde hay eventos próximos, sin repetir y en orden alfabético (para el filtro de ubicación)
+  async listarCiudades(ahora = new Date()) {
+    const eventos = await this.eventoRepository.buscarTodos();
+    const ciudades = eventos
+      .filter((evento) => evento.ciudad !== null && !evento.yaSeRealizo(ahora))
+      .map((evento) => evento.ciudad);
+    return [...new Set(ciudades)].toSorted((a, b) => a.localeCompare(b, "es"));
+  }
+
   // Detalle de un evento, con las reseñas de los eventos anteriores de su organizador (primero las de este
   // mismo evento, si ya se realizó, y después las más recientes de los demás).
   // Si hay un usuario identificado, indica además si el evento está entre sus favoritos.
@@ -127,8 +146,10 @@ export class EventoService {
     const reputacion = this._reputacion(resenias);
     const esDeEsteEvento = (resenia) => Number(resenia.evento.id === evento.id);
 
+    const resumen = this.toResumenDTO(evento, reputacion, ahora);
     return {
-      ...this.toResumenDTO(evento, reputacion, ahora),
+      ...resumen,
+      organizador: await this._conSeguidores(resumen.organizador, evento.organizador, usuario),
       descripcion: evento.descripcion,
       multimedia: evento.multimedia,
       tiposEntrada: evento.tiposEntrada.map((tipo) => this.tipoEntradaToDTO(tipo)),
@@ -157,10 +178,42 @@ export class EventoService {
     await this.usuarioRepository.guardar(usuario);
   }
 
+  // --- Organizadores que sigue el usuario (Usuario.seguidos) ---
+
+  async listarSeguidos(usuario) {
+    const reputaciones = await this._reputacionesDe(usuario.seguidos);
+    return Promise.all(
+      usuario.seguidos.map((organizador) =>
+        this._conSeguidores(this.organizadorToDTO(organizador, reputaciones.get(organizador)), organizador, usuario),
+      ),
+    );
+  }
+
+  // Como los favoritos, seguir y dejar de seguir son idempotentes (PUT y DELETE)
+  async seguirOrganizador(usuario, organizadorId) {
+    usuario.seguir(await this._buscarOrganizador(organizadorId));
+    await this.usuarioRepository.guardar(usuario);
+  }
+
+  async dejarDeSeguirOrganizador(usuario, organizadorId) {
+    usuario.dejarDeSeguir(await this._buscarOrganizador(organizadorId));
+    await this.usuarioRepository.guardar(usuario);
+  }
+
+  // Suma a los datos del organizador cuántos usuarios lo siguen y si lo sigue el usuario identificado (si hay uno)
+  async _conSeguidores(organizadorDTO, organizador, usuario = null) {
+    const usuarios = await this.usuarioRepository.buscarTodos();
+    return {
+      ...organizadorDTO,
+      seguidores: usuarios.filter((otro) => otro.sigueA(organizador)).length,
+      loSigo: usuario?.sigueA(organizador) ?? false,
+    };
+  }
+
   // El usuario identificado publica un evento y queda como su organizador
   async crearEvento(
     organizador,
-    { nombre, descripcion, categoriaId, fecha, multimedia, tiposEntrada },
+    { nombre, descripcion, categoriaId, fecha, multimedia, tiposEntrada, lugar, ciudad },
     ahora = new Date(),
   ) {
     if (categoriaId === undefined) {
@@ -171,7 +224,17 @@ export class EventoService {
       throw new NotFoundError(`La categoría con id ${categoriaId} no existe`);
     }
 
-    const evento = new Evento({ nombre, descripcion, categoria, fecha, multimedia, tiposEntrada, organizador });
+    const evento = new Evento({
+      nombre,
+      descripcion,
+      categoria,
+      fecha,
+      multimedia,
+      tiposEntrada,
+      organizador,
+      lugar,
+      ciudad,
+    });
     evento.validarQueLaFechaSeaFutura(ahora);
 
     const guardado = await this.eventoRepository.guardar(evento);
@@ -210,11 +273,15 @@ export class EventoService {
   }
 
   // Reputación de un organizador: su puntaje promedio y las reseñas de sus eventos, de la más nueva a la más vieja
-  async obtenerReputacionDeOrganizador(organizadorId) {
+  async obtenerReputacionDeOrganizador(organizadorId, usuario = null) {
     const organizador = await this._buscarOrganizador(organizadorId);
     const resenias = await this.compraRepository.buscarReseniasDeOrganizador(organizador);
     return {
-      organizador: this.organizadorToDTO(organizador, this._reputacion(resenias)),
+      organizador: await this._conSeguidores(
+        this.organizadorToDTO(organizador, this._reputacion(resenias)),
+        organizador,
+        usuario,
+      ),
       resenias: resenias.toSorted((a, b) => b.fecha - a.fecha).map((resenia) => this.reseniaToDTO(resenia)),
     };
   }

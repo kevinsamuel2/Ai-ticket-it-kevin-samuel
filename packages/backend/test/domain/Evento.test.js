@@ -159,6 +159,65 @@ describe("Dominio: Evento", () => {
     });
   });
 
+  describe("Lugar y ciudad", () => {
+    it("son opcionales: sin informarlos quedan en null", () => {
+      const evento = crearEvento();
+
+      expect(evento.lugar).toBeNull();
+      expect(evento.ciudad).toBeNull();
+    });
+
+    it("se guardan sin espacios de más", () => {
+      const evento = crearEvento({ lugar: "  Estadio Obras  ", ciudad: " Buenos Aires " });
+
+      expect(evento.lugar).toBe("Estadio Obras");
+      expect(evento.ciudad).toBe("Buenos Aires");
+    });
+
+    it("error si se informan vacíos", () => {
+      expect(() => crearEvento({ lugar: "  " })).toThrow("El lugar del evento no puede estar vacío");
+      expect(() => crearEvento({ ciudad: "" })).toThrow("La ciudad del evento no puede estar vacía");
+    });
+
+    it("estaEnCiudad compara sin distinguir mayúsculas ni tildes", () => {
+      const evento = crearEvento({ ciudad: "Córdoba" });
+
+      expect(evento.estaEnCiudad("cordoba")).toBe(true);
+      expect(evento.estaEnCiudad("CÓRDOBA")).toBe(true);
+      expect(evento.estaEnCiudad("Rosario")).toBe(false);
+      expect(crearEvento().estaEnCiudad("Córdoba")).toBe(false);
+    });
+
+    it("coincideCon también busca en el lugar y la ciudad", () => {
+      const evento = crearEvento({ lugar: "Estadio Obras", ciudad: "Córdoba" });
+
+      expect(evento.coincideCon("obras")).toBe(true);
+      expect(evento.coincideCon("CORDOBA")).toBe(true);
+      expect(evento.coincideCon("mendoza")).toBe(false);
+    });
+  });
+
+  describe("tuFechaEstaEntre", () => {
+    const evento = crearEvento({ fecha: "2026-12-05T21:00:00.000Z" });
+    const fecha = (texto) => new Date(texto);
+
+    it("es true si la fecha cae dentro del rango, con los extremos incluidos", () => {
+      expect(evento.tuFechaEstaEntre(fecha("2026-12-01T00:00:00.000Z"), fecha("2026-12-31T00:00:00.000Z"))).toBe(true);
+      expect(evento.tuFechaEstaEntre(fecha("2026-12-05T21:00:00.000Z"), fecha("2026-12-05T21:00:00.000Z"))).toBe(true);
+    });
+
+    it("es false si cae antes o después del rango", () => {
+      expect(evento.tuFechaEstaEntre(fecha("2026-12-06T00:00:00.000Z"), undefined)).toBe(false);
+      expect(evento.tuFechaEstaEntre(undefined, fecha("2026-12-05T20:59:59.000Z"))).toBe(false);
+    });
+
+    it("cada extremo es opcional", () => {
+      expect(evento.tuFechaEstaEntre(undefined, undefined)).toBe(true);
+      expect(evento.tuFechaEstaEntre(fecha("2026-12-01T00:00:00.000Z"), undefined)).toBe(true);
+      expect(evento.tuFechaEstaEntre(undefined, fecha("2026-12-31T00:00:00.000Z"))).toBe(true);
+    });
+  });
+
   describe("Finalización", () => {
     const antesDelEvento = new Date("2026-12-01T12:00:00.000Z");
 

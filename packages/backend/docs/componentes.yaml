@@ -13,6 +13,14 @@ components:
       schema:
         type: integer
         example: 1
+    OrganizadorIdPath:
+      name: organizadorId
+      in: path
+      required: true
+      description: Id del usuario que organiza eventos.
+      schema:
+        type: integer
+        example: 1
     CompraIdPath:
       name: compraId
       in: path
@@ -115,6 +123,19 @@ components:
           example: 4.5
         cantidadResenias: { type: integer, example: 2 }
 
+    OrganizadorConSeguidores:
+      allOf:
+        - $ref: "#/components/schemas/Organizador"
+        - type: object
+          properties:
+            seguidores:
+              type: integer
+              description: Cuántos usuarios siguen al organizador.
+              example: 3
+            loSigo:
+              type: boolean
+              description: Si lo sigue el usuario identificado (false sin sesión).
+
     TipoEntrada:
       type: object
       properties:
@@ -142,6 +163,15 @@ components:
         nombre: { type: string, example: Divididos en Obras }
         categoria: { type: string, example: Recitales }
         fecha: { type: string, format: date-time }
+        lugar:
+          type: string
+          nullable: true
+          description: Dónde se realiza (null si el organizador no lo informó).
+          example: Estadio Obras Sanitarias
+        ciudad:
+          type: string
+          nullable: true
+          example: Buenos Aires
         imagen:
           {
             type: string,
@@ -175,6 +205,8 @@ components:
         - $ref: "#/components/schemas/EventoResumen"
         - type: object
           properties:
+            organizador:
+              $ref: "#/components/schemas/OrganizadorConSeguidores"
             descripcion: { type: string }
             multimedia:
               type: array

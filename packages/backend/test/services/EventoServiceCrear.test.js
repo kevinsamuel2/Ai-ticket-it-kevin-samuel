@@ -41,7 +41,10 @@ describe("EventoService: crear evento y eventos de un organizador", () => {
         buscarPorOrganizador: jest.fn(),
       },
       compraRepository: { buscarReseniasDeOrganizador: jest.fn().mockResolvedValue([]) },
-      usuarioRepository: { buscarPorId: jest.fn(async (id) => (Number(id) === 1 ? organizador : null)) },
+      usuarioRepository: {
+        buscarPorId: jest.fn(async (id) => (Number(id) === 1 ? organizador : null)),
+        buscarTodos: jest.fn().mockResolvedValue([organizador]),
+      },
     };
     service = new EventoService(repos);
   });

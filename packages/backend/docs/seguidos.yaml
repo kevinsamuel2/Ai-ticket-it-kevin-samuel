@@ -1,0 +1,53 @@
+paths:
+  /seguidos:
+    get:
+      tags: [Seguidos]
+      summary: Organizadores que sigo
+      description: Los organizadores que el usuario identificado sigue (Usuario.seguidos), con su reputación y su
+        cantidad de seguidores.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Organizadores seguidos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrganizadorConSeguidores"
+        "401":
+          $ref: "#/components/responses/NoIdentificado"
+
+  /seguidos/{organizadorId}:
+    put:
+      tags: [Seguidos]
+      summary: Seguir a un organizador
+      description: Es idempotente, seguir dos veces al mismo organizador no lo duplica. Nadie puede seguirse a sí mismo.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/OrganizadorIdPath"
+      responses:
+        "204":
+          description: El organizador quedó entre los seguidos.
+        "401":
+          $ref: "#/components/responses/NoIdentificado"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"
+        "422":
+          $ref: "#/components/responses/ReglaDeNegocio"
+    delete:
+      tags: [Seguidos]
+      summary: Dejar de seguir a un organizador
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/OrganizadorIdPath"
+      responses:
+        "204":
+          description: El organizador ya no está entre los seguidos.
+        "401":
+          $ref: "#/components/responses/NoIdentificado"
+        "404":
+          $ref: "#/components/responses/NoEncontrado"

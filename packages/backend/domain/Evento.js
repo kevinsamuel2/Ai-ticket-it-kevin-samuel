@@ -2,14 +2,17 @@ import { UnprocessableEntityError } from "../errors/UnprocessableEntityError.js"
 import { NotFoundError } from "../errors/NotFoundError.js";
 import { ConflictError } from "../errors/ConflictError.js";
 import { TipoEntrada } from "./TipoEntrada.js";
-import { validarTextoNoVacio, validarFecha } from "./validaciones.js";
+import { validarTextoNoVacio, validarTextoOpcional, validarFecha, normalizarTexto } from "./validaciones.js";
 
 const MILISEGUNDOS_POR_DIA = 24 * 60 * 60 * 1000;
 
 export class Evento {
-  constructor({ nombre, descripcion, categoria, fecha, tiposEntrada, multimedia = [], organizador }) {
+  // El lugar (ej: "Estadio Obras") y la ciudad (ej: "Buenos Aires") son opcionales, pero si se informan no pueden estar vacíos
+  constructor({ nombre, descripcion, categoria, fecha, tiposEntrada, multimedia = [], organizador, lugar, ciudad }) {
     this.nombre = validarTextoNoVacio(nombre, "El evento debe tener un nombre");
     this.descripcion = validarTextoNoVacio(descripcion, "El evento debe tener una descripción");
+    this.lugar = validarTextoOpcional(lugar, "El lugar del evento no puede estar vacío");
+    this.ciudad = validarTextoOpcional(ciudad, "La ciudad del evento no puede estar vacía");
     if (!categoria) {
       throw new UnprocessableEntityError("El evento debe tener una categoría");
     }
@@ -101,6 +104,16 @@ export class Evento {
     return this.tiposEntrada.some((tipo) => tipo.precioEstaEntre(minimo, maximo));
   }
 
+  // Misma idea que tuPrecioEstaEntre: true si la fecha del evento cae dentro del rango (cualquiera de los extremos es opcional)
+  tuFechaEstaEntre(desde, hasta) {
+    return (!desde || this.fecha >= desde) && (!hasta || this.fecha <= hasta);
+  }
+
+  // La ciudad se compara sin distinguir mayúsculas ni tildes
+  estaEnCiudad(ciudad) {
+    return this.ciudad !== null && normalizarTexto(this.ciudad) === normalizarTexto(ciudad);
+  }
+
   estaAgotado() {
     return this.tiposEntrada.every((tipo) => tipo.estaAgotado());
   }
@@ -113,14 +126,11 @@ export class Evento {
     return this.categoria.esLaMismaQue(categoria);
   }
 
-  // Búsqueda textual sin distinguir mayúsculas ni tildes, sobre nombre, descripción y categoría
+  // Búsqueda textual sin distinguir mayúsculas ni tildes, sobre nombre, descripción, categoría, lugar y ciudad
   coincideCon(texto) {
-    const normalizar = (valor) =>
-      valor
-        .normalize("NFD")
-        .replace(/\p{Diacritic}/gu, "")
-        .toLowerCase();
-    const buscado = normalizar(texto.trim());
-    return [this.nombre, this.descripcion, this.categoria.nombre].some((campo) => normalizar(campo).includes(buscado));
+    const buscado = normalizarTexto(texto);
+    return [this.nombre, this.descripcion, this.categoria.nombre, this.lugar, this.ciudad]
+      .filter((campo) => campo !== null)
+      .some((campo) => normalizarTexto(campo).includes(buscado));
   }
 }

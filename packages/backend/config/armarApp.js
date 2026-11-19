@@ -16,7 +16,12 @@ import { CompraController } from "../controllers/Compra.controller.js";
 import { crearSesionRouter } from "../routes/sesion.routes.js";
 import { crearUsuarioRouter } from "../routes/usuario.routes.js";
 import { crearCategoriaRouter } from "../routes/categoria.routes.js";
-import { crearEventoRouter, crearFavoritoRouter, crearOrganizadorRouter } from "../routes/evento.routes.js";
+import {
+  crearEventoRouter,
+  crearFavoritoRouter,
+  crearOrganizadorRouter,
+  crearSeguidoRouter,
+} from "../routes/evento.routes.js";
 import { crearCompraRouter, crearComprasDeEventoRouter } from "../routes/compra.routes.js";
 
 // Services a partir de los repositorios. Se arma aparte porque además de la API los usan los cron jobs.
@@ -55,6 +60,7 @@ export function armarApp(repositorios, services = armarServices(repositorios)) {
       "/eventos/:eventoId/compras": crearComprasDeEventoRouter(compraController),
       "/eventos": crearEventoRouter(eventoController),
       "/favoritos": crearFavoritoRouter(eventoController),
+      "/seguidos": crearSeguidoRouter(eventoController),
       "/compras": crearCompraRouter(compraController),
     },
   });

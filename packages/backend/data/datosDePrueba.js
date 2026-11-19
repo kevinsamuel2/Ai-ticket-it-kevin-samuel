@@ -55,7 +55,30 @@ export async function cargarDatosDePrueba(
   }
 
   // --- Eventos ---
-  const crearEvento = (datos) => eventoRepository.guardar(new Evento(datos));
+  // Dónde se realiza cada evento (lugar y ciudad), por nombre del evento, para no repetirlo en cada alta
+  const UBICACIONES = {
+    "Divididos en Obras": { lugar: "Estadio Obras Sanitarias", ciudad: "Buenos Aires" },
+    "Quilmes Rock": { lugar: "Tecnópolis", ciudad: "Buenos Aires" },
+    "Escalandrum en Bebop Club": { lugar: "Bebop Club", ciudad: "Buenos Aires" },
+    "Ferro vs. Obras - Liga Nacional": { lugar: "Estadio Héctor Etchart", ciudad: "Buenos Aires" },
+    "Esperando la carroza": { lugar: "Multiteatro", ciudad: "Buenos Aires" },
+    "Stand-up en Belushi": { lugar: "Belushi Bar", ciudad: "Buenos Aires" },
+    Nerdearla: { lugar: "Ciudad Cultural Konex", ciudad: "Buenos Aires" },
+    "Ciro y Los Persas en Vorterix": { lugar: "Teatro Vorterix", ciudad: "Buenos Aires" },
+    "El método Grönholm": { lugar: "Teatro Picadero", ciudad: "Buenos Aires" },
+    "Stand-up en La Tangente": { lugar: "La Tangente", ciudad: "Buenos Aires" },
+    "Bad Bunny en River": { lugar: "Estadio Monumental", ciudad: "Buenos Aires" },
+    "Párense de Manos IV": { lugar: "Estadio Ciudad de Vicente López", ciudad: "Vicente López" },
+    "Copa Potrero": { lugar: "Complejo Deportivo Potrero", ciudad: "Buenos Aires" },
+    "Lollapalooza Argentina": { lugar: "Hipódromo de San Isidro", ciudad: "San Isidro" },
+    "Cosquín Rock": { lugar: "Aeroparque Ciudad de Santa María de Punilla", ciudad: "Córdoba" },
+    "Superclásico: Boca vs. River": { lugar: "La Bombonera", ciudad: "Buenos Aires" },
+    "Párense de Manos III": { lugar: "Estadio Ciudad de Vicente López", ciudad: "Vicente López" },
+    "Copa Potrero: fase de grupos": { lugar: "Complejo Deportivo Potrero", ciudad: "Buenos Aires" },
+    "Trueno en Movistar Arena": { lugar: "Movistar Arena", ciudad: "Buenos Aires" },
+    "Nicki Nicole en el Luna Park": { lugar: "Luna Park", ciudad: "Buenos Aires" },
+  };
+  const crearEvento = (datos) => eventoRepository.guardar(new Evento({ ...UBICACIONES[datos.nombre], ...datos }));
 
   const divididos = await crearEvento({
     nombre: "Divididos en Obras",
@@ -289,6 +312,12 @@ export async function cargarDatosDePrueba(
   nahuel.agregarFavorito(quilmesRock);
   nahuel.agregarFavorito(escalandrum);
   agustina.agregarFavorito(carroza);
+
+  // --- Organizadores que siguen los usuarios ---
+  nahuel.seguir(florencia);
+  nahuel.seguir(camila);
+  agustina.seguir(gonzalo);
+  gonzalo.seguir(ramiro);
 
   // --- Compras en distintos estados ---
   const UN_DIA = 24 * 60 * 60 * 1000;

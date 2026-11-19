@@ -53,6 +53,44 @@ describe("Dominio: Usuario", () => {
     });
   });
 
+  describe("Organizadores seguidos", () => {
+    const organizador = Object.assign(new Usuario({ nombre: "Florencia", apellido: "Acosta" }), { id: 1 });
+    const otroOrganizador = Object.assign(new Usuario({ nombre: "Gonzalo", apellido: "Pereyra" }), { id: 2 });
+    const nuevoSeguidor = () => Object.assign(new Usuario(datosValidos), { id: 10 });
+
+    it("empieza sin seguir a nadie", () => {
+      expect(nuevoSeguidor().seguidos).toEqual([]);
+    });
+
+    it("sigue a un organizador y repetirlo no lo duplica", () => {
+      const usuario = nuevoSeguidor();
+
+      usuario.seguir(organizador);
+      usuario.seguir(organizador);
+
+      expect(usuario.seguidos).toEqual([organizador]);
+      expect(usuario.sigueA(organizador)).toBe(true);
+      expect(usuario.sigueA(otroOrganizador)).toBe(false);
+    });
+
+    it("deja de seguir a un organizador y no falla si no lo seguía", () => {
+      const usuario = nuevoSeguidor();
+      usuario.seguir(organizador);
+      usuario.seguir(otroOrganizador);
+
+      usuario.dejarDeSeguir(organizador);
+      usuario.dejarDeSeguir(organizador);
+
+      expect(usuario.seguidos).toEqual([otroOrganizador]);
+    });
+
+    it("nadie puede seguirse a sí mismo", () => {
+      expect(() => organizador.seguir(organizador)).toThrow(UnprocessableEntityError);
+      expect(() => organizador.seguir(organizador)).toThrow("No podés seguirte a vos mismo");
+      expect(organizador.seguidos).toEqual([]);
+    });
+  });
+
   describe("esElMismoQue", () => {
     it("compara por id cuando el usuario ya está persistido", () => {
       const usuario = Object.assign(new Usuario(datosValidos), { id: 1 });

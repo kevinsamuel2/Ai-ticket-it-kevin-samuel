@@ -85,7 +85,7 @@ paths:
                 type: object
                 properties:
                   organizador:
-                    $ref: "#/components/schemas/Organizador"
+                    $ref: "#/components/schemas/OrganizadorConSeguidores"
                   resenias:
                     type: array
                     items:

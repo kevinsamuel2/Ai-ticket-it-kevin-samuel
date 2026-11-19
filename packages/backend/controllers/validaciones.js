@@ -39,6 +39,16 @@ export function parsearNumeroNoNegativo(valor, nombreParametro) {
   return numero;
 }
 
+// Fecha y hora en formato ISO (ej: 2026-12-01T00:00:00.000Z). Los clientes mandan el rango ya en su zona horaria.
+export function parsearFechaIso(valor, nombreParametro) {
+  if (valor === undefined) return undefined;
+  const fecha = typeof valor === "string" && valor.trim() ? new Date(valor) : null;
+  if (!fecha || Number.isNaN(fecha.getTime())) {
+    throw new ValidationError(`El parámetro ${nombreParametro} debe ser una fecha válida (formato ISO 8601)`);
+  }
+  return fecha;
+}
+
 export function parsearOpcion(valor, nombreParametro, opcionesValidas, valorPorDefecto) {
   if (valor === undefined) return valorPorDefecto;
   if (!opcionesValidas.includes(valor)) {

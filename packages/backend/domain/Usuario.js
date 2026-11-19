@@ -1,3 +1,4 @@
+import { UnprocessableEntityError } from "../errors/UnprocessableEntityError.js";
 import { validarTextoNoVacio } from "./validaciones.js";
 
 // Un mismo usuario puede comprar entradas y organizar eventos: el rol lo define cada caso de uso,
@@ -7,6 +8,7 @@ export class Usuario {
     this.nombre = validarTextoNoVacio(nombre, "El usuario debe tener un nombre");
     this.apellido = validarTextoNoVacio(apellido, "El usuario debe tener un apellido");
     this.favoritos = [];
+    this.seguidos = [];
   }
 
   nombreCompleto() {
@@ -26,6 +28,25 @@ export class Usuario {
 
   quitarFavorito(evento) {
     this.favoritos = this.favoritos.filter((favorito) => favorito !== evento);
+  }
+
+  sigueA(organizador) {
+    return this.seguidos.includes(organizador);
+  }
+
+  // Seguir a un organizador para enterarse de sus eventos. Como los favoritos, seguir o dejar de seguir dos veces
+  // no tiene efecto (idempotente), y nadie puede seguirse a sí mismo
+  seguir(organizador) {
+    if (this.esElMismoQue(organizador)) {
+      throw new UnprocessableEntityError("No podés seguirte a vos mismo");
+    }
+    if (!this.sigueA(organizador)) {
+      this.seguidos.push(organizador);
+    }
+  }
+
+  dejarDeSeguir(organizador) {
+    this.seguidos = this.seguidos.filter((seguido) => seguido !== organizador);
   }
 
   esElMismoQue(otroUsuario) {

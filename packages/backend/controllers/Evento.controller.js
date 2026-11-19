@@ -6,10 +6,20 @@ import {
   parsearNumeroNoNegativo,
   parsearOpcion,
   parsearBooleano,
+  parsearFechaIso,
 } from "./validaciones.js";
 
 const LIMITE_MAXIMO_POR_PAGINA = 50;
-const CAMPOS_EVENTO = ["nombre", "descripcion", "categoriaId", "fecha", "multimedia", "tiposEntrada"];
+const CAMPOS_EVENTO = [
+  "nombre",
+  "descripcion",
+  "categoriaId",
+  "fecha",
+  "multimedia",
+  "tiposEntrada",
+  "lugar",
+  "ciudad",
+];
 const CAMPOS_TIPO_ENTRADA = ["nombre", "descripcion", "precio", "cupo"];
 
 export class EventoController {
@@ -17,14 +27,18 @@ export class EventoController {
     this.eventoService = eventoService;
   }
 
-  // GET /eventos?texto=&categoria=&precioMinimo=&precioMaximo=&orden=&direccion=&incluirPasados=&page=&limit=
+  // GET /eventos?texto=&categoria=&ciudad=&precioMinimo=&precioMaximo=&fechaDesde=&fechaHasta=&orden=&direccion=
+  //   &incluirPasados=&page=&limit=
   async buscarEventos(req, res) {
-    const { texto, categoria } = req.query;
+    const { texto, categoria, ciudad } = req.query;
     const filtros = {
       texto: texto?.trim() || undefined,
       categoria: categoria?.trim() || undefined,
+      ciudad: ciudad?.trim() || undefined,
       precioMinimo: parsearNumeroNoNegativo(req.query.precioMinimo, "precioMinimo"),
       precioMaximo: parsearNumeroNoNegativo(req.query.precioMaximo, "precioMaximo"),
+      fechaDesde: parsearFechaIso(req.query.fechaDesde, "fechaDesde"),
+      fechaHasta: parsearFechaIso(req.query.fechaHasta, "fechaHasta"),
       orden: parsearOpcion(req.query.orden, "orden", ORDENES_VALIDOS, "fecha"),
       direccion: parsearOpcion(req.query.direccion, "direccion", ["asc", "desc"], undefined),
       incluirPasados: parsearBooleano(req.query.incluirPasados, "incluirPasados", false),
@@ -32,6 +46,11 @@ export class EventoController {
       limit: Math.min(parsearEnteroPositivo(req.query.limit, "limit", 10), LIMITE_MAXIMO_POR_PAGINA),
     };
     res.status(200).json(await this.eventoService.buscarEventos(filtros));
+  }
+
+  // GET /eventos/ciudades — para el filtro de ubicación
+  async listarCiudades(req, res) {
+    res.status(200).json(await this.eventoService.listarCiudades());
   }
 
   async obtenerEvento(req, res) {
@@ -74,6 +93,23 @@ export class EventoController {
     res.status(204).send();
   }
 
+  // GET /seguidos — los organizadores que sigue el usuario identificado
+  async listarSeguidos(req, res) {
+    res.status(200).json(await this.eventoService.listarSeguidos(req.usuario));
+  }
+
+  // PUT /seguidos/:organizadorId
+  async seguirOrganizador(req, res) {
+    await this.eventoService.seguirOrganizador(req.usuario, req.params.organizadorId);
+    res.status(204).send();
+  }
+
+  // DELETE /seguidos/:organizadorId
+  async dejarDeSeguirOrganizador(req, res) {
+    await this.eventoService.dejarDeSeguirOrganizador(req.usuario, req.params.organizadorId);
+    res.status(204).send();
+  }
+
   // GET /usuarios/:usuarioId/eventos
   async listarEventosDeOrganizador(req, res) {
     res.status(200).json(await this.eventoService.listarEventosDeOrganizador(req.params.usuarioId));
@@ -81,6 +117,6 @@ export class EventoController {
 
   // GET /usuarios/:usuarioId/resenias
   async obtenerReputacionDeOrganizador(req, res) {
-    res.status(200).json(await this.eventoService.obtenerReputacionDeOrganizador(req.params.usuarioId));
+    res.status(200).json(await this.eventoService.obtenerReputacionDeOrganizador(req.params.usuarioId, req.usuario));
   }
 }

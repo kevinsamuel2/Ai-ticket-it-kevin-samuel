@@ -4,10 +4,10 @@ paths:
       tags:
         - Eventos
       summary: Buscar y explorar eventos
-      description: Búsqueda textual (en nombre, descripción y categoría, sin
-        distinguir mayúsculas ni tildes), filtro por categoría y rango de
-        precio, orden y paginado. Por defecto lista solo los eventos que todavía
-        no se realizaron.
+      description: Búsqueda textual (en nombre, descripción, categoría, lugar y
+        ciudad, sin distinguir mayúsculas ni tildes), filtro por categoría,
+        ciudad, rango de precio y rango de fechas, orden y paginado. Por defecto
+        lista solo los eventos que todavía no se realizaron.
       parameters:
         - name: texto
           in: query
@@ -19,6 +19,29 @@ paths:
           schema:
             type: string
           example: Recitales
+        - name: ciudad
+          in: query
+          description: Ciudad del evento, sin distinguir mayúsculas ni tildes. Las
+            ciudades disponibles salen de `GET /eventos/ciudades`.
+          schema:
+            type: string
+          example: Córdoba
+        - name: fechaDesde
+          in: query
+          description: Solo eventos que se realizan desde esta fecha y hora (inclusive).
+            Formato ISO 8601.
+          schema:
+            type: string
+            format: date-time
+          example: 2026-12-01T00:00:00.000Z
+        - name: fechaHasta
+          in: query
+          description: Solo eventos que se realizan hasta esta fecha y hora (inclusive).
+            Formato ISO 8601.
+          schema:
+            type: string
+            format: date-time
+          example: 2026-12-31T23:59:59.999Z
         - name: precioMinimo
           in: query
           schema:
@@ -120,6 +143,14 @@ paths:
                   type: string
                   format: date-time
                   example: 2026-12-20T21:00:00.000Z
+                lugar:
+                  type: string
+                  description: Opcional. Dónde se realiza el evento.
+                  example: Cine Gaumont
+                ciudad:
+                  type: string
+                  description: Opcional. Ciudad del evento (se usa en el filtro de ubicación).
+                  example: Buenos Aires
                 multimedia:
                   type: array
                   items:
@@ -148,6 +179,26 @@ paths:
           $ref: "#/components/responses/ReglaDeNegocio"
       security:
         - bearerAuth: []
+  /eventos/ciudades:
+    get:
+      tags:
+        - Eventos
+      summary: Ciudades con eventos próximos
+      description: Las ciudades de los eventos que todavía no se realizaron, sin
+        repetir y en orden alfabético. Sirve para armar el filtro de ubicación.
+      responses:
+        "200":
+          description: Lista de ciudades.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example:
+                  - Buenos Aires
+                  - Córdoba
+                  - San Isidro
   "/eventos/{eventoId}":
     get:
       tags:
