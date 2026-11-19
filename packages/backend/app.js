@@ -1,3 +1,5 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import express from "express";
 import cors from "cors";
 import { errorHandler, rutaNoEncontrada } from "./middleware/errorHandler.js";
@@ -18,6 +20,9 @@ export function crearApp({ rutas = {}, middlewares = [] } = {}) {
   app.get("/health", (req, res) => {
     res.status(200).json({ status: "ok", uptime: process.uptime() });
   });
+
+  // Fotos de los eventos de ejemplo (public/fotos). Va antes de la identificación: son imágenes públicas.
+  app.use("/fotos", express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), "public", "fotos")));
 
   // Documentación de la API en /api-docs
   montarSwagger(app);

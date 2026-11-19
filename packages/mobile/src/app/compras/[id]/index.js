@@ -7,6 +7,7 @@ import { useUsuario } from "../../../context/UsuarioContext";
 import { useAvisos } from "../../../context/AvisosContext";
 import { cambiarEstado, obtenerCompra } from "../../../services/compras.service";
 import { mensajeDeError } from "../../../services/api";
+import { urlDeImagen } from "../../../utils/imagen";
 import { Cargando, MensajeError } from "../../../components/EstadosDeCarga";
 import { Boton } from "../../../components/Boton";
 import { EstadoBadge } from "../../../components/EstadoBadge";
@@ -75,7 +76,11 @@ export default function DetalleCompra() {
 
       <View style={styles.tarjeta}>
         {compra.evento.imagen && (
-          <Image source={{ uri: compra.evento.imagen }} style={styles.imagen} accessibilityIgnoresInvertColors />
+          <Image
+            source={{ uri: urlDeImagen(compra.evento.imagen) }}
+            style={styles.imagen}
+            accessibilityIgnoresInvertColors
+          />
         )}
         <View style={styles.cuerpoTarjeta}>
           <EstadoBadge estado={compra.estado} grande />

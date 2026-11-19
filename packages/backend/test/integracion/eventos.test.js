@@ -14,7 +14,7 @@ describe("API: búsqueda y detalle de eventos", () => {
     const res = await request(app).get("/eventos");
 
     expect(res.status).toBe(200);
-    expect(res.body.total).toBe(7);
+    expect(res.body.total).toBe(13);
     expect(nombres(res)[0]).toBe("Stand-up en Belushi");
   });
 
@@ -27,20 +27,22 @@ describe("API: búsqueda y detalle de eventos", () => {
   it("GET /eventos?categoria= filtra por categoría", async () => {
     const res = await request(app).get("/eventos").query({ categoria: "Recitales" });
 
-    expect(nombres(res)).toEqual(["Escalandrum en Bebop Club", "Divididos en Obras"]);
+    expect(nombres(res)).toEqual(["Escalandrum en Bebop Club", "Divididos en Obras", "Bad Bunny en River"]);
   });
 
   it("GET /eventos?orden=precio ordena por la entrada más barata", async () => {
     const res = await request(app).get("/eventos").query({ orden: "precio" });
 
-    expect(res.body.items.map((e) => e.precioMinimo)).toEqual([0, 9000, 12000, 15000, 16000, 25000, 45000]);
+    expect(res.body.items.map((e) => e.precioMinimo)).toEqual([
+      0, 8000, 9000, 12000, 15000, 16000, 25000, 30000, 45000, 50000,
+    ]);
   });
 
   it("GET /eventos?orden=puntaje ordena por la reputación del organizador", async () => {
     const res = await request(app).get("/eventos").query({ orden: "puntaje" });
     const puntajes = res.body.items.map((e) => e.organizador.puntaje);
 
-    expect(puntajes).toEqual([4.5, 4.5, 4.5, 4.5, 3.8, 3.8, 3.8]);
+    expect(puntajes).toEqual([4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 3.8, 3.8, 3.8]);
   });
 
   it("responde 400 con parámetros de búsqueda inválidos", async () => {

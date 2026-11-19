@@ -17,7 +17,7 @@ describe("Datos de prueba y repositorios", () => {
   it("carga usuarios, categorías, eventos y compras", async () => {
     expect(await repos.usuarioRepository.buscarTodos()).toHaveLength(4);
     expect(await repos.categoriaRepository.buscarTodos()).toHaveLength(6);
-    expect(await repos.eventoRepository.buscarTodos()).toHaveLength(10);
+    expect(await repos.eventoRepository.buscarTodos()).toHaveLength(16);
     expect((await repos.compraRepository.buscarTodos()).length).toBeGreaterThan(0);
   });
 
@@ -32,7 +32,7 @@ describe("Datos de prueba y repositorios", () => {
   it("hay eventos futuros para comprar y eventos pasados", async () => {
     const eventos = await repos.eventoRepository.buscarTodos();
 
-    expect(eventos.filter((e) => !e.yaSeRealizo(ahora))).toHaveLength(7);
+    expect(eventos.filter((e) => !e.yaSeRealizo(ahora))).toHaveLength(13);
     expect(eventos.filter((e) => e.yaSeRealizo(ahora))).toHaveLength(3);
   });
 
@@ -58,7 +58,7 @@ describe("Datos de prueba y repositorios", () => {
   it("eventoRepository busca los eventos de un organizador", async () => {
     const eventosDeFlorencia = await repos.eventoRepository.buscarPorOrganizador(usuarios.florencia);
 
-    expect(eventosDeFlorencia).toHaveLength(5);
+    expect(eventosDeFlorencia).toHaveLength(8);
     expect(eventosDeFlorencia.every((e) => e.organizador === usuarios.florencia)).toBe(true);
   });
 

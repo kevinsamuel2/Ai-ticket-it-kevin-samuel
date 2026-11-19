@@ -137,3 +137,22 @@ Levanta el backend en `http://localhost:3001`. El CI de GitHub Actions corre el 
 | Paginación                            | Que la búsqueda siga funcionando bien con muchos eventos                                          |
 | Swagger                               | Documentar y probar la API desde el navegador                                                     |
 | Docker y CI (GitHub Actions)          | Levantar el backend en cualquier máquina y correr lint y tests en cada push                       |
+
+## 📷 Créditos de las fotos
+
+Los eventos del momento de los datos de prueba (Bad Bunny, Párense de Manos IV, Copa Potrero, Lollapalooza, Cosquín Rock y el Superclásico) usan fotos de Wikimedia Commons con licencia libre. Están en `packages/backend/public/fotos` y las sirve el backend en `/fotos`. Los demás eventos usan fotos de [Unsplash](https://unsplash.com).
+
+| Archivo                                | Foto                                               | Autor                                              | Licencia     |
+| -------------------------------------- | -------------------------------------------------- | -------------------------------------------------- | ------------ |
+| `bad-bunny.jpg`                        | Bad Bunny Performs                                 | Comecoquito                                        | CC0          |
+| `river-monumental-escenario.jpg`       | Estadio Monumental (River Plate), Buenos Aires (2) | Stefano Vigorelli                                  | CC BY-SA 4.0 |
+| `river-monumental.jpg`                 | Estadio Monumental (River Plate), Buenos Aires (1) | Stefano Vigorelli                                  | CC BY-SA 4.0 |
+| `platense-ciudad-de-vicente-lopez.jpg` | Estadio Ciudad de Vicente López                    | Fernando Martello                                  | CC BY-SA 4.0 |
+| `platense-estadio.jpg`                 | Estadio de Platense                                | EstudiantesFotografias                             | CC BY-SA 3.0 |
+| `kun-aguero.jpg`                       | Sergio Agüero 2011-09-08                           | Harald Loos / Puma SE                              | CC BY 3.0    |
+| `lollapalooza-2015.jpg`                | Lollapalooza Argentina 2015                        | Leonardo Samrani                                   | CC BY 2.0    |
+| `lollapalooza-2025.jpg`                | Tate McRae - Lollapalooza Argentina 2025           | Live Shows & Concerts! Shows y Conciertos en vivo! | CC BY 3.0    |
+| `cosquin-rock.jpg`                     | Cosquín Rock                                       | Arianza1                                           | CC BY-SA 4.0 |
+| `bombonera.jpg`                        | La Bombonera 2                                     | Matibro                                            | CC BY-SA 4.0 |
+
+Las fotos se achicaron a 960 px de ancho. Los datos de estos eventos (precios, cupos y fechas) son de ejemplo: las fechas son relativas a hoy y no coinciden con las reales.

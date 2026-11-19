@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Puntaje } from "./Puntaje";
 import { colores, espaciado, fuente, radio, sombra, texto } from "../theme";
 import { formatearFecha, formatearPrecio } from "../utils/formato";
+import { urlDeImagen } from "../utils/imagen";
 
 export function EventoCard({ evento, onPress }) {
   return (
@@ -14,7 +15,7 @@ export function EventoCard({ evento, onPress }) {
     >
       <View>
         {evento.imagen ? (
-          <Image source={{ uri: evento.imagen }} style={styles.imagen} accessibilityIgnoresInvertColors />
+          <Image source={{ uri: urlDeImagen(evento.imagen) }} style={styles.imagen} accessibilityIgnoresInvertColors />
         ) : (
           <View style={[styles.imagen, styles.sinImagen]}>
             <Ionicons name="ticket-outline" size={40} color={colores.primario} />

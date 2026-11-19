@@ -21,6 +21,9 @@ export async function cargarDatosDePrueba(
   };
   // Fotos de Unsplash recortadas a 16:9
   const foto = (id) => `https://images.unsplash.com/photo-${id}?w=800&h=450&fit=crop&q=80`;
+  // Fotos reales de los eventos actuales (Wikimedia Commons, créditos en el README). Las sirve el backend en
+  // /fotos y se guardan con ruta relativa: la app les agrega la dirección del servidor según la red.
+  const fotoReal = (archivo) => `/fotos/${archivo}`;
 
   // --- Usuarios y sus cuentas (todas con la contraseña CONTRASENIA_DE_PRUEBA) ---
   const [florencia, gonzalo, nahuel, agustina] = await Promise.all(
@@ -165,6 +168,81 @@ export async function cargarDatosDePrueba(
     organizador: gonzalo,
     multimedia: [foto("1683304554869-8a871c913096")],
     tiposEntrada: [{ nombre: "General", precio: 10000, cupo: 60 }],
+  });
+
+  // Eventos del momento, con fotos reales. Van al final para no mover los ids de los de arriba.
+  await crearEvento({
+    nombre: "Bad Bunny en River",
+    descripcion: "Bad Bunny con la gira DeBÍ TiRAR MáS FOToS World Tour en el Estadio Monumental, en Núñez.",
+    categoria: categorias.Recitales,
+    fecha: enDias(45, 21),
+    organizador: florencia,
+    multimedia: [fotoReal("bad-bunny.jpg"), fotoReal("river-monumental-escenario.jpg")],
+    tiposEntrada: [
+      { nombre: "Campo general", descripcion: "Campo de pie", precio: 175000, cupo: 400 },
+      { nombre: "Stage A", descripcion: "Sector más cercano al escenario", precio: 420000, cupo: 40 },
+    ],
+  });
+  await crearEvento({
+    nombre: "Párense de Manos IV",
+    descripcion:
+      "Torneo de boxeo amateur de Luquita Rodríguez con streamers y famosos, en la cancha de Platense (estadio Ciudad de Vicente López).",
+    categoria: categorias.Deportes,
+    fecha: enDias(25, 19),
+    organizador: gonzalo,
+    multimedia: [fotoReal("platense-ciudad-de-vicente-lopez.jpg"), fotoReal("platense-estadio.jpg")],
+    tiposEntrada: [
+      { nombre: "Campo General B", precio: 50000, cupo: 300 },
+      { nombre: "VIP", descripcion: "Sector VIP cerca del ring", precio: 165000, cupo: 40 },
+    ],
+  });
+  await crearEvento({
+    nombre: "Copa Potrero",
+    descripcion: "El torneo de fútbol 7 del Kun Agüero, con equipos de barrio y figuras del fútbol y la streaming.",
+    categoria: categorias.Deportes,
+    fecha: enDias(18, 15),
+    organizador: gonzalo,
+    multimedia: [fotoReal("kun-aguero.jpg")],
+    tiposEntrada: [
+      { nombre: "General", precio: 8000, cupo: 500 },
+      { nombre: "Palco", descripcion: "Sector techado junto a la cancha", precio: 25000, cupo: 60 },
+    ],
+  });
+  await crearEvento({
+    nombre: "Lollapalooza Argentina",
+    descripcion: "Tres días de música en el Hipódromo de San Isidro, con artistas locales e internacionales.",
+    categoria: categorias.Festivales,
+    fecha: enDias(120, 12),
+    organizador: florencia,
+    multimedia: [fotoReal("lollapalooza-2015.jpg"), fotoReal("lollapalooza-2025.jpg")],
+    tiposEntrada: [
+      { nombre: "Pase 1 día", precio: 120000, cupo: 600 },
+      { nombre: "Pase 3 días", precio: 280000, cupo: 300 },
+    ],
+  });
+  await crearEvento({
+    nombre: "Cosquín Rock",
+    descripcion: "El festival de rock más grande del país, en el Aeroparque Ciudad de Santa María de Punilla, Córdoba.",
+    categoria: categorias.Festivales,
+    fecha: enDias(95, 14),
+    organizador: florencia,
+    multimedia: [fotoReal("cosquin-rock.jpg")],
+    tiposEntrada: [
+      { nombre: "Abono 1 día", precio: 90000, cupo: 400 },
+      { nombre: "Abono 2 días", precio: 150000, cupo: 250 },
+    ],
+  });
+  await crearEvento({
+    nombre: "Superclásico: Boca vs. River",
+    descripcion: "El clásico más grande del fútbol argentino, en La Bombonera.",
+    categoria: categorias.Deportes,
+    fecha: enDias(10, 17),
+    organizador: gonzalo,
+    multimedia: [fotoReal("bombonera.jpg"), fotoReal("river-monumental.jpg")],
+    tiposEntrada: [
+      { nombre: "Popular", precio: 30000, cupo: 300 },
+      { nombre: "Platea", precio: 90000, cupo: 100 },
+    ],
   });
 
   // --- Favoritos ---

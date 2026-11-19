@@ -75,7 +75,7 @@ describe("API: crear eventos", () => {
     const res = await request(app).get(`/usuarios/${usuarios.florencia.id}/eventos`);
 
     expect(res.status).toBe(200);
-    expect(res.body).toHaveLength(5);
+    expect(res.body).toHaveLength(8);
     expect(res.body[0]).toMatchObject({ nombre: "Ciro y Los Persas en Vorterix", yaSeRealizo: true });
     expect(res.body.every((e) => e.organizador.id === usuarios.florencia.id)).toBe(true);
   });

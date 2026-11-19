@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { EstadoBadge } from "./EstadoBadge";
 import { colores, espaciado, fuente, radio, sombra, texto } from "../theme";
 import { formatearDiaYHora, formatearFecha, formatearPrecio, textoDiasRestantes } from "../utils/formato";
+import { urlDeImagen } from "../utils/imagen";
 
 // Resumen de una compra: estado, días para el evento (si está confirmada), entradas y total
 export function CompraCard({ compra, onPress, mostrarComprador = false }) {
@@ -14,7 +15,11 @@ export function CompraCard({ compra, onPress, mostrarComprador = false }) {
       style={({ pressed }) => [styles.tarjeta, pressed && styles.presionada]}
     >
       {compra.evento.imagen && (
-        <Image source={{ uri: compra.evento.imagen }} style={styles.imagen} accessibilityIgnoresInvertColors />
+        <Image
+          source={{ uri: urlDeImagen(compra.evento.imagen) }}
+          style={styles.imagen}
+          accessibilityIgnoresInvertColors
+        />
       )}
       <View style={styles.cuerpo}>
         <View style={styles.encabezado}>
