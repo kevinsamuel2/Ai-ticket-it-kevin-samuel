@@ -1,10 +1,11 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Puntaje } from "./Puntaje";
-import { colores, espaciado, fuente, radio, sombra, texto } from "../theme";
+import { colores, contorno, espaciado, fuente, radio, texto } from "../theme";
 import { formatearFecha, formatearPrecio } from "../utils/formato";
 import { urlDeImagen } from "../utils/imagen";
 
+// Tarjeta de evento al estilo Punch: foto arriba, categoría en verde, título en negrita y precio a la derecha
 export function EventoCard({ evento, onPress }) {
   return (
     <Pressable
@@ -21,9 +22,6 @@ export function EventoCard({ evento, onPress }) {
             <Ionicons name="ticket-outline" size={40} color={colores.primario} />
           </View>
         )}
-        <View style={styles.categoria}>
-          <Text style={styles.categoriaTexto}>{evento.categoria}</Text>
-        </View>
         {evento.agotado && (
           <View style={styles.agotado}>
             <Text style={styles.agotadoTexto}>AGOTADO</Text>
@@ -32,7 +30,8 @@ export function EventoCard({ evento, onPress }) {
       </View>
 
       <View style={styles.cuerpo}>
-        <Text style={texto.subtitulo} numberOfLines={2}>
+        <Text style={texto.etiqueta}>{evento.categoria}</Text>
+        <Text style={styles.nombre} numberOfLines={2}>
           {evento.nombre}
         </Text>
         <View style={styles.fila}>
@@ -62,21 +61,11 @@ const styles = StyleSheet.create({
     borderRadius: radio.l,
     borderCurve: "continuous",
     overflow: "hidden",
-    ...sombra,
+    ...contorno,
   },
   presionada: { opacity: 0.85, transform: [{ scale: 0.99 }] },
-  imagen: { width: "100%", aspectRatio: 16 / 9, backgroundColor: colores.primarioSuave },
+  imagen: { width: "100%", aspectRatio: 16 / 9, backgroundColor: colores.relleno },
   sinImagen: { alignItems: "center", justifyContent: "center" },
-  categoria: {
-    position: "absolute",
-    top: espaciado.s,
-    left: espaciado.s,
-    backgroundColor: "rgba(0,0,0,0.65)",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-  },
-  categoriaTexto: { ...fuente, color: colores.blanco, fontSize: 12, fontWeight: "600" },
   agotado: {
     position: "absolute",
     top: espaciado.s,
@@ -86,12 +75,13 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 999,
   },
-  agotadoTexto: { ...fuente, color: colores.negro, fontSize: 12, fontWeight: "700", letterSpacing: 0.4 },
+  agotadoTexto: { ...fuente, color: colores.negro, fontSize: 11, fontWeight: "800", letterSpacing: 0.6 },
   cuerpo: { padding: espaciado.l, gap: espaciado.xs },
+  nombre: { ...fuente, fontSize: 20, fontWeight: "800", letterSpacing: -0.3, color: colores.texto },
   fila: { flexDirection: "row", alignItems: "center", gap: espaciado.xs },
-  pie: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", marginTop: espaciado.xs },
+  pie: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", marginTop: espaciado.s },
   organizador: { flex: 1, gap: 2 },
   precio: { alignItems: "flex-end" },
   desde: { ...fuente, fontSize: 12, color: colores.textoSecundario },
-  precioTexto: { ...fuente, fontSize: 20, fontWeight: "700", letterSpacing: 0.35, color: colores.primarioOscuro },
+  precioTexto: { ...fuente, fontSize: 20, fontWeight: "800", letterSpacing: -0.3, color: colores.primarioClaro },
 });

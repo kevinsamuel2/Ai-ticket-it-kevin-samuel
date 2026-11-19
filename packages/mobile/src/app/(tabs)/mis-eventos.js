@@ -24,14 +24,14 @@ export default function MisEventos() {
   return (
     <View style={styles.contenedor}>
       <EncabezadoGrande titulo="Mis eventos">
-        {/* Botón "+" circular arriba a la derecha, como en las apps de Apple */}
+        {/* Botón "+" circular y verde arriba a la derecha */}
         <Pressable
           onPress={() => router.push("/eventos/nuevo")}
           accessibilityRole="button"
           accessibilityLabel="Publicar un evento"
           style={({ pressed }) => [styles.agregar, pressed && styles.presionado]}
         >
-          <Ionicons name="add" size={26} color={colores.blanco} />
+          <Ionicons name="add" size={26} color={colores.sobrePrimario} />
         </Pressable>
       </EncabezadoGrande>
       {error ? (

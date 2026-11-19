@@ -6,7 +6,7 @@ import { obtenerVentasDeEvento } from "../../../services/eventos.service";
 import { Cargando, MensajeError } from "../../../components/EstadosDeCarga";
 import { CompraCard } from "../../../components/CompraCard";
 import { FinalizarEvento } from "../../../components/FinalizarEvento";
-import { colores, espaciado, estilosDeEstado, radio, sombra, texto } from "../../../theme";
+import { colores, espaciado, estilosDeEstado, radio, contorno, texto } from "../../../theme";
 import { formatearFecha, formatearPrecio } from "../../../utils/formato";
 
 // Vista del organizador: compras del evento por estado y cuántas entradas quedan de cada tipo
@@ -74,7 +74,7 @@ export default function VentasDelEvento() {
                 accessibilityLabel={`${estilo.etiqueta}: ${cantidad}. Tocar para filtrar`}
                 style={[
                   styles.contador,
-                  { backgroundColor: estilo.fondo, borderColor: activo ? colores.negro : estilo.borde },
+                  { backgroundColor: estilo.fondo, borderColor: activo ? colores.blanco : estilo.borde },
                   activo && styles.contadorActivo,
                 ]}
               >
@@ -116,12 +116,12 @@ const styles = StyleSheet.create({
     borderRadius: radio.m + 4,
     borderCurve: "continuous",
     backgroundColor: colores.superficie,
-    ...sombra,
+    ...contorno,
   },
   filaEntre: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   tipoNombre: { fontWeight: "600", color: colores.texto },
-  disponibles: { fontWeight: "700", color: colores.primarioOscuro },
-  agotado: { color: colores.negro },
+  disponibles: { fontWeight: "700", color: colores.primarioClaro },
+  agotado: { color: colores.peligro },
   barra: { height: 8, borderRadius: 4, backgroundColor: colores.relleno, overflow: "hidden" },
   barraRelleno: { height: "100%", backgroundColor: colores.primario },
   contadores: { flexDirection: "row", flexWrap: "wrap", gap: espaciado.s },

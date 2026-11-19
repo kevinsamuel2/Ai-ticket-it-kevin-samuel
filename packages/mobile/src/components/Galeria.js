@@ -41,7 +41,7 @@ export function Galeria({ imagenes, nombre }) {
 }
 
 const styles = StyleSheet.create({
-  imagen: { aspectRatio: 16 / 9, backgroundColor: colores.primarioSuave },
+  imagen: { aspectRatio: 16 / 9, backgroundColor: colores.relleno },
   puntos: {
     position: "absolute",
     bottom: espaciado.s,

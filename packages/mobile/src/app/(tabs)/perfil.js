@@ -6,7 +6,7 @@ import { Avatar } from "../../components/Avatar";
 import { Boton } from "../../components/Boton";
 import { EncabezadoGrande } from "../../components/EncabezadoGrande";
 import { API_URL } from "../../config";
-import { colores, espaciado, radio, sombra, texto } from "../../theme";
+import { colores, espaciado, radio, contorno, texto } from "../../theme";
 
 const ALTO_DE_FILA = 60;
 
@@ -29,7 +29,7 @@ export default function Perfil() {
         </View>
 
         {/* Lista agrupada nativa (SwiftUI en iOS, Compose en Android) con los datos de la cuenta */}
-        <Host colorScheme="light" style={{ height: ALTO_DE_FILA * 2 + 24 }}>
+        <Host colorScheme="dark" style={{ height: ALTO_DE_FILA * 2 + 24 }}>
           <List>
             <ListItem supportingText={usuario.email}>
               <TextoNativo>Email</TextoNativo>
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     backgroundColor: colores.superficie,
     borderRadius: radio.l,
     borderCurve: "continuous",
-    ...sombra,
+    ...contorno,
   },
   centrado: { textAlign: "center" },
 });

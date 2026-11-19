@@ -15,7 +15,8 @@ import { Galeria } from "../../../components/Galeria";
 import { Puntaje } from "../../../components/Puntaje";
 import { ReseniaItem } from "../../../components/ReseniaItem";
 import { SelectorCantidad } from "../../../components/SelectorCantidad";
-import { colores, espaciado, radio, sombra, texto } from "../../../theme";
+import { TituloDeSeccion } from "../../../components/TituloDeSeccion";
+import { colores, espaciado, radio, contorno, texto } from "../../../theme";
 import { formatearFecha, formatearPrecio } from "../../../utils/formato";
 
 export default function DetalleEvento() {
@@ -94,6 +95,7 @@ export default function DetalleEvento() {
       <Galeria imagenes={evento.multimedia} nombre={evento.nombre} />
 
       <View style={styles.seccion}>
+        <Text style={texto.etiqueta}>{evento.categoria}</Text>
         <Text style={texto.titulo}>{evento.nombre}</Text>
         <View style={styles.fila}>
           <Ionicons name="calendar" size={16} color={colores.primario} />
@@ -125,7 +127,7 @@ export default function DetalleEvento() {
       )}
 
       <View style={styles.seccion}>
-        <Text style={texto.subtitulo}>Entradas</Text>
+        <TituloDeSeccion>Entradas</TituloDeSeccion>
         {evento.tiposEntrada.map((tipo) => {
           const elegido = tipo.id === tipoElegidoId;
           return (
@@ -172,7 +174,7 @@ export default function DetalleEvento() {
       </View>
 
       <View style={styles.seccion}>
-        <Text style={texto.subtitulo}>Reseñas del organizador</Text>
+        <TituloDeSeccion>Reseñas del organizador</TituloDeSeccion>
         {evento.reseniasOrganizador.length === 0 ? (
           <Text style={texto.secundario}>Este organizador todavía no tiene reseñas.</Text>
         ) : (
@@ -200,7 +202,7 @@ const styles = StyleSheet.create({
     borderRadius: radio.m + 4,
     borderCurve: "continuous",
     backgroundColor: colores.superficie,
-    ...sombra,
+    ...contorno,
   },
   tipo: {
     flexDirection: "row",
@@ -209,16 +211,15 @@ const styles = StyleSheet.create({
     padding: espaciado.m,
     borderRadius: radio.m + 4,
     borderCurve: "continuous",
-    borderWidth: 2,
-    borderColor: "transparent",
     backgroundColor: colores.superficie,
-    ...sombra,
+    ...contorno,
+    borderWidth: 1.5,
   },
   tipoElegido: { borderColor: colores.primario, backgroundColor: colores.primarioSuave },
   tipoAgotado: { opacity: 0.5 },
-  tipoNombre: { fontSize: 17, fontWeight: "600", color: colores.texto },
-  tipoPrecio: { fontSize: 17, fontWeight: "700", color: colores.texto },
-  pocasEntradas: { color: colores.primarioOscuro, fontWeight: "600" },
+  tipoNombre: { fontSize: 17, fontWeight: "700", color: colores.texto },
+  tipoPrecio: { fontSize: 18, fontWeight: "800", color: colores.primarioClaro },
+  pocasEntradas: { color: colores.primarioClaro, fontWeight: "600" },
   resumenCompra: {
     gap: espaciado.m,
     marginTop: espaciado.s,
@@ -226,8 +227,8 @@ const styles = StyleSheet.create({
     borderRadius: radio.l,
     borderCurve: "continuous",
     backgroundColor: colores.superficie,
-    ...sombra,
+    ...contorno,
   },
-  total: { fontSize: 22, fontWeight: "700", letterSpacing: 0.35, color: colores.primarioOscuro },
+  total: { fontSize: 24, fontWeight: "800", letterSpacing: -0.4, color: colores.primarioClaro },
   centrado: { textAlign: "center" },
 });

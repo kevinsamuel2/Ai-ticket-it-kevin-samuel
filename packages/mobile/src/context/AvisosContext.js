@@ -7,9 +7,9 @@ import { colores, espaciado, radio } from "../theme";
 const DURACION_MS = 3500;
 
 const TIPOS = {
-  error: { fondo: colores.peligro, icono: "alert-circle" },
-  exito: { fondo: colores.primarioOscuro, icono: "checkmark-circle" },
-  info: { fondo: colores.negro, icono: "information-circle" },
+  error: { color: colores.peligro, icono: "alert-circle" },
+  exito: { color: colores.primario, icono: "checkmark-circle" },
+  info: { color: colores.blanco, icono: "information-circle" },
 };
 
 // Avisos globales (tipo "toast"): cualquier pantalla puede avisarle al usuario que algo salió mal
@@ -63,9 +63,9 @@ function Aviso({ tipo, mensaje, onCerrar }) {
         accessibilityLiveRegion="assertive"
         accessibilityLabel={mensaje}
         accessibilityHint="Tocá para cerrar el aviso"
-        style={[styles.aviso, { backgroundColor: estilo.fondo }]}
+        style={[styles.aviso, { borderColor: estilo.color }]}
       >
-        <Ionicons name={estilo.icono} size={22} color={colores.blanco} />
+        <Ionicons name={estilo.icono} size={22} color={estilo.color} />
         <Text style={styles.texto}>{mensaje}</Text>
       </Pressable>
     </View>
@@ -89,8 +89,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: espaciado.l,
     paddingVertical: espaciado.m,
     borderRadius: radio.m,
+    borderWidth: 1.5,
+    backgroundColor: colores.superficieAlta,
     shadowColor: "#000",
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.5,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
   },

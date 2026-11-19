@@ -10,9 +10,9 @@ function iconoDeTab(nombre, nombreActivo) {
   };
 }
 
-// Fondo translúcido de la barra de pestañas, como la de iOS: desenfoca lo que pasa por debajo
+// Fondo translúcido y oscuro de la barra de pestañas: desenfoca lo que pasa por debajo
 function FondoDeBarra() {
-  return <BlurView intensity={80} tint="systemChromeMaterialLight" style={StyleSheet.absoluteFill} />;
+  return <BlurView intensity={80} tint="dark" style={StyleSheet.absoluteFill} />;
 }
 
 export default function TabsLayout() {
@@ -22,14 +22,14 @@ export default function TabsLayout() {
         // Cada pantalla dibuja su propio título grande (EncabezadoGrande)
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Platform.OS === "ios" ? "transparent" : "rgba(249,249,249,0.94)",
+          backgroundColor: Platform.OS === "ios" ? "transparent" : "rgba(10,10,10,0.96)",
           borderTopColor: colores.borde,
           borderTopWidth: StyleSheet.hairlineWidth,
         },
         tabBarBackground: FondoDeBarra,
-        tabBarLabelStyle: { ...fuente, fontSize: 10, fontWeight: "500" },
+        tabBarLabelStyle: { ...fuente, fontSize: 10, fontWeight: "700" },
         tabBarActiveTintColor: colores.primario,
-        tabBarInactiveTintColor: "#8E8E93",
+        tabBarInactiveTintColor: colores.textoApagado,
         sceneStyle: { backgroundColor: colores.fondo },
       }}
     >

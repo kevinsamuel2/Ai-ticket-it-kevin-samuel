@@ -2,10 +2,11 @@ import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colores, espaciado, fuente, radio } from "../theme";
 
-// Botones al estilo iOS: el principal es sólido y los demás son "tintados" (fondo suave con el color del texto)
+// Botones al estilo Punch: el principal es verde lima con texto oscuro y los demás son "tintados"
+// (fondo suave con el color del texto)
 const VARIANTES = {
-  primario: { fondo: colores.primario, texto: colores.blanco },
-  secundario: { fondo: colores.primarioSuave, texto: colores.primarioOscuro },
+  primario: { fondo: colores.primario, texto: colores.sobrePrimario },
+  secundario: { fondo: colores.primarioSuave, texto: colores.primarioClaro },
   peligro: { fondo: colores.peligroSuave, texto: colores.peligro },
 };
 
@@ -49,8 +50,8 @@ const styles = StyleSheet.create({
     borderRadius: radio.m + 2,
     borderCurve: "continuous",
   },
-  texto: { ...fuente, fontSize: 17, fontWeight: "600", letterSpacing: -0.41 },
-  // Como en iOS, al presionar el botón se atenúa y se achica apenas
-  presionado: { opacity: 0.7, transform: [{ scale: 0.98 }] },
+  texto: { ...fuente, fontSize: 16, fontWeight: "800", letterSpacing: -0.1 },
+  // Al presionar el botón se atenúa y se achica apenas
+  presionado: { opacity: 0.75, transform: [{ scale: 0.98 }] },
   atenuado: { opacity: 0.4 },
 });

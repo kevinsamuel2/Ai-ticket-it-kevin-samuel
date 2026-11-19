@@ -25,7 +25,7 @@ export function SelectorCantidad({ valor, minimo = 1, maximo, onCambiar }) {
         accessibilityLabel="Restar una entrada"
         style={[styles.boton, !puedeRestar && styles.deshabilitado]}
       >
-        <Ionicons name="remove" size={20} color={colores.blanco} />
+        <Ionicons name="remove" size={20} color={puedeRestar ? colores.sobrePrimario : colores.textoApagado} />
       </Pressable>
       <Text style={styles.valor}>{valor}</Text>
       <Pressable
@@ -34,7 +34,7 @@ export function SelectorCantidad({ valor, minimo = 1, maximo, onCambiar }) {
         accessibilityLabel="Sumar una entrada"
         style={[styles.boton, !puedeSumar && styles.deshabilitado]}
       >
-        <Ionicons name="add" size={20} color={colores.blanco} />
+        <Ionicons name="add" size={20} color={puedeSumar ? colores.sobrePrimario : colores.textoApagado} />
       </Pressable>
     </View>
   );
@@ -46,10 +46,10 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colores.negro,
+    backgroundColor: colores.primario,
     alignItems: "center",
     justifyContent: "center",
   },
-  deshabilitado: { backgroundColor: "#C7C7CC" },
-  valor: { minWidth: 28, textAlign: "center", fontSize: 20, fontWeight: "600", color: colores.texto },
+  deshabilitado: { backgroundColor: colores.relleno },
+  valor: { minWidth: 28, textAlign: "center", fontSize: 20, fontWeight: "800", color: colores.texto },
 });

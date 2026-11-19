@@ -61,5 +61,5 @@ export function FinalizarEvento({ evento, onFinalizado }) {
 const styles = StyleSheet.create({
   contenedor: { gap: espaciado.s },
   finalizado: { padding: espaciado.m, borderRadius: radio.m, backgroundColor: colores.primarioSuave },
-  textoFinalizado: { color: colores.primarioOscuro, fontWeight: "600" },
+  textoFinalizado: { color: colores.primarioClaro, fontWeight: "600" },
 });

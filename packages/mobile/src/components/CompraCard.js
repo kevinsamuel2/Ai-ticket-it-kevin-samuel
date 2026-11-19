@@ -1,7 +1,7 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { EstadoBadge } from "./EstadoBadge";
-import { colores, espaciado, fuente, radio, sombra, texto } from "../theme";
+import { colores, espaciado, fuente, radio, contorno, texto } from "../theme";
 import { formatearDiaYHora, formatearFecha, formatearPrecio, textoDiasRestantes } from "../utils/formato";
 import { urlDeImagen } from "../utils/imagen";
 
@@ -42,7 +42,7 @@ export function CompraCard({ compra, onPress, mostrarComprador = false }) {
         {/* El comprador ve que el evento terminó y todavía falta su reseña (el organizador no necesita este aviso) */}
         {!mostrarComprador && compra.puedeReseniar && (
           <View style={styles.pendienteDeResenia}>
-            <Ionicons name="star" size={14} color={colores.primarioOscuro} />
+            <Ionicons name="star" size={14} color={colores.primarioClaro} />
             <Text style={styles.textoPendiente}>El evento finalizó: calificá tu experiencia</Text>
           </View>
         )}
@@ -72,13 +72,13 @@ const styles = StyleSheet.create({
     borderRadius: radio.l,
     borderCurve: "continuous",
     overflow: "hidden",
-    ...sombra,
+    ...contorno,
   },
   presionada: { opacity: 0.85, transform: [{ scale: 0.99 }] },
-  imagen: { width: 88, backgroundColor: colores.primarioSuave },
+  imagen: { width: 88, backgroundColor: colores.relleno },
   cuerpo: { flex: 1, padding: espaciado.l, gap: 3 },
   encabezado: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: espaciado.s },
-  dias: { ...fuente, fontSize: 13, fontWeight: "600", color: colores.primarioOscuro },
+  dias: { ...fuente, fontSize: 13, fontWeight: "600", color: colores.primarioClaro },
   plazo: { ...fuente, fontSize: 12, fontWeight: "600", color: colores.texto },
   pendienteDeResenia: {
     flexDirection: "row",
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     borderRadius: radio.s,
     backgroundColor: colores.primarioSuave,
   },
-  textoPendiente: { ...fuente, fontSize: 12, fontWeight: "600", color: colores.primarioOscuro },
+  textoPendiente: { ...fuente, fontSize: 12, fontWeight: "600", color: colores.primarioClaro },
   pie: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 2 },
   derecha: { flexDirection: "row", alignItems: "center", gap: espaciado.m },
   mensajes: { flexDirection: "row", alignItems: "center", gap: 3 },

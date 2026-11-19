@@ -6,7 +6,7 @@ import { Boton } from "./Boton";
 import { reseniar } from "../services/compras.service";
 import { mensajeDeError } from "../services/api";
 import { useAvisos } from "../context/AvisosContext";
-import { colores, espaciado, radio, sombra, texto } from "../theme";
+import { colores, espaciado, radio, contorno, texto } from "../theme";
 
 const ETIQUETAS = ["", "Malo", "Regular", "Bueno", "Muy bueno", "Excelente"];
 
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     borderRadius: radio.l,
     borderCurve: "continuous",
     backgroundColor: colores.superficie,
-    ...sombra,
+    ...contorno,
   },
   estrellas: { flexDirection: "row", justifyContent: "center", gap: espaciado.s },
   centrado: { textAlign: "center" },

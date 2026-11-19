@@ -99,7 +99,7 @@ export default function Chat() {
           accessibilityLabel="Enviar mensaje"
           style={[styles.enviar, (enviando || !texto.trim()) && styles.enviarDeshabilitado]}
         >
-          <Ionicons name="arrow-up" size={20} color={colores.blanco} />
+          <Ionicons name="arrow-up" size={20} color={colores.sobrePrimario} />
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -135,13 +135,13 @@ const styles = StyleSheet.create({
   mia: { alignSelf: "flex-end", backgroundColor: colores.primario, borderBottomRightRadius: 6 },
   ajena: {
     alignSelf: "flex-start",
-    backgroundColor: colores.superficie,
+    backgroundColor: colores.superficieAlta,
     borderBottomLeftRadius: 6,
   },
-  autor: { fontSize: 12, fontWeight: "600", color: colores.primarioOscuro },
-  textoMio: { color: colores.blanco },
+  autor: { fontSize: 12, fontWeight: "700", color: colores.primarioClaro },
+  textoMio: { color: colores.sobrePrimario },
   hora: { fontSize: 11, color: colores.textoSecundario, alignSelf: "flex-end" },
-  horaMia: { color: "#DCFCE7" },
+  horaMia: { color: "rgba(10,10,10,0.65)" },
   error: { color: colores.peligro, textAlign: "center", paddingHorizontal: espaciado.l },
   barra: {
     flexDirection: "row",

@@ -14,7 +14,7 @@ export default function RootLayout() {
   return (
     <AvisosProvider>
       <UsuarioProvider>
-        <Navegacion pantallaDeCargaVisible={mostrarCarga} />
+        <Navegacion />
         {/* La pantalla de carga va encima de la navegación: Expo Router necesita que el Stack esté montado */}
         {mostrarCarga && (
           <View style={StyleSheet.absoluteFill}>
@@ -32,20 +32,20 @@ export default function RootLayout() {
 
 // Rutas protegidas: sin sesión solo se puede ver el login, y con sesión no se puede volver al login.
 // Si la sesión se pierde en cualquier pantalla (ej: expiró), Expo Router redirige solo al login.
-function Navegacion({ pantallaDeCargaVisible }) {
+function Navegacion() {
   const { usuario } = useUsuario();
   const haySesion = usuario !== null;
 
   return (
     <>
-      {/* El login y la pantalla de carga son negros (íconos claros); el resto de la app es clara */}
-      <StatusBar style={haySesion && !pantallaDeCargaVisible ? "dark" : "light"} />
+      {/* Toda la app es oscura: los íconos de la barra de estado van siempre claros */}
+      <StatusBar style="light" />
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: colores.fondo },
           headerShadowVisible: false,
           headerTintColor: colores.primario,
-          headerTitleStyle: { ...fuente, color: colores.texto, fontWeight: "600", fontSize: 17 },
+          headerTitleStyle: { ...fuente, color: colores.texto, fontWeight: "800", fontSize: 17 },
           contentStyle: { backgroundColor: colores.fondo },
           headerBackButtonDisplayMode: "minimal",
         }}

@@ -53,7 +53,6 @@ export default function Login() {
 
           <View style={styles.formulario}>
             <Campo
-              oscuro
               etiqueta="Email"
               value={formulario.email}
               onChangeText={cambiar("email")}
@@ -65,7 +64,6 @@ export default function Login() {
               textContentType="emailAddress"
             />
             <Campo
-              oscuro
               etiqueta="Contraseña"
               value={formulario.contrasenia}
               onChangeText={cambiar("contrasenia")}
@@ -99,8 +97,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: espaciado.s,
   },
-  nombre: { fontSize: 34, fontWeight: "800", color: colores.blanco },
+  nombre: { fontSize: 34, fontWeight: "800", letterSpacing: -0.8, color: colores.blanco },
   nombreVerde: { color: colores.primario },
-  bajada: { fontSize: 15, color: "#A1A1AA" },
+  bajada: { fontSize: 15, color: colores.textoSecundario },
   formulario: { gap: espaciado.l },
 });
